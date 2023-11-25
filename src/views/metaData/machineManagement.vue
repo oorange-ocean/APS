@@ -124,7 +124,11 @@
             </template>
           </template>
         </el-table-column>
-        <el-table-column prop="unavailableDates" label="不可用时间段" width="380">
+        <el-table-column
+          prop="unavailableDates"
+          label="不可用时间段"
+          width="380"
+        >
           <template #default="{ row }">
             <template v-if="row.editable">
               <div v-for="date in row.unavailableDates" :key="date">
@@ -158,7 +162,11 @@
       <el-dialog v-model="dialogTableVisible" title="调整日期">
         <div>
           <!-- 显示日期列表 -->
-          <div v-for="(date, index) in adjustDate" :key="index" class="date-row">
+          <div
+            v-for="(date, index) in adjustDate"
+            :key="index"
+            class="date-row"
+          >
             <el-date-picker
               v-model="adjustDate[index]"
               type="datetimerange"
@@ -168,20 +176,23 @@
               value-format="YYYY-MM-DD HH:mm:ss"
               data-popper-placement="top"
             />
-            <el-button @click="removeDate(index)" class="remove">删除</el-button>
+            <el-button @click="removeDate(index)" class="remove"
+              >删除</el-button
+            >
           </div>
           <!-- 添加日期按钮 -->
           <el-button @click="addDate">添加日期</el-button>
         </div>
         <template #footer>
           <span class="dialog-footer">
-            <el-button @click="dialogTableVisible = false" class="cancel">取消</el-button>
+            <el-button @click="dialogTableVisible = false" class="cancel"
+              >取消</el-button
+            >
             <el-button @click="confirmDate">确认</el-button>
           </span>
         </template>
       </el-dialog>
     </div>
-    
   </div>
 </template>
 
@@ -201,32 +212,33 @@ const route = useRoute() //用于获取和访问当前路由的信息
 
 const dialogTableVisible = ref(false)
 const defaultTime1 = new Date(2000, 1, 1, 12, 0, 0) // '12:00:00'
-const currentRow = ref(null);
+const currentRow = ref(null)
 const adjustDate = ref([])
 
 function adjustTime(row) {
   adjustDate.value = []
-  currentRow.value = row;     // 保存当前行的引用
+  currentRow.value = row // 保存当前行的引用
   let datesArray = []
-  for (let date of row.unavailableDates){
-    datesArray = date.split(" to ");
-    adjustDate.value.push(datesArray)    
+  for (let date of row.unavailableDates) {
+    datesArray = date.split(' to ')
+    adjustDate.value.push(datesArray)
   }
   // console.log(adjustDate.value,'adjust')
-  dialogTableVisible.value=true
+  dialogTableVisible.value = true
 }
 function confirmDate() {
   // 判断是否有空的日期
-  const hasEmptyValue = adjustDate.value.some(range => range.includes(null) || range.includes(''));
+  const hasEmptyValue = adjustDate.value.some(
+    (range) => range.includes(null) || range.includes('')
+  )
   if (hasEmptyValue) {
     ElMessageBox.alert('请填写所有日期范围', '提示', {
       confirmButtonText: '好的'
     })
-    return;
+    return
   }
 
-  
-  const formattedRanges = adjustDate.value.map(range => range.join(' to '));
+  const formattedRanges = adjustDate.value.map((range) => range.join(' to '))
   // console.log(formattedRanges,'form')
   if (currentRow.value) {
     currentRow.value.unavailableDates = formattedRanges
@@ -238,10 +250,8 @@ function addDate() {
   adjustDate.value.push('')
 }
 function removeDate(index) {
-  adjustDate.value.splice(index,1)
+  adjustDate.value.splice(index, 1)
 }
-
-
 
 // console.log(useMachine.machine.data,'machine')
 function handleSizeChange(newSize) {
@@ -524,11 +534,10 @@ function refresh() {
 .el-message-box__btns > .el-button--primary {
   background-color: #409eff;
 }
-.adjustDate .el-dialog{
+.adjustDate .el-dialog {
   --el-dialog-width: 40%;
   margin-top: 7vh;
 }
-
 </style>
 
 <style scoped>
@@ -562,7 +571,7 @@ button:hover {
 span {
   font-size: 15px;
 }
-.el-button{
+.el-button {
   margin: 10px 0;
   background-color: #fff;
   border: 1px solid #409eff;
@@ -585,16 +594,15 @@ span {
   flex-direction: row-reverse;
 }
 
-.date-row{
+.date-row {
   display: flex;
   align-items: center;
 }
-.remove{
+.remove {
   margin-left: 20px;
   /* align-items: center; */
 }
-.cancel{
+.cancel {
   margin-right: 10px;
 }
-
 </style>
