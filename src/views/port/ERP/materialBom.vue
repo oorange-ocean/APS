@@ -6,7 +6,7 @@
       <button @click="modifyRow"><span>修改</span></button>
       <button @click="deleteSelectedRows"><span>删除</span></button>
       <button @click="refresh"><span>刷新</span></button>
-      <button><span>导入</span></button>
+      <button @click="dialogVisible = true"><span>导入</span></button>
       <button @click="downloadData"><span>导出</span></button>
     </div>
     <div class="main" ref="tableContainer">
@@ -45,17 +45,6 @@
           </template>
         </el-table-column>
         <el-table-column prop="materialName" label="父项物料名称" width="270">
-          <!-- <template #default="{ row }">
-            <template v-if="row.editable">
-              <el-input
-                v-model="row.materialName"
-                @keyup.enter="saveRow(row)"
-              />
-            </template>
-            <template v-else>
-              {{ row.materialName }}
-            </template>
-          </template> -->
         </el-table-column>
         <el-table-column prop="documentStatus" label="数据状态" width="110">
           <template #default="{ row }">
@@ -92,14 +81,6 @@
           label="子项物料名称"
           width="235"
         >
-          <!-- <template #default="{ row }">
-            <template v-if="row.editable">
-              <el-input v-model="row.materialNameChild" @keyup.enter="saveRow(row)" />
-            </template>
-            <template v-else>
-              {{ row.materialNameChild }}
-            </template>
-          </template> -->
         </el-table-column>
         <el-table-column prop="numerator" label="用量：分子" width="100">
           <template #default="{ row }">
@@ -215,6 +196,32 @@
         :totalRows="ImmediateInventory.materialBom.total"
       />
     </div>
+    <div class="importData">
+      <el-dialog title="导入文件" v-model="dialogVisible" width="30%">
+        <!-- 文件上传 -->
+        <el-upload
+          class="upload-demo"
+          drag
+          :auto-upload="false"
+          :file-list="fileList"
+          :on-change="handleFileChange"
+        >
+          <i class="el-icon-upload"></i>
+          <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+        </el-upload>
+
+        <!-- 底部操作按钮 -->
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="overUpload" class="confirm normal"
+            >覆盖导入</el-button
+          >
+          <el-button @click="addUpload" class="normal">追加导入</el-button>
+          <el-button @click="downloadModel" class="normal"
+            >下载模板</el-button
+          >
+        </span>
+      </el-dialog>
+    </div>
   </div>
 </template>
 
@@ -226,7 +233,7 @@ import useImmediateInventory from '../../../store/modules/port/ERP/immediateInve
 import { useRoute, useRouter } from 'vue-router'
 import Pagination from '@/components/Pagination.vue'
 import useUserStore from '@/store/modules/user'
-import immediateInventory from '../../../store/modules/port/ERP/immediateInventory'
+
 
 let currentPage = ref(1)
 let currentSize = ref(20)
@@ -267,6 +274,76 @@ function downloadData() {
           })
       }
     })
+}
+const dialogVisible = ref(false)
+const fileToUpload = ref(null)
+const fileList = ref([])
+const importType = ref(1)
+
+function handleFileChange(file) {
+  // 存储用户选中的文件
+  fileToUpload.value = file
+}
+// console.log(fileToUpload.value, 'fileToUpload')
+
+async function addUpload() {
+  if (!fileToUpload.value) {
+    // console.log('没有选择文件')
+    ElMessageBox.alert('请上传文件后导入', '提示', {
+        type: 'info',
+        confirmButtonText: '好的'
+      })
+    // dialogVisible.value = false
+    return
+  }
+
+  const uploadData = {
+    file: fileToUpload.value,
+    type: importType.value // 您可以根据需要添加其他数据
+  }
+  ImmediateInventory.importInterfaceData(uploadData,10).then((res) => {
+    // console.log(res,'res')
+    if (res.code == 200) {
+      ElMessageBox.alert('导入成功', '提示', {
+        type: 'success',
+        confirmButtonText: '好的'
+      })
+    } else if (res.code == 201) {
+      ElMessageBox.alert(res.message, '导入失败', {
+        type: 'error',
+        confirmButtonText: '好的'
+      })
+    }
+    importType.value = 1
+    refresh()
+  })
+
+  // 重置文件
+  fileList.value = []
+  fileToUpload.value = null
+  dialogVisible.value = false
+}
+function overUpload() {
+  ElMessageBox.confirm('该操作将会覆盖全部数据，是否执行？', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  })
+    .then(() => {
+      importType.value = 2 //设置成覆盖类型
+      addUpload()
+    })
+    .catch(() => {
+      ElMessage({
+        type: 'info',
+        message: '取消覆盖导入'
+      })
+    })
+}
+function downloadModel() {
+  ImmediateInventory.downloadInterfaceTemplate(10,).then(res => {
+    dialogVisible.value = false
+  })
 }
 
 const process = processManage()
@@ -577,6 +654,20 @@ button:hover {
   background-color: #0053b5;
   cursor: pointer;
   color: #fff;
+}
+.dialog-footer {
+  display: flex;
+  flex-direction: row-reverse;
+  margin-top: 1.25rem;
+}
+.confirm {
+  margin-left: 1.25rem;
+}
+.normal {
+  padding: 0.5rem 0.9375rem;
+  border: 0.125rem solid rgb(220, 223, 230);
+  background-color: #fff;
+  margin-left: 0.625rem;
 }
 span {
   font-size: 15px;

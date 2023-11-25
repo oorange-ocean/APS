@@ -34,9 +34,21 @@ export function deleteData(param,type) {
 }
 // 导出
 export function downloadSchemeManagement(param,type,fileName) {
-    return download(`/interface/downloadSchemeManagement?type=${type}`, param, fileName,{
+    return download(`/interface/downloadInterfaceDate?type=${type}`, param, fileName,{
         headers: {
             token: getToken()
         }
       });
+}
+// 导入
+export function importInterfaceData(param,code) {
+    return uploadFile(param, `/interface/importInterfaceData?code=${code}`)
+}
+// 下载模板
+export function downloadInterfaceTemplate(type,param,fileName) {
+    return download(`/interface/downloadInterfaceTemplate?type=${type}`,param, fileName,{
+        headers: {
+            token: getToken()
+        }
+    });
 }

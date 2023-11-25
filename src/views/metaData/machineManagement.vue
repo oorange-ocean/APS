@@ -512,16 +512,16 @@ function handleChange(selection) {
 function refresh() {
   addAble = true
   currentSize.value = useUserStore().pageSize
-  // useMachine
-  //   .getApsMachineTable(currentPage.value, currentSize.value)
-  //   .then((res) => {
-  //     ElMessage({
-  //       type: 'success',
-  //       message: '刷新成功'
-  //     })
-  //     myTable.value.clearSelection()
-  //   })
-  //   .catch((error) => {})
+  useMachine
+    .getApsMachineTable(currentPage.value, currentSize.value)
+    .then((res) => {
+      ElMessage({
+        type: 'success',
+        message: '刷新成功'
+      })
+      myTable.value.clearSelection()
+    })
+    .catch((error) => {})
   console.log('查询所有机器管理')
 }
 </script>

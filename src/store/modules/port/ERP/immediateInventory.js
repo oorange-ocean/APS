@@ -1,5 +1,8 @@
 import { defineStore } from "pinia";
-import { getAllPage,add,update,deleteData,downloadSchemeManagement } from '@/api/port/ERP/immediateInventory'
+import {
+    getAllPage, add, update, deleteData,
+    downloadSchemeManagement, importInterfaceData,downloadInterfaceTemplate
+} from '@/api/port/ERP/immediateInventory'
 
 const immediateInventory = defineStore(
     'immediateInventory',
@@ -213,7 +216,61 @@ const immediateInventory = defineStore(
             resetState() {
                 // 重置状态逻辑
                 this.$reset();
-              },
+            },
+            // 导入
+            importInterfaceData(param,code) {
+                return new Promise((resolve, reject) => {
+                    importInterfaceData(param,code).then(res => {
+                        
+                        resolve(res)
+                    }).catch(error => {
+                        
+                        reject(error)
+                    })
+                })
+            },
+            downloadInterfaceTemplate(type,param) {
+                let fileName = ''
+                if (type == 1) {
+                    fileName = '即时库存导入模板'
+                }
+                else if (type == 2) {
+                    fileName = '委外用料清单列表导入模板'
+                }
+                else if (type == 3) {
+                    fileName = '生产用料清单列表导入模板'
+                }
+                else if (type == 4) {
+                    fileName = '委外订单列表导入模板'
+                }
+                else if (type == 5) {
+                    fileName = '生产订单列表导入模板'
+                }
+                else if (type == 6) {
+                    fileName = '采购申请单列表导入模板'
+                }
+                else if (type == 7) {
+                    fileName = '采购订单列表导入模板'
+                }
+                else if (type == 8) {
+                    fileName = '收料通知单列表导入模板'
+                }
+                else if (type == 9) {
+                    fileName = '锁库存列表导入模板'
+                }
+                else if (type == 10) {
+                    fileName = '物料清单列表导入模板'
+                }
+                return new Promise((resolve, reject) => {
+                    downloadInterfaceTemplate(type, param,fileName).then(res => {
+                        
+                        resolve(res)
+                    }).catch(error => {
+                        
+                        reject(error)
+                    })
+                })
+            }
         }
     }
 
