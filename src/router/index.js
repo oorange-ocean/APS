@@ -193,6 +193,31 @@ export const dynamicRoutes = [
     name: 'materialBom',
   },
   {
+    path: '/outboundApplication',
+    component: () => import('@/views/port/ERP/outboundApplication'),
+    name: 'outboundApplication',
+  },
+  {
+    path: '/pcbaBurn',
+    component: () => import('@/views/port/MES/pcbaBurn'),
+    name: 'pcbaBurn',
+  },
+  {
+    path: '/tfminisPcbaBurn',
+    component: () => import('@/views/port/MES/tfminisPcbaBurn'),
+    name: 'tfminisPcbaBurn',
+  },
+  {
+    path: '/pcbaVersion',
+    component: () => import('@/views/port/MES/pcbaVersion'),
+    name: 'pcbaVersion',
+  },
+  {
+    path: '/tfminisPcbaVersion',
+    component: () => import('@/views/port/MES/tfminisPcbaVersion'),
+    name: 'tfminisPcbaVersion',
+  },
+  {
     path: '/dailyDataUpload',
     component: () => import('@/views/port/MES/dailyDataUpload'),
     name: 'dailyDataUpload',

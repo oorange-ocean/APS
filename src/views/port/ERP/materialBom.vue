@@ -253,10 +253,12 @@ function downloadData() {
           size: currentSize.value
         },10)
         .then((res) => {
-          ElMessage({
-            type: 'success',
-            message: '导出当前页成功'
-          })
+          if (res.code == 200) {
+              ElMessage({
+                  type: 'success',
+                  message: '导出当前页成功'
+              })
+          }
           // console.log(res,'res')
         })
     })
@@ -267,10 +269,12 @@ function downloadData() {
             type: 4
           },10)
           .then((res) => {
-            ElMessage({
-              type: 'success',
-              message: '导出全部页成功'
-            })
+            if (res.code == 200) {
+              ElMessage({
+                  type: 'success',
+                  message: '导出全部页成功'
+              })
+            }
           })
       }
     })

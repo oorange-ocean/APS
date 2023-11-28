@@ -311,6 +311,15 @@ router.beforeEach((to, from, next) => {
                         meta: {
                           title: '物料清单列表'
                         }
+                      },
+                      {
+                        name: 'outboundApplication',
+                        path: '/outboundApplication',
+                        component: '/port/ERP/outboundApplication',
+                        alwaysShow: 'true',
+                        meta: {
+                          title: '出库申请单'
+                        }
                       }
                     ]
                   },
@@ -321,6 +330,42 @@ router.beforeEach((to, from, next) => {
                       title: 'MES'
                     },
                     children: [
+                      {
+                        name: 'pcbaBurn',
+                        path: '/pcbaBurn',
+                        component: '/port/MES/pcbaBurn',
+                        alwaysShow: 'true',
+                        meta: {
+                          title: 'PCBA烧录'
+                        }
+                      },
+                      {
+                        name: 'tfminisPcbaBurn',
+                        path: '/tfminisPcbaBurn',
+                        component: '/port/MES/tfminisPcbaBurn',
+                        alwaysShow: 'true',
+                        meta: {
+                          title: 'TFmini-S-PCBA烧录'
+                        }
+                      },
+                      {
+                        name: 'pcbaVersion',
+                        path: '/pcbaVersion',
+                        component: '/port/MES/pcbaVersion',
+                        alwaysShow: 'true',
+                        meta: {
+                          title: 'PCBA分版'
+                        }
+                      },
+                      {
+                        name: 'tfminisPcbaVersion',
+                        path: '/tfminisPcbaVersion',
+                        component: '/port/MES/tfminisPcbaVersion',
+                        alwaysShow: 'true',
+                        meta: {
+                          title: 'TFmini-S-PCBA分版'
+                        }
+                      },
                       {
                         name: 'dailyDataUpload',
                         path: '/dailyDataUpload',

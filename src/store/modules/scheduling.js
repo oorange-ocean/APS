@@ -23,6 +23,7 @@ const scheduling = defineStore(
                         resolve(res)
                     }).catch(error => {
                         console.log(error, 'store中数据更新出错')
+                        this.loading = false
                         reject(error)
                     })
                 })

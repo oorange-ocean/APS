@@ -1,21 +1,22 @@
 <template>
   <keep-alive>
-  <div class="card" 
-  v-loading="Scheduling.loading"
-  element-loading-text="正在运行中，可能需要十五秒左右，请耐心等待···"
-  >
-    <el-card class="one update" :style="cardStyle1" >
-    <template #header>
-      <div class="card-header">
-        <span>第一步（数据更新）</span>
-        <el-button class="button" @click="toggleCollapse">
-          <el-icon><Remove /></el-icon>
-        </el-button>
-      </div>
-    </template>
-    <transition name="fade" class="body">
-      <div v-if="!isCollapsed">
-        <!-- <div class="updateData">
+    <div
+      class="card"
+      v-loading="Scheduling.loading"
+      element-loading-text="正在运行中，可能需要十五秒左右，请耐心等待···"
+    >
+      <el-card class="one update" :style="cardStyle1">
+        <template #header>
+          <div class="card-header">
+            <span>第一步（数据更新）</span>
+            <el-button class="button" @click="toggleCollapse">
+              <el-icon><Remove /></el-icon>
+            </el-button>
+          </div>
+        </template>
+        <transition name="fade" class="body">
+          <div v-if="!isCollapsed">
+            <!-- <div class="updateData">
           <div class="ERP">
             <el-checkbox 
             :indeterminate="indeterminate1"
@@ -51,57 +52,62 @@
             </el-checkbox-group>
           </div>
         </div> -->
-        <el-collapse v-model="activeNames">
-          <el-collapse-item title="ERP" name="1">
-            <el-checkbox
-              :indeterminate="indeterminateERP"
-              v-model="isAllERP"
-              @change="handleCheckAllERP"
-              >全选</el-checkbox>
-            <el-checkbox-group 
-            v-model="checkedERP" 
-            @change="handleCheckedERP" 
-            class="group">
-              <el-checkbox label="1">即时库存</el-checkbox>
-              <el-checkbox label="2">委外用料清单</el-checkbox>
-              <el-checkbox label="3">生产用料清单列表</el-checkbox>
-              <el-checkbox label="4">委外订单列表</el-checkbox>
-              <el-checkbox label="5">生产订单列表</el-checkbox>
-              <el-checkbox label="6">采购申请单列表</el-checkbox>
-              <el-checkbox label="7">采购订单列表</el-checkbox>
-              <el-checkbox label="8">收料通知单列表</el-checkbox>
-              <el-checkbox label="9">锁库存列表</el-checkbox>
-              <el-checkbox label="10">物料清单列表</el-checkbox>
-              <!-- 其他复选框 -->
-            </el-checkbox-group>
-          </el-collapse-item>
-          <el-collapse-item title="MES" name="2">
-            <el-checkbox
-              :indeterminate="indeterminateMES"
-              v-model="isAllMES"
-              @change="handleCheckAllMES"
-              >全选</el-checkbox>
-            <el-checkbox-group 
-            v-model="checkedMES" 
-            @change="handleCheckedMES"
-            class="group">
-              <el-checkbox label="20">PCBA烧录</el-checkbox>
-              <el-checkbox label="21">TFmini-S-PCBA烧录</el-checkbox>
-              <el-checkbox label="22">PCBA分版</el-checkbox>
-              <el-checkbox label="23">TFmini-S-PCBA分版</el-checkbox>
-              <el-checkbox label="24">安装主板</el-checkbox>
-              <el-checkbox label="25">TFmini-s-安装主板</el-checkbox>
-              <el-checkbox label="26">贴SN</el-checkbox>
-              <el-checkbox label="27">TFmini-s-贴SN</el-checkbox>
-              <el-checkbox label="28">校验测试</el-checkbox>
-              <el-checkbox label="29">TFmini-S-校验测试</el-checkbox>
-              <el-checkbox label="30">包装校验</el-checkbox>
-              <el-checkbox label="31">TFmini-S-包装校验</el-checkbox>
-              <!-- 其他复选框 -->
-            </el-checkbox-group>
-          </el-collapse-item>
-        </el-collapse>
-        <!-- <el-checkbox
+            <el-collapse v-model="activeNames">
+              <el-collapse-item title="ERP" name="1">
+                <el-checkbox
+                  :indeterminate="indeterminateERP"
+                  v-model="isAllERP"
+                  @change="handleCheckAllERP"
+                  >全选</el-checkbox
+                >
+                <el-checkbox-group
+                  v-model="checkedERP"
+                  @change="handleCheckedERP"
+                  class="group"
+                >
+                  <el-checkbox label="1">即时库存</el-checkbox>
+                  <el-checkbox label="2">委外用料清单</el-checkbox>
+                  <el-checkbox label="3">生产用料清单列表</el-checkbox>
+                  <el-checkbox label="4">委外订单列表</el-checkbox>
+                  <el-checkbox label="5">生产订单列表</el-checkbox>
+                  <el-checkbox label="6">采购申请单列表</el-checkbox>
+                  <el-checkbox label="7">采购订单列表</el-checkbox>
+                  <el-checkbox label="8">收料通知单列表</el-checkbox>
+                  <el-checkbox label="9">锁库存列表</el-checkbox>
+                  <el-checkbox label="10">物料清单列表</el-checkbox>
+                  <el-checkbox label="11">出库申请单</el-checkbox>
+                  <!-- 其他复选框 -->
+                </el-checkbox-group>
+              </el-collapse-item>
+              <el-collapse-item title="MES" name="2">
+                <el-checkbox
+                  :indeterminate="indeterminateMES"
+                  v-model="isAllMES"
+                  @change="handleCheckAllMES"
+                  >全选</el-checkbox
+                >
+                <el-checkbox-group
+                  v-model="checkedMES"
+                  @change="handleCheckedMES"
+                  class="group"
+                >
+                  <el-checkbox label="20">PCBA烧录</el-checkbox>
+                  <el-checkbox label="21">TFmini-S-PCBA烧录</el-checkbox>
+                  <el-checkbox label="22">PCBA分版</el-checkbox>
+                  <el-checkbox label="23">TFmini-S-PCBA分版</el-checkbox>
+                  <el-checkbox label="24">安装主板</el-checkbox>
+                  <el-checkbox label="25">TFmini-s-安装主板</el-checkbox>
+                  <el-checkbox label="26">贴SN</el-checkbox>
+                  <el-checkbox label="27">TFmini-s-贴SN</el-checkbox>
+                  <el-checkbox label="28">校验测试</el-checkbox>
+                  <el-checkbox label="29">TFmini-S-校验测试</el-checkbox>
+                  <el-checkbox label="30">包装校验</el-checkbox>
+                  <el-checkbox label="31">TFmini-S-包装校验</el-checkbox>
+                  <!-- 其他复选框 -->
+                </el-checkbox-group>
+              </el-collapse-item>
+            </el-collapse>
+            <!-- <el-checkbox
           v-model="checkAllData"
           :indeterminate="isIndeterminateData"
           @change="handleCheckAllDataChange"
@@ -115,215 +121,265 @@
         >
           <el-checkbox v-for="data in updateData" :key="data" :label="data">{{data}}</el-checkbox>
         </el-checkbox-group> -->
-       
 
-        <button class="check updateBtn" @click="handleUpdate">数据更新</button>
-      </div>
-      
-      
-    </transition>
-  </el-card>
-  <el-card class="one" :style="cardStyle2" style="width: 18vw;">
-    <template #header>
-      <div class="card-header">
-        <span>第二步（完整性检查）</span>
-        <el-button class="button" @click="toggleCollapse">
-          <el-icon><Remove /></el-icon>
-        </el-button>
-      </div>
-    </template>
-    <transition name="fade" class="body">
-      <div v-if="!isCollapsed" class="checkbox-container">
-        <el-checkbox
-          v-model="checkAll"
-          :indeterminate="isIndeterminate"
-          @change="handleCheckAllChange"
-          >
-          全选
-        </el-checkbox>
-        <el-checkbox-group
-          class="group"
-          v-model="checkedCities"
-          @change="handleCheckedCitiesChange" 
-        >
-          <el-checkbox v-for="city in cities" :key="city" :label="city">{{city}}</el-checkbox>
-        </el-checkbox-group>
-         <button class="check" @click="handleCheck">开始检查</button>
-      </div>
-    </transition>
-  </el-card>
-  <el-card class="two" :style="cardStyle3">
-    <template #header>
-      <div class="card-header">
-        <span>第三步（排程选项）</span>
-        <el-button class="button" @click="toggleCollapse">
-          <el-icon><Remove /></el-icon>
-        </el-button>
-      </div>
-    </template>
-    <transition name="fade" class="body">
-      <div v-if="!isCollapsed" >
-        <el-form :model="form" class="form">
-          <el-form-item class="model_check">
-            <h3>模型选择</h3>
-            <div class="model">
-              <el-checkbox-group v-model="checkedLabels">
-                <el-checkbox label="考虑物料" checked/>
-                <el-checkbox label="考虑工序" />
-                <el-checkbox label="并行生产" checked/>
-                <el-checkbox label="考虑未完成" checked/>
-              </el-checkbox-group>
-              <div class="delay">
-              </div>
-            </div>
-          </el-form-item>
-          <el-form-item class="target">
-              <h3>目标函数</h3>
-              <el-radio-group v-model="form.target" class="mini_target">
-                <el-radio label="1" size="large">人员利用率最大</el-radio>
-                <el-radio label="2" size="large">成本最低</el-radio>
-                <el-radio label="3" size="large">交付率最高</el-radio>
-              </el-radio-group>
-          </el-form-item>
-          
-          <el-form-item class="lock">
-            <h3>其他参数</h3>
-            <div class="other">
-              <div class="mini_lock">
-                <div class="delay">
-                  <span>需求计划延迟期</span>
-                  <input type="number" value="3" >
-                  <span>寻优次数</span>
-                  <input type="number" v-model="form.number_cycles">
-                  <span>生产计划周期</span>
-                  <input type="number" v-model="form.scheduled_days_num">
+            <button class="check updateBtn" @click="handleUpdate">
+              数据更新
+            </button>
+          </div>
+        </transition>
+      </el-card>
+      <el-card class="one" :style="cardStyle2" style="width: 18vw">
+        <template #header>
+          <div class="card-header">
+            <span>第二步（完整性检查）</span>
+            <el-button class="button" @click="toggleCollapse">
+              <el-icon><Remove /></el-icon>
+            </el-button>
+          </div>
+        </template>
+        <transition name="fade" class="body">
+          <div v-if="!isCollapsed" class="checkbox-container">
+            <el-checkbox
+              v-model="checkAll"
+              :indeterminate="isIndeterminate"
+              @change="handleCheckAllChange"
+            >
+              全选
+            </el-checkbox>
+            <el-checkbox-group
+              class="group"
+              v-model="checkedCities"
+              @change="handleCheckedCitiesChange"
+            >
+              <el-checkbox v-for="city in cities" :key="city" :label="city">{{
+                city
+              }}</el-checkbox>
+            </el-checkbox-group>
+            <button class="check" @click="handleCheck">开始检查</button>
+          </div>
+        </transition>
+      </el-card>
+      <el-card class="two" :style="cardStyle3">
+        <template #header>
+          <div class="card-header">
+            <span>第三步（排程选项）</span>
+            <el-button class="button" @click="toggleCollapse">
+              <el-icon><Remove /></el-icon>
+            </el-button>
+          </div>
+        </template>
+        <transition name="fade" class="body">
+          <div v-if="!isCollapsed">
+            <el-form :model="form" class="form">
+              <el-form-item class="model_check">
+                <h3>模型选择</h3>
+                <div class="model">
+                  <el-checkbox-group v-model="checkedLabels">
+                    <el-checkbox label="考虑物料" checked />
+                    <el-checkbox label="考虑工序" />
+                    <el-checkbox label="并行生产" checked />
+                    <el-checkbox label="考虑未完成" checked />
+                  </el-checkbox-group>
+                  <div class="delay"></div>
                 </div>
-              </div>  
-              <div class="mini_product">
-                <div class="delay">
-                  <span>采购计划延迟期</span>
-                  <input type="number" v-model="form.buy_delay_days">
-                  <span>PO提前天数</span>
-                  <input type="number" v-model="form.in_advance_po">
-                  <span>YG提前最大天数</span>
-                  <input type="number" v-model="form.yg_delta">
+              </el-form-item>
+              <el-form-item class="target">
+                <h3>目标函数</h3>
+                <el-radio-group v-model="form.target" class="mini_target">
+                  <el-radio label="1" size="large">人员利用率最大</el-radio>
+                  <el-radio label="2" size="large">成本最低</el-radio>
+                  <el-radio label="3" size="large">交付率最高</el-radio>
+                </el-radio-group>
+              </el-form-item>
+
+              <el-form-item class="lock">
+                <h3>其他参数</h3>
+                <div class="other">
+                  <div class="mini_lock">
+                    <div class="delay">
+                      <span>需求计划延迟期</span>
+                      <input type="number" value="3" />
+                      <span>寻优次数</span>
+                      <input type="number" v-model="form.number_cycles" />
+                      <span>生产计划周期</span>
+                      <input type="number" v-model="form.scheduled_days_num" />
+                    </div>
+                  </div>
+                  <div class="mini_product">
+                    <div class="delay">
+                      <span>采购计划延迟期</span>
+                      <input type="number" v-model="form.buy_delay_days" />
+                      <span>PO提前天数</span>
+                      <input type="number" v-model="form.in_advance_po" />
+                      <span>YG提前最大天数</span>
+                      <input type="number" v-model="form.yg_delta" />
+                    </div>
+                  </div>
                 </div>
-              </div>
+              </el-form-item>
+            </el-form>
+            <div class="two_button">
+              <button class="schedule" @click="handleOne">一键排程</button>
+              <button class="start" @click="startSchedule">开始排程</button>
+              <!-- <button class="update_data" @click="handleUpdate">数据更新</button> -->
             </div>
-          </el-form-item>
-        </el-form>
-        <div class="two_button">
-          <button class="schedule" @click="handleOne">一键排程</button>
-          <button class="start" @click="startSchedule">开始排程</button>
-          <!-- <button class="update_data" @click="handleUpdate">数据更新</button> -->
-        </div>
-      </div>
-    </transition>
-  </el-card>
-</div>
-</keep-alive>
+          </div>
+        </transition>
+      </el-card>
+    </div>
+  </keep-alive>
 </template>
 
 <script setup>
-import { ref, computed, reactive,watch  } from 'vue';
+import { ref, computed, reactive, watch } from 'vue'
 import UseScheduling from '@/store/modules/scheduling'
 
 const Scheduling = UseScheduling()
-const checkedLabels = ref([]);
+const checkedLabels = ref([])
 const form = ref({
   // model: [],
-  "target": '1',
-  "number_cycles": 2,
-  "scheduled_days_num": 240,
-  "in_advance_po": 7,
-  "buy_delay_days": 5,
-  "yg_delta": 90,
-  "consider_the_material": true,  
-  "consider_the_process": false,
-  "produce_in_parallel": true,
-  "consider_history":true      
+  target: '1',
+  number_cycles: 2,
+  scheduled_days_num: 240,
+  in_advance_po: 7,
+  buy_delay_days: 5,
+  yg_delta: 90,
+  consider_the_material: true,
+  consider_the_process: false,
+  produce_in_parallel: true,
+  consider_history: true
 })
 watch(checkedLabels, (newLabels) => {
-  form.value.produce_in_parallel = newLabels.includes('并行生产');
-  form.value.consider_the_process = newLabels.includes('考虑工序');
-  form.value.consider_the_material = newLabels.includes('考虑物料');
-  form.value.consider_history = newLabels.includes('考虑未完成');
+  form.value.produce_in_parallel = newLabels.includes('并行生产')
+  form.value.consider_the_process = newLabels.includes('考虑工序')
+  form.value.consider_the_material = newLabels.includes('考虑物料')
+  form.value.consider_history = newLabels.includes('考虑未完成')
   // ... update other properties based on newLabels
-});
+})
 
-const checkedERP = ref(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'])
-const checkedMES = ref(['20','21','22','23','24','25','26','27','28','29','30','31'])
+const checkedERP = ref([
+  '1',
+  '2',
+  '3',
+  '4',
+  '5',
+  '6',
+  '7',
+  '8',
+  '9',
+  '10',
+  '11'
+])
+const checkedMES = ref([
+  '20',
+  '21',
+  '22',
+  '23',
+  '24',
+  '25',
+  '26',
+  '27',
+  '28',
+  '29',
+  '30',
+  '31'
+])
 const isAllERP = ref(true)
 const isAllMES = ref(true)
 const indeterminateERP = computed(() => {
-  return checkedERP.value.length > 0 && checkedERP.value.length < 10;
-});
+  return checkedERP.value.length > 0 && checkedERP.value.length < 11
+})
 const indeterminateMES = computed(() => {
-  return checkedMES.value.length > 0 && checkedMES.value.length < 12;
-});
+  return checkedMES.value.length > 0 && checkedMES.value.length < 12
+})
 function handleCheckAllERP(val) {
-    checkedERP.value = val ? ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'] : [];
-  }
+  checkedERP.value = val
+    ? ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11']
+    : []
+}
 function handleCheckedERP(value) {
-  isAllERP.value = value.length === 10;
+  isAllERP.value = value.length === 11
 }
 
 function handleCheckAllMES(val) {
-    checkedMES.value = val ? ['20','21','22','23','24','25','26','27','28','29','30','31'] : [];
-  }
+  checkedMES.value = val
+    ? ['20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31']
+    : []
+}
 function handleCheckedMES(value) {
-  isAllMES.value = value.length === 12;
+  isAllMES.value = value.length === 12
 }
 
-const isCollapsed = ref(false);
+const isCollapsed = ref(false)
 const checkAll = ref(true)
 const isIndeterminate = ref(false)
 // const checkedCities = ref(['BOM', '工艺路径与标准工时', '人员','日历','库存主数据', 'MOQ','机器'])
-const checkedCities = ref(['BOM', '工艺路径与标准工时', '人员', '日历', '库存主数据', 'MOQ', '机器'])
-const cities = ['BOM', '工艺路径与标准工时', '人员', '日历', '库存主数据', 'MOQ', '机器']
+const checkedCities = ref([
+  'BOM',
+  '工艺路径与标准工时',
+  '人员',
+  '日历',
+  '库存主数据',
+  'MOQ',
+  '机器'
+])
+const cities = [
+  'BOM',
+  '工艺路径与标准工时',
+  '人员',
+  '日历',
+  '库存主数据',
+  'MOQ',
+  '机器'
+]
 
 const updateData = ['ERP', 'MES']
 const checkedData = ref(['ERP', 'MES'])
 const checkAllData = ref(true)
 const isIndeterminateData = ref(false)
 
-function handleCheckAllChange(val){
+function handleCheckAllChange(val) {
   checkedCities.value = val ? cities : []
   isIndeterminate.value = false
 }
-function handleCheckAllDataChange(val){
+function handleCheckAllDataChange(val) {
   checkedData.value = val ? updateData : []
   isIndeterminateData.value = false
 }
-function handleCheckedCitiesChange(value){
+function handleCheckedCitiesChange(value) {
   const checkedCount = value.length
   checkAll.value = checkedCount === cities.length
   isIndeterminate.value = checkedCount > 0 && checkedCount < cities.length
 }
-function handleCheckedDataChange(value){
+function handleCheckedDataChange(value) {
   const checkedCount = value.length
   checkAllData.value = checkedCount === updateData.length
-  isIndeterminateData.value = checkedCount > 0 && checkedCount < updateData.length
+  isIndeterminateData.value =
+    checkedCount > 0 && checkedCount < updateData.length
 }
-
 
 function handleUpdate() {
   // console.log(checkedData.value)
   const data = checkedERP.value.concat(checkedMES.value)
 
   console.log(data)
-  Scheduling.loading=true
-  Scheduling.updateData(data).then((res) => {
-    // Scheduling.loading=false
+  Scheduling.loading = true
+  Scheduling.updateData(data)
+    .then((res) => {
+      // Scheduling.loading=false
 
-    ElMessageBox.alert(res.message, '提示', {
-      confirmButtonText: '好的',
-    })
-      
+      ElMessageBox.alert(res.message, '提示', {
+        confirmButtonText: '好的'
+      })
+
       console.log('数据更新请求成功！')
-  }).catch(error => {
-    console.log(error,'数据更新请求出错了')
-  })
+    })
+    .catch((error) => {
+      console.log(error, '数据更新请求出错了')
+      ElMessageBox.alert('未知错误，请联系管理员', '提示', {
+        confirmButtonText: '好的'
+      })
+    })
 }
 
 function handleCheck() {
@@ -352,115 +408,122 @@ function handleCheck() {
   Scheduling.loading = true
   // console.log(Scheduling.loading)
 
-  Scheduling.integrityChecker().then(res => {
-    if (res.code == 200) {
-      Scheduling.loading = false
-      ElMessageBox.alert('数据均完整', '提示', {
-        type:"success",
-        confirmButtonText: '好的',
-      }) 
-      // console.log(res.code,'integrityChecker')
-    }
-    else if(res.code==202) {
-      Scheduling.loading = false
-      ElMessageBox.alert(res.message, '提示', {
-        confirmButtonText: '下载错误信息',
-        callback: (action) => {
-          if (action == 'confirm') {
-            Scheduling.downloadIntegrityChecker().then(res => {
-                console.log('下载不完整数据成功')
-            }).catch(error => {
-              
-            })
+  Scheduling.integrityChecker()
+    .then((res) => {
+      if (res.code == 200) {
+        Scheduling.loading = false
+        ElMessageBox.alert('数据均完整', '提示', {
+          type: 'success',
+          confirmButtonText: '好的'
+        })
+        // console.log(res.code,'integrityChecker')
+      } else if (res.code == 202) {
+        Scheduling.loading = false
+        ElMessageBox.alert(res.message, '提示', {
+          confirmButtonText: '下载错误信息',
+          callback: (action) => {
+            if (action == 'confirm') {
+              Scheduling.downloadIntegrityChecker()
+                .then((res) => {
+                  console.log('下载不完整数据成功')
+                })
+                .catch((error) => {})
+            }
           }
-          
-        }
+        })
+      }
+      //
+      else if (res.code == 201) {
+        Scheduling.loading = false
+        ElMessageBox.alert(res.message, '提示', {
+          confirmButtonText: '好的'
+        })
+      }
+    })
+    .catch((error) => {
+      ElMessageBox.alert('未知错误，请联系管理员', '提示', {
+        confirmButtonText: '好的'
       })
-    }
-    // 
-    else if (res.code == 201) {
       Scheduling.loading = false
-      ElMessageBox.alert(res.message, '提示', {
-        confirmButtonText: '好的',
-      })
-    }
-  }).catch(error => {
-    
-  })
+    })
 }
 
 function startSchedule() {
   // console.log(form.value,'@@@')
-  Scheduling.startScheduling(form.value).then((res) => {
-    if (res.code == 200) {
-      ElMessageBox.alert('开始排程', '提示', {
-            confirmButtonText: '确定',
+  Scheduling.startScheduling(form.value)
+    .then((res) => {
+      if (res.code == 200) {
+        ElMessageBox.alert('开始排程', '提示', {
+          confirmButtonText: '确定'
         })
-    }
-    else {
-      ElMessageBox.alert(res.message, '提示', {
-            confirmButtonText: '确定',
+      } else {
+        ElMessageBox.alert(res.message, '提示', {
+          confirmButtonText: '确定'
         })
-    }
-    
-  }).catch(error => {
-    
-  })
+      }
+    })
+    .catch((error) => {})
 }
 
 function handleOne() {
   Scheduling.loading = true
-  Scheduling.oneKeyScheduling(form.value).then(res => {
-    Scheduling.loading = false
+  Scheduling.oneKeyScheduling(form.value)
+    .then((res) => {
+      Scheduling.loading = false
       ElMessageBox.alert(res.message, '提示', {
-            confirmButtonText: '确定',
+        confirmButtonText: '确定'
       })
-  }).catch(error => {
-    
-  })
+    })
+    .catch((error) => {
+      ElMessageBox.alert('未知错误，请联系管理员', '提示', {
+        confirmButtonText: '好的'
+      })
+      Scheduling.loading = false
+    })
 }
 
 function toggleCollapse() {
-  isCollapsed.value = !isCollapsed.value;
+  isCollapsed.value = !isCollapsed.value
 }
 
 const cardStyle1 = computed(() => {
   return {
-    height: isCollapsed.value ? '68.8px' : '430px', // 调整卡片的高度
-  };
-});
+    height: isCollapsed.value ? '68.8px' : '430px' // 调整卡片的高度
+  }
+})
 const cardStyle2 = computed(() => {
   return {
-    height: isCollapsed.value ? '68.8px' : '430px', // 调整卡片的高度
-  };
-});
+    height: isCollapsed.value ? '68.8px' : '430px' // 调整卡片的高度
+  }
+})
 const cardStyle3 = computed(() => {
   return {
-    height: isCollapsed.value ? '68.8px' : '490px', // 调整卡片的高度
-  };
-});
+    height: isCollapsed.value ? '68.8px' : '490px' // 调整卡片的高度
+  }
+})
 </script>
 
 <style lang="less">
-    .el-form-item__content{
-      flex-direction: column;
-    }
-    .el-form-item{
-      margin-bottom: 0;
-    }
-    .el-checkbox__inner,.el-radio__inner{
-      border: 1px solid #0053b5;
-    }
-    .mini_product>.el-checkbox{
-      margin: 0;
-    }
-    .el-collapse{
-      --el-collapse-content-bg-color:#f1f4f6 !important;
-      --el-collapse-header-bg-color:#f1f4f6 !important;
-    }
-    .el-collapse-item__content{
-      padding: 0;
-    }
+.el-form-item__content {
+  flex-direction: column;
+}
+.el-form-item {
+  margin-bottom: 0;
+}
+.el-checkbox__inner,
+.el-radio__inner {
+  border: 1px solid #0053b5;
+}
+.mini_product > .el-checkbox {
+  margin: 0;
+}
+.el-collapse {
+  --el-collapse-content-bg-color: #f1f4f6 !important;
+  --el-collapse-header-bg-color: #f1f4f6 !important;
+}
+.el-collapse-item__content {
+  padding: 0;
+}
 </style>
 
 <style scoped>
@@ -468,13 +531,13 @@ const cardStyle3 = computed(() => {
   --el-card-padding: 0;
 }
 
-.card{
+.card {
   display: flex;
 }
-.update{
+.update {
   margin-right: 0;
 }
-.updateData{
+.updateData {
   display: flex;
   flex-direction: row;
   height: 300px;
@@ -487,7 +550,7 @@ const cardStyle3 = computed(() => {
   height: 260px;
   overflow: auto;
 }
-p{
+p {
   margin: 0;
 }
 .one {
@@ -501,10 +564,10 @@ p{
   transition: height 0.5s; /* 添加过渡动画 */
   background-color: #f1f4f6;
 }
-.update{
+.update {
   margin-right: 0;
 }
-.two{
+.two {
   margin: 24px 0;
   margin-right: 30px;
   /* width: 700px; */
@@ -520,7 +583,7 @@ p{
   background-color: #1d89e9;
   height: 68.8px;
 }
-span{
+span {
   padding: 18px 20px;
   color: white;
   font-size: 16px;
@@ -535,14 +598,14 @@ span{
 .item {
   margin-bottom: 18px;
 }
-.el-button{
+.el-button {
   padding: 0;
   height: 20px;
   box-sizing: border-box;
   background-color: #1d89e9;
   border: none;
 }
-.el-icon{
+.el-icon {
   font-size: 20px;
   color: white;
 }
@@ -554,12 +617,12 @@ span{
   display: flex;
   flex-direction: column; /* 垂直排列多选框 */
 }
-.body{
+.body {
   /* margin-left: 40px; */
   padding: 24px;
   /* overflow: auto; */
 }
-.check{
+.check {
   width: 162px;
   height: 42px;
   background-color: #0053b5;
@@ -570,29 +633,28 @@ span{
   border: none;
   border-radius: 5px;
 }
-.updateBtn{
+.updateBtn {
   margin-top: 20px;
   margin-bottom: 15px;
 }
-.form{
+.form {
   display: flex;
   flex-direction: row;
 }
-.model_check{
+.model_check {
   width: 140px;
   height: 272px;
   display: flex;
   flex-direction: column;
 }
 
-
-h3{
+h3 {
   margin: 0;
   color: #0053b5;
   font-weight: 600;
   font-size: 16px;
 }
-.target{
+.target {
   width: 200px;
   height: 230px;
   /* background-color: #fff; */
@@ -600,15 +662,17 @@ h3{
   flex-direction: column;
   margin-left: 20px;
 }
-.model,.mini_lock,.mini_product{
+.model,
+.mini_lock,
+.mini_product {
   background-color: #fff;
   height: 200px;
 }
-.lock,.product_line{
+.lock,
+.product_line {
   margin-left: 20px;
-  
 }
-.other{
+.other {
   /* width: 300px; */
   width: 95%;
   background-color: #fff;
@@ -617,54 +681,53 @@ h3{
   flex-direction: row;
 }
 
-.el-checkbox-group{
+.el-checkbox-group {
   /* text-align: center; */
   padding-top: 10px;
 }
 
-.delay >span{
+.delay > span {
   color: #000;
   font-weight: 400;
   font-size: 13px;
   padding: 0;
-
 }
-.delay>input{
+.delay > input {
   width: 75%;
   /* padding: 0 auto; */
   margin: 0 auto;
   border: 1px solid #0053b5;
   height: 24px;
 }
-.delay{
+.delay {
   display: flex;
   flex-direction: column;
   text-align: center;
   margin-top: 7px;
 }
-.model_check .el-checkbox{
+.model_check .el-checkbox {
   /* margin: 0; */
   margin-left: 25px;
 }
-.mini_product .el-checkbox{
+.mini_product .el-checkbox {
   /* margin-left: 0; */
   margin-right: 0;
 }
-.mini_product>.el-checkbox-group{
+.mini_product > .el-checkbox-group {
   text-align: left;
   margin-left: 25px;
 }
-.el-radio{
+.el-radio {
   margin: 0;
 }
-.target .el-radio-group{
+.target .el-radio-group {
   width: 170px;
   align-content: flex-start;
   flex-direction: column;
   align-items: flex-start;
   padding-top: 10px;
 }
-.el-radio-group{
+.el-radio-group {
   /* width: 140px; */
   align-content: flex-start;
   flex-direction: column;
@@ -672,22 +735,22 @@ h3{
   padding-top: 10px;
   text-align: center;
 }
-.mini_target{
+.mini_target {
   padding-left: 30px;
   background-color: #fff;
   height: 200px;
   box-sizing: border-box;
 }
-.two_button{
+.two_button {
   display: flex;
   flex-direction: column;
   /* flex-direction: row-reverse; */
   flex-direction: column-reverse;
   /* margin-left: 480px; */
-  
 }
 
-.start,.schedule{
+.start,
+.schedule {
   width: 162px;
   height: 42px;
   background-color: #0053b5;
@@ -697,12 +760,11 @@ h3{
   cursor: pointer;
   /* margin-top: 10px; */
 }
-.schedule{
+.schedule {
   margin-top: 20px;
   background-color: #c4a01d;
 }
-.update_data{
+.update_data {
   margin-right: 40px;
 }
-
 </style>
