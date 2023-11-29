@@ -162,7 +162,47 @@ const immediateInventory = defineStore('immediateInventory', {
       data: [],
       total: 0,
       page:1
-    }
+    },
+    installationBoard: {
+      data: [],
+      total: 0,
+      page:1
+    },
+    tfminisInstallationBoard: {
+      data: [],
+      total: 0,
+      page:1
+    },
+    snLabeling: {
+      data: [],
+      total: 0,
+      page:1
+    },
+    tfminisSnLabeling: {
+      data: [],
+      total: 0,
+      page:1
+    },
+    calibrationTests: {
+      data: [],
+      total: 0,
+      page:1
+    },
+    tfminisCalibrationTests: {
+      data: [],
+      total: 0,
+      page:1
+    },
+    packagingTest: {
+      data: [],
+      total: 0,
+      page:1
+    },
+    tfminisPackagingTest: {
+      data: [],
+      total: 0,
+      page:1
+    },
   }),
   actions: {
     getAllPage(page, size, type) {
@@ -236,6 +276,46 @@ const immediateInventory = defineStore('immediateInventory', {
                 this.tfminisPcbaVersion.data = res.data.list
                 this.tfminisPcbaVersion.pages = res.data.pages
                 this.tfminisPcbaVersion.total = res.data.total
+              }
+              else if (type == 24) {
+                this.installationBoard.data = res.data.list
+                this.installationBoard.pages = res.data.pages
+                this.installationBoard.total = res.data.total
+              }
+              else if (type == 25) {
+                this.tfminisInstallationBoard.data = res.data.list
+                this.tfminisInstallationBoard.pages = res.data.pages
+                this.tfminisInstallationBoard.total = res.data.total
+              }
+              else if (type == 26) {
+                this.snLabeling.data = res.data.list
+                this.snLabeling.pages = res.data.pages
+                this.snLabeling.total = res.data.total
+              }
+              else if (type == 27) {
+                this.tfminisSnLabeling.data = res.data.list
+                this.tfminisSnLabeling.pages = res.data.pages
+                this.tfminisSnLabeling.total = res.data.total
+              }
+              else if (type == 28) {
+                this.calibrationTests.data = res.data.list
+                this.calibrationTests.pages = res.data.pages
+                this.calibrationTests.total = res.data.total
+              }
+              else if (type == 29) {
+                this.tfminisCalibrationTests.data = res.data.list
+                this.tfminisCalibrationTests.pages = res.data.pages
+                this.tfminisCalibrationTests.total = res.data.total
+              }
+              else if (type == 30) {
+                this.packagingTest.data = res.data.list
+                this.packagingTest.pages = res.data.pages
+                this.packagingTest.total = res.data.total
+              }
+              else if (type == 31) {
+                this.tfminisPackagingTest.data = res.data.list
+                this.tfminisPackagingTest.pages = res.data.pages
+                this.tfminisPackagingTest.total = res.data.total
               }
             }
 

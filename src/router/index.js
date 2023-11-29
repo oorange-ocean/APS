@@ -218,6 +218,46 @@ export const dynamicRoutes = [
     name: 'tfminisPcbaVersion',
   },
   {
+    path: '/installationBoard',
+    component: () => import('@/views/port/MES/installationBoard'),
+    name: 'installationBoard',
+  },
+  {
+    path: '/tfminisInstallationBoard',
+    component: () => import('@/views/port/MES/tfminisInstallationBoard'),
+    name: 'tfminisInstallationBoard',
+  },
+  {
+    path: '/snLabeling',
+    component: () => import('@/views/port/MES/snLabeling'),
+    name: 'snLabeling',
+  },
+  {
+    path: '/tfminisSnLabeling',
+    component: () => import('@/views/port/MES/tfminisSnLabeling'),
+    name: 'tfminisSnLabeling',
+  },
+  {
+    path: '/calibrationTests',
+    component: () => import('@/views/port/MES/calibrationTests'),
+    name: 'calibrationTests',
+  },
+  {
+    path: '/tfminisCalibrationTests',
+    component: () => import('@/views/port/MES/tfminisCalibrationTests'),
+    name: 'tfminisCalibrationTests',
+  },
+  {
+    path: '/packagingTest',
+    component: () => import('@/views/port/MES/packagingTest'),
+    name: 'packagingTest',
+  },
+  {
+    path: '/tfminisPackagingTest',
+    component: () => import('@/views/port/MES/tfminisPackagingTest'),
+    name: 'tfminisPackagingTest',
+  },
+  {
     path: '/dailyDataUpload',
     component: () => import('@/views/port/MES/dailyDataUpload'),
     name: 'dailyDataUpload',
