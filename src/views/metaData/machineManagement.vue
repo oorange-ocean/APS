@@ -5,9 +5,9 @@
       <button @click="addRow"><span class="first">新增</span></button>
       <button @click="modifyRow"><span>修改</span></button>
       <button @click="deleteSelectedRows"><span>删除</span></button>
-      <button @click="refresh"><span>刷新</span></button>
+      <button @click="fresh"><span>刷新</span></button>
       <button><span>导入</span></button>
-      <button><span>导出</span></button>
+      <button @click="downloadData"><span>导出</span></button>
     </div>
     <div class="main" ref="tableContainer">
       <el-table
@@ -44,7 +44,7 @@
                 </template>
               </template> -->
         </el-table-column>
-        <el-table-column prop="fMachineName" label="机器名称" width="200">
+        <el-table-column prop="fMachineName" label="机器名称" width="150">
           <template #default="{ row }">
             <template v-if="row.editable">
               <el-input
@@ -115,19 +115,11 @@
           </template>
         </el-table-column>
         <el-table-column prop="available" label="是否可用" width="60">
-          <template #default="{ row }">
-            <template v-if="row.editable">
-              <el-input v-model="row.available" @keyup.enter="saveRow(row)" />
-            </template>
-            <template v-else>
-              {{ row.available }}
-            </template>
-          </template>
         </el-table-column>
         <el-table-column
           prop="unavailableDates"
           label="不可用时间段"
-          width="380"
+          width="360"
         >
           <template #default="{ row }">
             <template v-if="row.editable">
@@ -214,6 +206,44 @@ const dialogTableVisible = ref(false)
 const defaultTime1 = new Date(2000, 1, 1, 12, 0, 0) // '12:00:00'
 const currentRow = ref(null)
 const adjustDate = ref([])
+
+function downloadData() {
+  ElMessageBox.confirm('请选择你要导出的数据', '提示', {
+    distinguishCancelAndClose: true,
+    confirmButtonText: '当前页',
+    cancelButtonText: '全部页',
+    type: 'warning'
+  })
+    .then(() => {
+      useMachine
+        .downloadApsMachineTable({
+          type: 3,
+          page: currentPage.value,
+          size: currentSize.value
+        })
+        .then((res) => {
+          ElMessage({
+            type: 'success',
+            message: '导出当前页成功'
+          })
+          // console.log(res,'res')
+        })
+    })
+    .catch((action) => {
+      if (action === 'cancel') {
+        useMachine
+          .downloadApsMachineTable({
+            type: 4
+          })
+          .then((res) => {
+            ElMessage({
+              type: 'success',
+              message: '导出全部页成功'
+            })
+          })
+      }
+    })
+}
 
 function adjustTime(row) {
   adjustDate.value = []
@@ -402,6 +432,7 @@ function saveRow(row) {
         console.log('产能修改失败')
       })
     // console.log('修改工序名')
+    refresh()
     row.editable = false
   }
   // 新增数据
@@ -515,14 +546,17 @@ function refresh() {
   useMachine
     .getApsMachineTable(currentPage.value, currentSize.value)
     .then((res) => {
-      ElMessage({
-        type: 'success',
-        message: '刷新成功'
-      })
       myTable.value.clearSelection()
     })
     .catch((error) => {})
   console.log('查询所有机器管理')
+}
+function fresh() {
+  refresh()
+  ElMessage({
+    type: "success",
+    message: "刷新成功",
+  });
 }
 </script>
 

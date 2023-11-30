@@ -5,7 +5,7 @@
       <button @click="addRow"><span class="first">新增</span></button>
       <button @click="modifyRow"><span>修改</span></button>
       <button @click="deleteSelectedRows"><span>删除</span></button>
-      <button @click="refresh"><span>刷新</span></button>
+      <button @click="fresh"><span>刷新</span></button>
       <button><span>导入</span></button>
       <button @click="downloadData"><span>导出</span></button>
     </div>
@@ -387,10 +387,7 @@ function refresh() {
   ImmediateInventory.getAllPage(currentPage.value, currentSize.value, 7)
     .then((res) => {
       if (res.code == 200) {
-        ElMessage({
-          type: "success",
-          message: "刷新成功",
-        });
+
       } else {
         ElMessageBox.alert(res.message, "提示", {
             confirmButtonText: "好",
@@ -400,6 +397,13 @@ function refresh() {
     })
     .catch((error) => {});
   console.log("查询所有工序产能");
+}
+function fresh() {
+  refresh()
+  ElMessage({
+    type: "success",
+    message: "刷新成功",
+  });
 }
 </script>
 

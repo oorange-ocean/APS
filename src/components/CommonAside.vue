@@ -69,13 +69,26 @@
     </el-sub-menu>
   </el-menu>
   <div class="bottom" v-show="!userMenu.isCollapse">
-    <span @click="toggleMenu">用户：{{ userStore.name }}</span>
+    <!-- <span @click="toggleMenu">用户：{{ userStore.name }}</span>
     <transition name="slide">
       <el-menu v-if="showMenu">
         <el-menu-item @click="changePassword">修改密码</el-menu-item>
         <el-menu-item @click="logout">退出登录</el-menu-item>
       </el-menu>
-    </transition>
+    </transition> -->
+
+    <el-dropdown>
+      <el-button type="primary">
+        用户：{{ userStore.name }}
+        <!-- <el-icon class="el-icon--right"><arrow-down /></el-icon> -->
+      </el-button>
+      <template #dropdown>
+        <el-dropdown-menu>
+          <el-dropdown-item @click="changePassword">修改密码</el-dropdown-item>
+          <el-dropdown-item @click="logout">退出登录</el-dropdown-item>
+        </el-dropdown-menu>
+      </template>
+    </el-dropdown>
 
     <!-- 修改密码弹窗表单 -->
     <el-dialog
@@ -112,49 +125,60 @@
 </template>
 
 <script setup>
-import { ref, h,nextTick } from "vue";
+import { ref, h, nextTick } from 'vue'
 
-const isCollapse = ref(false);
-import { useRoute, useRouter } from "vue-router";
-const route = useRoute();
-const router = useRouter();
-import useUserMenu from "@/store/modules/menu";
-import useUserStore from "@/store/modules/user";
-import "../utils/auth";
-import Cookies from "js-cookie";
-import { removeToken } from "../utils/auth";
+const isCollapse = ref(false)
+import { useRoute, useRouter } from 'vue-router'
+const route = useRoute()
+const router = useRouter()
+import useUserMenu from '@/store/modules/menu'
+import useUserStore from '@/store/modules/user'
+import '../utils/auth'
+import Cookies from 'js-cookie'
+import { removeToken } from '../utils/auth'
 // 过滤带有 meta 字段的路由，并存储在数组中
-let list = [];
-const userMenu = useUserMenu();
-const userStore = useUserStore();
+let list = []
+const userMenu = useUserMenu()
+const userStore = useUserStore()
 
-const showMenu = ref(false);
+const showMenu = ref(false)
 
-const dialogVisible = ref(false);
+const dialogVisible = ref(false)
 const passwordForm = ref({
-  oldPassword: "",
-  newPassword: "",
-  confirmPassword: "",
-});
+  oldPassword: '',
+  newPassword: '',
+  confirmPassword: ''
+})
 
 const handleClose = () => {
-  passwordForm.value.oldPassword = "";
-  passwordForm.value.newPassword = "";
-  passwordForm.value.confirmPassword = "";
-  dialogVisible.value = false;
-};
+  passwordForm.value.oldPassword = ''
+  passwordForm.value.newPassword = ''
+  passwordForm.value.confirmPassword = ''
+  dialogVisible.value = false
+}
 
 const toggleMenu = () => {
-  showMenu.value = !showMenu.value;
-};
+  showMenu.value = !showMenu.value
+}
 
 function changePassword() {
-  dialogVisible.value = true;
+  dialogVisible.value = true
 
   // console.log("修改密码",dialogVisible.value);
-  showMenu.value = false;
+  showMenu.value = false
 }
 function submitForm() {
+  if (
+    !passwordForm.value.oldPassword ||
+    !passwordForm.value.newPassword ||
+    !passwordForm.value.confirmPassword
+  ) {
+    ElMessage({
+      message: '请检查输入内容是否完整',
+      type: 'info'
+    })
+    return
+  }
   userStore
     .updatePwd(
       passwordForm.value.oldPassword,
@@ -163,64 +187,64 @@ function submitForm() {
     )
     .then((res) => {
       if (res.code === 200) {
-        Cookies.remove("token");
-        router.push({ path: "/login" });
+        Cookies.remove('token')
+        router.push({ path: '/login' })
         ElMessage({
-          message: "密码修改成功,请重新登录",
-          type: "success",
-        });
+          message: '密码修改成功,请重新登录',
+          type: 'success'
+        })
       } else {
-        ElMessage.error(res.message);
+        ElMessage.error(res.message)
       }
-    });
+    })
 
-  passwordForm.value.oldPassword = "";
-  passwordForm.value.newPassword = "";
-  passwordForm.value.confirmPassword = "";
+  passwordForm.value.oldPassword = ''
+  passwordForm.value.newPassword = ''
+  passwordForm.value.confirmPassword = ''
 
   // console.log('提交修改密码成功submit!');
-  dialogVisible.value = false;
+  dialogVisible.value = false
 }
 function cancelForm() {
-  passwordForm.value.oldPassword = "";
-  passwordForm.value.newPassword = "";
-  passwordForm.value.confirmPassword = "";
-  dialogVisible.value = false;
+  passwordForm.value.oldPassword = ''
+  passwordForm.value.newPassword = ''
+  passwordForm.value.confirmPassword = ''
+  dialogVisible.value = false
 }
 
 function logout() {
   // 这里加入退出登录的代码
-  userStore.token = "";
-  userStore.roles = [];
-  userStore.routers = [];
-  localStorage.removeItem("name");
-  localStorage.removeItem("pageSize");
-  sessionStorage.removeItem("tabs");
-  removeToken();
-  router.push({ path: "/login" });
+  userStore.token = ''
+  userStore.roles = []
+  userStore.routers = []
+  localStorage.removeItem('name')
+  localStorage.removeItem('pageSize')
+  sessionStorage.removeItem('tabs')
+  removeToken()
+  router.push({ path: '/login' })
 
-  console.log("退出登录");
-  showMenu.value = false;
+  console.log('退出登录')
+  showMenu.value = false
 }
 // console.log(userStore.name,'@@')
 
 // list = router.getRoutes().filter(route => route.meta && route.meta.title)
-list = useUserMenu().menu;
+list = useUserMenu().menu
 
 const noChildren = () => {
   return list.filter(
     (item) =>
       (!item.children || item.children.length === 0) && item.hidden == false
-  );
-};
+  )
+}
 
 const hasChildren = () => {
-  return list.filter((item) => item.children && item.threeChildren != true);
-};
+  return list.filter((item) => item.children && item.threeChildren != true)
+}
 
 const hasCC = () => {
-  return list.filter((item) => item.children && item.threeChildren == true);
-};
+  return list.filter((item) => item.children && item.threeChildren == true)
+}
 
 // const CC = () => {
 //     let thirdLevelMenus = [];
@@ -243,26 +267,26 @@ const hasCC = () => {
 
 const filterThirdLevelMenus = (child) => {
   if (child && child.children) {
-    return child.children.filter((grandChild) => !grandChild.hidden);
+    return child.children.filter((grandChild) => !grandChild.hidden)
   }
-  return [];
-};
+  return []
+}
 
 const clickMenu = (item) => {
   // console.log(item,'三级菜单的隐藏')
   router.push({
-    path: item.path,
-  });
+    path: item.path
+  })
   // vuex 来管理
-  userMenu.selectMenu(item);
-};
+  userMenu.selectMenu(item)
+}
 </script>
 
 <style>
 .el-menu-item-group__title {
   padding: 0 !important;
 }
-.el-menu{
+.el-menu {
   background-color: #f1f4f6;
 }
 </style>
@@ -279,7 +303,7 @@ h3 {
 }
 .el-menu-vertical-demo {
   max-height: calc(
-    100vh - 100px
+    100vh - 110px
   ); /* 50px is the height of the bottom section, you can adjust it accordingly */
   overflow-y: auto;
 }
@@ -299,6 +323,7 @@ h3 {
   width: 200px;
   text-align: center;
   margin-bottom: 10px;
+  /* margin-top: 10px; */
 }
 input {
   height: 35px;

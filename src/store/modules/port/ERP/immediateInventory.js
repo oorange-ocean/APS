@@ -118,14 +118,7 @@ const immediateInventory = defineStore('immediateInventory', {
       pages: 1
     },
     outboundApplication: {
-      data: [
-        {
-          version: '即时版本',
-          materialCode: '10.02.01.012',
-          materialName: '10.02.01.012',
-          returnDate: '2023-11-27 00:00:00' //归还日期
-        }
-      ],
+      data: [],
       total: 0,
       pages: 1
     },

@@ -1,5 +1,8 @@
 import { defineStore } from "pinia";
-import { getApsMachineTable,addOrUpdateApsMachineTable,deleteApsMachineTable } from '@/api/metaData/machineManagement'
+import {
+    getApsMachineTable, addOrUpdateApsMachineTable,
+    deleteApsMachineTable,downloadApsMachineTable
+} from '@/api/metaData/machineManagement'
 
 const machineManagement = defineStore(
     'machineManagement',
@@ -97,6 +100,17 @@ const machineManagement = defineStore(
             deleteApsMachineTable(list) {
                 return new Promise((resolve, reject) => {
                     deleteApsMachineTable(list).then(res => {
+                        
+                        resolve(res)
+                    }).catch(error => {
+                        
+                        reject(error)
+                    })
+                })
+            },
+            downloadApsMachineTable(param) {
+                return new Promise((resolve, reject) => {
+                    downloadApsMachineTable(param).then(res => {
                         
                         resolve(res)
                     }).catch(error => {

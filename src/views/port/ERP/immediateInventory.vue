@@ -5,7 +5,7 @@
       <button @click="addRow"><span class="first">新增</span></button>
       <button @click="modifyRow"><span>修改</span></button>
       <button @click="deleteSelectedRows"><span>删除</span></button>
-      <button @click="refresh"><span>刷新</span></button>
+      <button @click="fresh"><span>刷新</span></button>
       <button ><span>导入</span></button>
       <button @click="downloadData"><span>导出</span></button>
       
@@ -51,19 +51,7 @@
         <el-table-column
           prop="materialName"
           label="物料名称"
-          width="280"
         >
-          <!-- <template #default="{ row }">
-            <template v-if="row.editable">
-              <el-input
-                v-model="row.materialName"
-                @keyup.enter="saveRow(row)"
-              />
-            </template>
-            <template v-else>
-              {{ row.materialName }}
-            </template>
-          </template> -->
         </el-table-column>
         <el-table-column prop="stockName" label="仓库名称" width="130">
           <template #default="{ row }">
@@ -78,7 +66,7 @@
             </template>
           </template>
         </el-table-column>
-        <el-table-column prop="baseQty" label="库存量（基本单位）">
+        <el-table-column prop="baseQty" label="库存量(基本单位)" width="150">
           <template #default="{ row }">
             <template v-if="row.editable">
               <el-input
@@ -537,10 +525,7 @@ function refresh() {
   ImmediateInventory.getAllPage(currentPage.value, currentSize.value, 1)
     .then((res) => {
       if (res.code == 200) {
-        ElMessage({
-          type: "success",
-          message: "刷新成功",
-        });
+        
       } else {
         ElMessageBox.alert(res.message, "提示", {
             confirmButtonText: "好",
@@ -551,7 +536,13 @@ function refresh() {
     .catch((error) => {});
   console.log("查询所有工序产能");
 }
-
+function fresh() {
+  refresh()
+  ElMessage({
+    type: "success",
+    message: "刷新成功",
+  });
+}
 
 </script>
 

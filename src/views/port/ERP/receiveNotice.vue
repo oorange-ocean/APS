@@ -5,7 +5,7 @@
       <button @click="addRow"><span class="first">新增</span></button>
       <button @click="modifyRow"><span>修改</span></button>
       <button @click="deleteSelectedRows"><span>删除</span></button>
-      <button @click="refresh"><span>刷新</span></button>
+      <button @click="fresh"><span>刷新</span></button>
       <button><span>导入</span></button>
       <button @click="downloadData"><span>导出</span></button>
     </div>
@@ -37,10 +37,7 @@
         <el-table-column prop="billNo" label="单据编号" width="150">
           <template #default="{ row }">
             <template v-if="row.editable">
-              <el-input
-                v-model="row.billNo"
-                @keyup.enter="saveRow(row)"
-              />
+              <el-input v-model="row.billNo" @keyup.enter="saveRow(row)" />
             </template>
             <template v-else>
               {{ row.billNo }}
@@ -50,10 +47,7 @@
         <el-table-column prop="materialId" label="物料编码" width="120">
           <template #default="{ row }">
             <template v-if="row.editable">
-              <el-input
-                v-model="row.materialId"
-                @keyup.enter="saveRow(row)"
-              />
+              <el-input v-model="row.materialId" @keyup.enter="saveRow(row)" />
             </template>
             <template v-else>
               {{ row.materialId }}
@@ -76,10 +70,7 @@
         <el-table-column prop="mustQty" label="实收数量" width="90">
           <template #default="{ row }">
             <template v-if="row.editable">
-              <el-input
-                v-model="row.mustQty"
-                @keyup.enter="saveRow(row)"
-              />
+              <el-input v-model="row.mustQty" @keyup.enter="saveRow(row)" />
             </template>
             <template v-else>
               {{ row.mustQty }}
@@ -89,10 +80,7 @@
         <el-table-column prop="checkQty" label="检测数量" width="90">
           <template #default="{ row }">
             <template v-if="row.editable">
-              <el-input
-                v-model="row.checkQty"
-                @keyup.enter="saveRow(row)"
-              />
+              <el-input v-model="row.checkQty" @keyup.enter="saveRow(row)" />
             </template>
             <template v-else>
               {{ row.checkQty }}
@@ -102,10 +90,7 @@
         <el-table-column prop="receiveQty" label="合格数量" width="90">
           <template #default="{ row }">
             <template v-if="row.editable">
-              <el-input
-                v-model="row.receiveQty"
-                @keyup.enter="saveRow(row)"
-              />
+              <el-input v-model="row.receiveQty" @keyup.enter="saveRow(row)" />
             </template>
             <template v-else>
               {{ row.receiveQty }}
@@ -132,10 +117,7 @@
         <el-table-column prop="inStockQty" label="入库数量" width="90">
           <template #default="{ row }">
             <template v-if="row.editable">
-              <el-input
-                v-model="row.inStockQty"
-                @keyup.enter="saveRow(row)"
-              />
+              <el-input v-model="row.inStockQty" @keyup.enter="saveRow(row)" />
             </template>
             <template v-else>
               {{ row.inStockQty }}
@@ -185,32 +167,34 @@ function downloadData() {
     type: 'warning'
   })
     .then(() => {
-      ImmediateInventory
-        .downloadSchemeManagement({
+      ImmediateInventory.downloadSchemeManagement(
+        {
           type: 3,
           page: currentPage.value,
           size: currentSize.value
-        },8)
-        .then((res) => {
-          ElMessage({
-            type: 'success',
-            message: '导出当前页成功'
-          })
-          // console.log(res,'res')
+        },
+        8
+      ).then((res) => {
+        ElMessage({
+          type: 'success',
+          message: '导出当前页成功'
         })
+        // console.log(res,'res')
+      })
     })
     .catch((action) => {
       if (action === 'cancel') {
-        ImmediateInventory
-          .downloadSchemeManagement({
+        ImmediateInventory.downloadSchemeManagement(
+          {
             type: 4
-          },8)
-          .then((res) => {
-            ElMessage({
-              type: 'success',
-              message: '导出全部页成功'
-            })
+          },
+          8
+        ).then((res) => {
+          ElMessage({
+            type: 'success',
+            message: '导出全部页成功'
           })
+        })
       }
     })
 }
@@ -251,16 +235,16 @@ const createFilter = (queryString) => {
 let addAble = true //限制每次只能新增一行
 
 const newRow = {
-    billNo: '',
-    materialId: '',
-    materialName: '',
-    mustQty: '',
-    checkQty: '',
-    receiveQty: '',
-    csnReceiveBaseQty: '',
-    inStockQty: '',
-    chVersion: '',
-    editable: true
+  billNo: '',
+  materialId: '',
+  materialName: '',
+  mustQty: '',
+  checkQty: '',
+  receiveQty: '',
+  csnReceiveBaseQty: '',
+  inStockQty: '',
+  chVersion: '',
+  editable: true
 }
 const selectedRows = ref([]) // 存储选中的行数据
 
@@ -275,7 +259,7 @@ const selectedRows = ref([]) // 存储选中的行数据
 onMounted(() => {
   refresh()
 })
-onUnmounted (() => {
+onUnmounted(() => {
   ImmediateInventory.resetState()
 })
 
@@ -389,11 +373,11 @@ function handlePages(page) {
   ImmediateInventory.getAllPage(page, currentSize.value, 8)
     .then((res) => {
       const scrollContainer = tableContainer.value.querySelector(
-      '.el-scrollbar__wrap'
-    )
-    if (scrollContainer) {
-      scrollContainer.scrollTop = 0 // 滚动到顶部
-    }
+        '.el-scrollbar__wrap'
+      )
+      if (scrollContainer) {
+        scrollContainer.scrollTop = 0 // 滚动到顶部
+      }
       console.log('获取分页表格数据成功')
     })
     .catch((error) => {})
@@ -450,10 +434,6 @@ function refresh() {
   ImmediateInventory.getAllPage(currentPage.value, currentSize.value, 8)
     .then((res) => {
       if (res.code == 200) {
-        ElMessage({
-          type: 'success',
-          message: '刷新成功'
-        })
       } else {
         ElMessageBox.alert(res.message, '提示', {
           confirmButtonText: '好'
@@ -464,6 +444,13 @@ function refresh() {
     })
     .catch((error) => {})
   console.log('查询所有工序产能')
+}
+function fresh() {
+  refresh()
+  ElMessage({
+    type: 'success',
+    message: '刷新成功'
+  })
 }
 </script>
 

@@ -1,4 +1,6 @@
 import request from '@/utils/request'
+import { download,uploadFile } from '../../utils/request';
+import {getToken} from '@/utils/auth'
 
 export function getApsMachineTable(pages,size) {
     return request({
@@ -20,4 +22,13 @@ export function deleteApsMachineTable(list) {
         method: 'post',
         data:list
     })
+}
+//导出
+export function downloadApsMachineTable(param) {
+    // 使用封装的 download 方法
+    return download('/machine/downloadApsMachineTable', param, '机器管理',{
+        headers: {
+            token: getToken()
+        }
+      });
 }
