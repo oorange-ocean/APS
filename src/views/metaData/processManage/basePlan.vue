@@ -1,5 +1,4 @@
 <template>
-  <common-plan class="plan" />
   <div class="container">
     <div class="head">
       <button @click="addRow"><span class="first">新增</span></button>
@@ -7,6 +6,7 @@
       <button @click="refresh"><span>刷新</span></button>
       <button><span>导出</span></button>
     </div>
+    <common-plan class="plan" />
     <div class="main" ref="tableContainer">
       <el-table
         :data="process.basePlanList.data"
@@ -21,7 +21,7 @@
           fontWeight: '500'
         }"
         row-key="id"
-        height="62vh"
+        max-height="calc(100vh - 258px)"
         @selection-change="handleChange"
         ref="myTable"
       >
@@ -97,18 +97,14 @@
           width="80"
         ></el-table-column>
       </el-table>
-    </div>
-    <div class="bottom">
-      <!-- <div class="example-pagination-block">
-        <el-pagination layout="prev, pager, next" :total=process.basePlanList.totalPages*10 @current-change="handlePages"/>
-      </div> -->
-
-      <Pagination
-        :total="process.basePlanList.totalPages"
-        @change-page="handlePages"
-        @update-size="handleSizeChange"
-        :totalRows="process.basePlanList.total"
-      />
+      <div class="bottom" :style="{ width: userMenu.isCollapse ? 'calc(100vw - 50px)' : 'calc(100vw - 250px)' }">
+        <Pagination
+          :total="process.basePlanList.totalPages"
+          @change-page="handlePages"
+          @update-size="handleSizeChange"
+          :totalRows="process.basePlanList.total"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -302,15 +298,17 @@ function refresh() {
 .container {
   display: flex;
   /* height: 555px; */
-  margin: 24px 32px;
+  margin: 24px 24px;
   flex-direction: column;
   /* background-color: red; */
 }
 .plan {
   flex-direction: row-reverse;
+  margin: 0;
+  margin-top:24px;
 }
 .head {
-  height: 60px;
+  height: 48px;
   width: 100%;
   background-color: #f1f4f6;
 }
@@ -318,8 +316,8 @@ button {
   border: none;
   background-color: #f1f4f6;
   padding: 0;
-  line-height: 60px;
-  padding: 0 30px;
+  line-height: 48px;
+  padding: 0 25px;
 }
 button:hover {
   background-color: #0053b5;
@@ -334,7 +332,7 @@ a:hover {
   text-decoration: underline;
 }
 span {
-  font-size: 15px;
+  font-size: 14px;
 }
 .main {
   /* background-color: blue; */
@@ -347,12 +345,6 @@ span {
   /* background-color: red; */
 }
 
-.example-pagination-block {
-  /* margin-bottom: 16px; */
-  margin-top: 10px;
-  display: flex;
-  flex-direction: row-reverse;
-}
 ::v-deep .name1 {
   background-color: #FFC0CB; /* 某种颜色 */
 }
@@ -385,5 +377,8 @@ span {
 ::v-deep .name10 {
   background-color: #F5FFFA; /* 另一种颜色 */
 }
-
+.bottom {
+    position: fixed;
+    bottom: 0;
+}
 </style>

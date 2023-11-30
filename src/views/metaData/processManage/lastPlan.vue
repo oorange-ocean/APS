@@ -1,10 +1,10 @@
 <template>
-  <common-plan class="plan" />
   <div class="container">
     <div class="head">
       <button @click="refresh"><span class="first">刷新</span></button>
       <button><span>导出</span></button>
     </div>
+    <common-plan class="plan" />
     <div class="main" ref="tableContainer">
       <el-table
         :data="process.lastPlanList.data"
@@ -20,7 +20,7 @@
         row-key="id"
         @selection-change="handleChange"
         @row-dblclick="changeRow"
-        height="63vh"
+        max-height="calc(100vh - 258px)"
       >
         <!-- <el-table-column type="selection" :reserve-selection="true" label="" width="35" class="one"/> -->
         <el-table-column
@@ -56,7 +56,7 @@
               <el-input v-model="row.orderNumber" @keyup.enter="saveRow(row)" />
             </template>
             <template v-else>
-              {{ row.orderNumber }}
+              {{ formatNumber(row.orderNumber) }}
             </template>
           </template>
         </el-table-column>
@@ -86,17 +86,14 @@
           label="释放总时间(h)"
         ></el-table-column>
       </el-table>
-    </div>
-    <div class="bottom">
-      <!-- <div class="example-pagination-block">
-        <el-pagination layout="prev, pager, next" :total=process.lastPlanList.totalPages*10 @current-change="handlePages"/>
-      </div> -->
-      <Pagination
-        :total="process.lastPlanList.totalPages"
-        @change-page="handlePages"
-        @update-size="handleSizeChange"
-        :totalRows="process.lastPlanList.total"
-      />
+      <div class="bottom" :style="{ width: userMenu.isCollapse ? 'calc(100vw - 50px)' : 'calc(100vw - 250px)' }">
+        <Pagination
+          :total="process.lastPlanList.totalPages"
+          @change-page="handlePages"
+          @update-size="handleSizeChange"
+          :totalRows="process.lastPlanList.total"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -107,26 +104,24 @@ import CommonPlan from '@/components/CommonPlan.vue'
 import processManage from '../../../store/modules/metaData/processManage'
 import { useRoute, useRouter } from 'vue-router'
 import useUserStore from '../../../store/modules/user'
+import useUserMenu from "@/store/modules/menu"
+const userMenu = useUserMenu()
 
 const process = processManage()
 const route = useRoute() //用于获取和访问当前路由的信息
 const router = useRouter()
-const newRow = [
-  {
-    productFamily: '',
-    currentProcessScheme: '',
-    optimalProcessPlan: '',
-    orderNumber: '',
-    number: '',
-    productionLineBalanceRate: '',
-    completionTime: '',
-    requiredProductionStaff: '',
-    averageOutputPerPerson: '',
-    releasableStaffCount: '',
-    totalReleaseTime: '',
-    editable: true
-  }
-]
+
+const formatNumber = (value) => {
+    if (value) {
+      // 创建一个新的Intl.NumberFormat实例
+      const formatter = new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 0,  // 数字最少位数
+      });
+      // 返回格式化的数字
+      return formatter.format(value);
+    }
+};
+
 function changeRow(row) {
   row.editable = true
 }
@@ -234,16 +229,17 @@ function saveRow(row) {
 <style scoped>
 .container {
   display: flex;
-  /* height: 555px; */
-  margin: 24px 32px;
+  margin: 24px 24px;
   flex-direction: column;
   /* background-color: red; */
 }
 .plan {
   flex-direction: row-reverse;
+  margin: 0;
+  margin-top:24px;
 }
 .head {
-  height: 60px;
+  height: 48px;
   width: 100%;
   background-color: #f1f4f6;
 }
@@ -251,8 +247,8 @@ button {
   border: none;
   background-color: #f1f4f6;
   padding: 0;
-  line-height: 60px;
-  padding: 0 30px;
+  line-height: 48px;
+  padding: 0 25px;
 }
 button:hover {
   background-color: #0053b5;
@@ -267,7 +263,7 @@ a:hover {
   text-decoration: underline;
 }
 span {
-  font-size: 15px;
+  font-size: 14px;
 }
 .main {
   /* background-color: blue; */
@@ -279,11 +275,8 @@ span {
   border: 1px solid #9db9d6;
   /* background-color: red; */
 }
-
-.example-pagination-block {
-  /* margin-bottom: 16px; */
-  margin-top: 10px;
-  display: flex;
-  flex-direction: row-reverse;
+.bottom {
+  position: fixed;
+  bottom: 0;
 }
 </style>

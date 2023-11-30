@@ -6,11 +6,6 @@
             <span>创建方案</span>
         </el-button>
 
-        <el-button round class="white">
-            <el-icon><Select/></el-icon>
-            <span>保存</span>
-        </el-button>
-
         <el-button type="primary" round class="blue">
             <el-icon><Plus/></el-icon>
             <span>新增筛选</span>
@@ -34,21 +29,22 @@
 <style scoped lang="less">
 .container{
     display: flex;
-    height: 60px;
+    height: 3rem;
     background-color: #f1f4f6;
-    margin: 24px 32px; 
+    // margin: 24px 32px;
     box-sizing: border-box;
     flex-direction: row-reverse;
+    align-items: center;
     .one{
-        height: 60px;
+        height: 3rem;
         align-items: center;
-        margin-right: 40px;
+        margin-right: 2.5rem;
         .white{
             color: #00417b;
         }
     }
     .el-button{
-        margin-right: 18px;
+        margin-right: 1.125rem;
     }
     .blue{
         background-color: #1D89E9;

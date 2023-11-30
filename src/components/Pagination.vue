@@ -97,11 +97,12 @@ const emit = defineEmits(['change-page', 'update-size']);
   position: relative;
   align-items: center;
   justify-content: center;
+  /* width: 100%; */
 }
 .normal {
   background-color: #fff;
   border: none;
-  padding: 8px 15px;
+  padding: 4px 15px;
 }
 span.page-number {
   padding: 0 8px;

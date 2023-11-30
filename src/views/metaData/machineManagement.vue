@@ -1,5 +1,4 @@
 <template>
-  <common-plan class="plan" />
   <div class="container">
     <div class="head">
       <button @click="addRow"><span class="first">新增</span></button>
@@ -9,6 +8,7 @@
       <button><span>导入</span></button>
       <button @click="downloadData"><span>导出</span></button>
     </div>
+    <common-plan class="plan" />
     <div class="main" ref="tableContainer">
       <el-table
         :data="useMachine.machine.data"
@@ -24,7 +24,7 @@
         row-key="id"
         @selection-change="handleChange"
         @row-dblclick="changeRow"
-        height="62vh"
+        max-height="calc(100vh - 258px)"
         ref="myTable"
       >
         <el-table-column
@@ -137,19 +137,16 @@
           </template>
         </el-table-column>
       </el-table>
+      <div class="bottom" :style="{ width: userMenu.isCollapse ? 'calc(100vw - 50px)' : 'calc(100vw - 250px)' }">
+        <Pagination
+          :total="useMachine.machine.pages"
+          @change-page="handlePages"
+          @update-size="handleSizeChange"
+          :totalRows="useMachine.machine.total"
+        />
+      </div>
     </div>
-    <div class="bottom">
-      <!-- <div class="example-pagination-block">
-        <el-pagination layout="prev, pager, next" :total=useMachine.machine.pages*10 @current-change="handlePages"/>
-      </div> -->
-
-      <Pagination
-        :total="useMachine.machine.pages"
-        @change-page="handlePages"
-        @update-size="handleSizeChange"
-        :totalRows="useMachine.machine.total"
-      />
-    </div>
+    
     <div class="adjustDate">
       <el-dialog v-model="dialogTableVisible" title="调整日期">
         <div>
@@ -195,6 +192,8 @@ import processManage from '@/store/modules/metaData/processManage'
 import machineManagement from '@/store/modules/metaData/machineManagement'
 import { useRoute } from 'vue-router'
 import useUserStore from '../../store/modules/user'
+import useUserMenu from "@/store/modules/menu"
+const userMenu = useUserMenu()
 
 let currentPage = ref(1)
 let currentSize = ref(20)
@@ -578,15 +577,17 @@ function fresh() {
 .container {
   display: flex;
   /* height: 555px; */
-  margin: 24px 32px;
+  margin: 24px 24px;
   flex-direction: column;
   /* background-color: red; */
 }
 .plan {
   flex-direction: row-reverse;
+  margin: 0;
+  margin-top:24px;
 }
 .head {
-  height: 60px;
+  height: 48px;
   width: 100%;
   background-color: #f1f4f6;
 }
@@ -594,8 +595,8 @@ button {
   border: none;
   background-color: #f1f4f6;
   padding: 0;
-  line-height: 60px;
-  padding: 0 30px;
+  line-height: 48px;
+  padding: 0 25px;
 }
 button:hover {
   background-color: #0053b5;
@@ -603,7 +604,7 @@ button:hover {
   color: #fff;
 }
 span {
-  font-size: 15px;
+  font-size: 14px;
 }
 .el-button {
   margin: 10px 0;
@@ -638,5 +639,9 @@ span {
 }
 .cancel {
   margin-right: 10px;
+}
+.bottom {
+    position: fixed;
+    bottom: 0;
 }
 </style>

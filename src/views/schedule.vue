@@ -16,42 +16,6 @@
         </template>
         <transition name="fade" class="body">
           <div v-if="!isCollapsed">
-            <!-- <div class="updateData">
-          <div class="ERP">
-            <el-checkbox 
-            :indeterminate="indeterminate1"
-            v-model="isAllERP"
-            @change="handleCheckAllERP"
-            >ERP
-            </el-checkbox>
-            <el-checkbox-group v-model="checkedERP" @change="handleCheckedERP">
-              <el-checkbox label="1">即时库存</el-checkbox>
-              <el-checkbox label="2">委外用料清单</el-checkbox>
-              <el-checkbox label="3">生产用料清单列表</el-checkbox>
-              <el-checkbox label="4">委外订单列表</el-checkbox>
-              <el-checkbox label="5">生产订单列表</el-checkbox>
-              <el-checkbox label="6">采购申请单列表</el-checkbox>
-              <el-checkbox label="7">采购订单列表</el-checkbox>
-              <el-checkbox label="8">收料通知单列表</el-checkbox>
-              <el-checkbox label="9">锁库存列表</el-checkbox>
-              <el-checkbox label="10">物料清单列表</el-checkbox>
-            </el-checkbox-group>
-          </div>
-          <div class="MES">
-            <el-checkbox 
-            :indeterminate="indeterminate2"
-            v-model="isAllMES"
-            @change="handleCheckAllMES"
-            >MES
-            </el-checkbox>
-            <el-checkbox-group v-model="checkedMES" @change="handleCheckedMES">
-              <el-checkbox label="20">待定</el-checkbox>
-              <el-checkbox label="21">待定</el-checkbox>
-              <el-checkbox label="22">待定</el-checkbox>
-              <el-checkbox label="23">待定</el-checkbox>
-            </el-checkbox-group>
-          </div>
-        </div> -->
             <el-collapse v-model="activeNames">
               <el-collapse-item title="ERP" name="1">
                 <el-checkbox
@@ -107,21 +71,6 @@
                 </el-checkbox-group>
               </el-collapse-item>
             </el-collapse>
-            <!-- <el-checkbox
-          v-model="checkAllData"
-          :indeterminate="isIndeterminateData"
-          @change="handleCheckAllDataChange"
-          >
-          全选
-        </el-checkbox>
-        <el-checkbox-group
-          class="group"
-          v-model="checkedData"
-          @change="handleCheckedDataChange"
-        >
-          <el-checkbox v-for="data in updateData" :key="data" :label="data">{{data}}</el-checkbox>
-        </el-checkbox-group> -->
-
             <button class="check updateBtn" @click="handleUpdate">
               数据更新
             </button>
@@ -138,7 +87,7 @@
           </div>
         </template>
         <transition name="fade" class="body">
-          <div v-if="!isCollapsed" class="checkbox-container">
+          <div v-if="!isCollapsed">
             <el-checkbox
               v-model="checkAll"
               :indeterminate="isIndeterminate"
@@ -488,12 +437,12 @@ function toggleCollapse() {
 
 const cardStyle1 = computed(() => {
   return {
-    height: isCollapsed.value ? '68.8px' : '430px' // 调整卡片的高度
+    height: isCollapsed.value ? '68.8px' : '490px' // 调整卡片的高度
   }
 })
 const cardStyle2 = computed(() => {
   return {
-    height: isCollapsed.value ? '68.8px' : '430px' // 调整卡片的高度
+    height: isCollapsed.value ? '68.8px' : '490px' // 调整卡片的高度
   }
 })
 const cardStyle3 = computed(() => {
@@ -542,12 +491,9 @@ const cardStyle3 = computed(() => {
   flex-direction: row;
   height: 300px;
   overflow: auto;
-  /* align-items: center; */
-  /* justify-content: center; */
-  /* margin-left: 70px; */
 }
 .el-collapse {
-  height: 260px;
+  height: 312.4px;
   overflow: auto;
 }
 p {
@@ -616,26 +562,27 @@ span {
 .group {
   display: flex;
   flex-direction: column; /* 垂直排列多选框 */
+  height: 292px;
 }
 .body {
-  /* margin-left: 40px; */
   padding: 24px;
-  /* overflow: auto; */
 }
 .check {
   width: 162px;
   height: 42px;
   background-color: #0053b5;
   color: #fff;
-  margin: 15px auto;
+  /* margin: 15px auto; */
+  margin: 0 auto;
   display: block;
   cursor: pointer;
   border: none;
   border-radius: 5px;
 }
 .updateBtn {
+  margin: 0 auto;
   margin-top: 20px;
-  margin-bottom: 15px;
+  /* margin-bottom: 15px; */
 }
 .form {
   display: flex;

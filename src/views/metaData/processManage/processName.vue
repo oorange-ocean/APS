@@ -1,5 +1,4 @@
 <template>
-  <common-plan class="plan" />
   <div class="container">
     <div class="head">
       <button @click="addRow"><span class="first">新增</span></button>
@@ -9,6 +8,7 @@
       <button @click="dialogVisible = true"><span>导入</span></button>
       <button @click="downloadData"><span>导出</span></button>
     </div>
+    <common-plan class="plan" />
     <div class="main" ref="tableContainer">
       <el-table
         :data="process.processNames.data"
@@ -25,7 +25,7 @@
         @selection-change="handleChange"
         @row-dblclick="changeRow"
         ref="myTable"
-        height="62vh"
+        max-height="calc(100vh - 258px)"
       >
         <el-table-column
           type="selection"
@@ -46,15 +46,16 @@
           </template>
         </el-table-column>
       </el-table>
+      <div class="bottom" :style="{ width: userMenu.isCollapse ? 'calc(100vw - 50px)' : 'calc(100vw - 250px)' }">
+        <Pagination
+          :total="process.processNames.pages"
+          @change-page="handlePages"
+          @update-size="handleSizeChange"
+          :totalRows="process.processNames.total"
+        />
+      </div>
     </div>
-    <div class="bottom">
-      <Pagination
-        :total="process.processNames.pages"
-        @change-page="handlePages"
-        @update-size="handleSizeChange"
-        :totalRows="process.processNames.total"
-      />
-    </div>
+    
     <el-dialog title="导入文件" v-model="dialogVisible" width="30%">
       <!-- 文件上传 -->
       <el-upload
@@ -91,6 +92,8 @@ import Pagination from '@/components/Pagination.vue'
 import { ElMessageBox } from 'element-plus'
 import useUserStore from '../../../store/modules/user'
 import { getToken } from '../../../utils/auth'
+import useUserMenu from "@/store/modules/menu"
+const userMenu = useUserMenu()
 
 const process = processManage()
 const route = useRoute() //用于获取和访问当前路由的信息
@@ -440,27 +443,29 @@ function refresh() {
 .container {
   display: flex;
   /* height: 34.6875rem; */
-  margin: 1.5rem 2rem;
+  margin: 1.5rem;
   flex-direction: column;
   /* background-color: red; */
 }
 .plan {
   flex-direction: row-reverse;
+  margin: 0;
+  margin-top:24px;
 }
 .head {
-  height: 3.75rem;
+  height: 48px;
   width: 100%;
   background-color: #f1f4f6;
 }
 span {
-  font-size: 0.9375rem;
+  font-size: 14px;
 }
 button {
   border: none;
   background-color: #f1f4f6;
   padding: 0;
-  line-height: 3.75rem;
-  padding: 0 1.875rem;
+  line-height: 48px;
+  padding: 0 25px;
 }
 button:hover {
   background-color: #0053b5;
@@ -497,5 +502,9 @@ button:hover {
   margin-top: 0.625rem;
   display: flex;
   flex-direction: row-reverse;
+}
+.bottom {
+    position: fixed;
+    bottom: 0;
 }
 </style>

@@ -1,15 +1,13 @@
 <template>
-    <common-plan class="plan" />
     <div class="container">
       <div class="head">
         <button @click="addRow"><span class="first">新增</span></button>
         <button @click="modifyRow"><span>修改</span></button>
         <button @click="deleteSelectedRows"><span>删除</span></button>
         <button @click="fresh"><span>刷新</span></button>
-        <button ><span>导入</span></button>
         <button @click="downloadData"><span>导出</span></button>
-        
       </div>
+      <common-plan class="plan" />
       <div class="main" ref="tableContainer">
         <el-table
           :data="ImmediateInventory.outboundApplication.data"
@@ -25,7 +23,7 @@
           row-key="id"
           @selection-change="handleChange"
           @row-dblclick="changeRow"
-          height="62vh"
+          max-height="calc(100vh - 258px)"
           ref="myTable"
         >
           <el-table-column
@@ -80,14 +78,14 @@
             width="150"
           ></el-table-column>
         </el-table>
-      </div>
-      <div class="bottom">
-        <Pagination
-          :total="ImmediateInventory.outboundApplication.pages"
-          @change-page="handlePages"
-          @update-size="handleSizeChange"
-          :totalRows="ImmediateInventory.outboundApplication.total"
-        />
+        <div class="bottom" :style="{ width: userMenu.isCollapse ? 'calc(100vw - 50px)' : 'calc(100vw - 250px)' }">
+          <Pagination
+            :total="ImmediateInventory.outboundApplication.pages"
+            @change-page="handlePages"
+            @update-size="handleSizeChange"
+            :totalRows="ImmediateInventory.outboundApplication.total"
+          />
+        </div>
       </div>
       <div class="importData">
         <el-dialog title="导入文件" v-model="dialogVisible" width="30%">
@@ -125,6 +123,8 @@
   import { useRoute, useRouter } from "vue-router";
   import Pagination from "@/components/Pagination.vue";
   import useUserStore from "@/store/modules/user";
+  import useUserMenu from "@/store/modules/menu"
+  const userMenu = useUserMenu()
   
   let currentPage = ref(1);
   let currentSize = ref(100);
@@ -477,15 +477,17 @@ function fresh() {
   .container {
     display: flex;
     /* height: 555px; */
-    margin: 24px 32px;
+    margin: 24px 24px;
     flex-direction: column;
     /* background-color: red; */
   }
   .plan {
     flex-direction: row-reverse;
+    margin: 0;
+    margin-top:24px;
   }
   .head {
-    height: 60px;
+    height: 48px;
     width: 100%;
     background-color: #f1f4f6;
   }
@@ -493,8 +495,8 @@ function fresh() {
     border: none;
     background-color: #f1f4f6;
     padding: 0;
-    line-height: 60px;
-    padding: 0 30px;
+    line-height: 48px;
+    padding: 0 25px;
   }
   button:hover {
     background-color: #0053b5;
@@ -516,7 +518,7 @@ function fresh() {
     margin-left: 0.625rem;
   }
   span {
-    font-size: 15px;
+    font-size: 14px;
   }
   .main {
     /* background-color: blue; */
@@ -528,6 +530,9 @@ function fresh() {
     border: 1px solid #9db9d6;
     /* background-color: red; */
   }
-  
+  .bottom {
+    position: fixed;
+    bottom: 0;
+}
   </style>
   
