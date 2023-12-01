@@ -125,19 +125,7 @@ const immediateInventory = defineStore('immediateInventory', {
 
     // MES
     pcbaBurn: {
-      data: [
-        // {
-        //   productionOrderNumber: 'SCDD2023111646',
-        //   materialCode: '13.01.07.008',
-        //   materialName: 'TF-Luna-ASU',
-        //   burnInCompletionQuantity: '1459',
-        //   burnQualifiedCount: '1459',
-        //   unburnQualifiedCount: null, //烧录不合格数
-        //   burnFixtureNumber: 'SYTFGSX008',
-        //   totalNumber: null, //订单总数
-        //   version: '即时版本'
-        // }
-      ],
+      data: [],
       total: 0,
       pages: 1
     },
@@ -192,6 +180,11 @@ const immediateInventory = defineStore('immediateInventory', {
       page:1
     },
     tfminisPackagingTest: {
+      data: [],
+      total: 0,
+      page:1
+    },
+    tfminisMainBoardFixation: {
       data: [],
       total: 0,
       page:1
@@ -309,6 +302,11 @@ const immediateInventory = defineStore('immediateInventory', {
                 this.tfminisPackagingTest.data = res.data.list
                 this.tfminisPackagingTest.pages = res.data.pages
                 this.tfminisPackagingTest.total = res.data.total
+              }
+              else if (type == 32) {
+                this.tfminisMainBoardFixation.data = res.data.list
+                this.tfminisMainBoardFixation.pages = res.data.pages
+                this.tfminisMainBoardFixation.total = res.data.total
               }
             }
 

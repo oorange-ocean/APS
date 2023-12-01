@@ -138,6 +138,21 @@ export const dynamicRoutes = [
     name: 'sFMaterialShort',
   },
   {
+    path: '/semiFinishedBasicData',
+    component: () => import('@/views/metaData/materialBasicData/semiFinishedBasicData'),
+    name: 'semiFinishedBasicData',
+  },
+  {
+    path: '/finishedProductBasicData',
+    component: () => import('@/views/metaData/materialBasicData/finishedProductBasicData'),
+    name: 'finishedProductBasicData',
+  },
+  {
+    path: '/rawMaterialBasicData',
+    component: () => import('@/views/metaData/materialBasicData/rawMaterialBasicData'),
+    name: 'rawMaterialBasicData',
+  },
+  {
     path: '/machineManagement',
     component: () => import('@/views/metaData/machineManagement'),
     name: 'machineManagement',
@@ -258,9 +273,24 @@ export const dynamicRoutes = [
     name: 'tfminisPackagingTest',
   },
   {
+    path: '/tfminisMainBoardFixation',
+    component: () => import('@/views/port/MES/tfminisMainBoardFixation'),
+    name: 'tfminisMainBoardFixation',
+  },
+  {
     path: '/dailyDataUpload',
     component: () => import('@/views/port/MES/dailyDataUpload'),
     name: 'dailyDataUpload',
+  },
+  {
+    path: '/fimRequest',
+    component: () => import('@/views/port/FIM/fimRequest'),
+    name: 'fimRequest',
+  },
+  {
+    path: '/fimPriority',
+    component: () => import('@/views/port/FIM/fimPriority'),
+    name: 'fimPriority',
   },
 ]
 

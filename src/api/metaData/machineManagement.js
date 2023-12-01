@@ -32,3 +32,16 @@ export function downloadApsMachineTable(param) {
         }
       });
 }
+// 导入
+export function importMachineTable(param) {
+    return uploadFile(param,'/machine/importMachineTable')
+}
+// 下载模板
+export function downloadMachineTableTemplate(param) {
+    // 使用封装的 download 方法
+    return download('/machine/downloadMachineTableTemplate', param, '机器管理导入模板',{
+        headers: {
+            token: getToken()
+        }
+      });
+}

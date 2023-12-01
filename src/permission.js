@@ -97,7 +97,6 @@ router.beforeEach((to, from, next) => {
                   }
                 ]
               },
-
               {
                 name: 'permission',
                 path: '/test1',
@@ -439,6 +438,15 @@ router.beforeEach((to, from, next) => {
                         }
                       },
                       {
+                        name: 'tfminisMainBoardFixation',
+                        path: '/tfminisMainBoardFixation',
+                        component: '/port/MES/tfminisMainBoardFixation',
+                        alwaysShow: 'true',
+                        meta: {
+                          title: 'TFmini-S-主板固定'
+                        }
+                      },
+                      {
                         name: 'dailyDataUpload',
                         path: '/dailyDataUpload',
                         component: '/port/MES/dailyDataUpload',
@@ -448,7 +456,34 @@ router.beforeEach((to, from, next) => {
                         }
                       }
                     ]
-                  }
+                  },
+                  {
+                    name: 'FIM',
+                    path: '/FIM',
+                    meta: {
+                      title:'FIM'
+                    },
+                    children: [
+                      {
+                        name: 'fimRequest',
+                        path: '/fimRequest',
+                        component: '/port/FIM/fimRequest',
+                        alwaysShow: 'true',
+                        meta: {
+                          title: 'FIM需求'
+                        }
+                      },
+                      {
+                        name: 'fimPriority',
+                        path: '/fimPriority',
+                        component: '/port/FIM/fimPriority',
+                        alwaysShow: 'true',
+                        meta: {
+                          title: 'FIM优先级'
+                        }
+                      },
+                    ]
+                  },
                 ]
               },
               {
@@ -530,6 +565,42 @@ router.beforeEach((to, from, next) => {
                           title: '最终工艺方案'
                         }
                       }
+                    ]
+                  },
+                  {
+                    name: 'materialBasicData',
+                    path: '/materialBasicData',
+                    meta: {
+                      title: '物料基础数据'
+                    },
+                    children: [
+                      {
+                        name: 'semiFinishedBasicData',
+                        path: '/semiFinishedBasicData',
+                        hidden: false,
+                        component: '/metaData/materialBasicData/semiFinishedBasicData',
+                        meta: {
+                          title: '半成品基础数据'
+                        }
+                      },
+                      {
+                        name: 'finishedProductBasicData',
+                        path: '/finishedProductBasicData',
+                        hidden: false,
+                        component: '/metaData/materialBasicData/finishedProductBasicData',
+                        meta: {
+                          title: '成品基础数据'
+                        }
+                      },
+                      {
+                        name: 'rawMaterialBasicData',
+                        path: '/rawMaterialBasicData',
+                        hidden: false,
+                        component: '/metaData/materialBasicData/rawMaterialBasicData',
+                        meta: {
+                          title: '原材料基础数据'
+                        }
+                      },
                     ]
                   },
                   {
