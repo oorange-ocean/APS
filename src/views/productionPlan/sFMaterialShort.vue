@@ -14,7 +14,7 @@
         }"
         row-key="id"
         @row-dblclick="changeRow"
-        height="84vh"
+        max-height="calc(100vh - 115px)"
       >
         <el-table-column
           prop="ftaskId"
@@ -46,7 +46,11 @@
           prop="fsemiQty"
           label="半成品所需数量"
           width="90"
-        ></el-table-column>
+        >
+        <template v-slot:default="scope">
+          {{ formatNumber(scope.row.fsemiQty) }}
+        </template>
+      </el-table-column>
         <el-table-column
           prop="fsubCode"
           label="子物料编码"
@@ -56,22 +60,27 @@
           prop="fsubQty"
           label="子物料所需数量"
           width="90"
-        ></el-table-column>
+        >
+        <template v-slot:default="scope">
+          {{ formatNumber(scope.row.fsubQty) }}
+        </template>
+      </el-table-column>
         <el-table-column
           prop="fsubDeliveryTime"
           label="子物料有货时间"
           width="120"
         ></el-table-column>
       </el-table>
+        <div class="bottom" :style="{ width: userMenu.isCollapse ? 'calc(100vw - 50px)' : 'calc(100vw - 250px)' }">
+          <Pagination
+            :total="production.sFMaterialShort.pages"
+            @change-page="handlePages"
+            @update-size="handleSizeChange"
+            :totalRows="production.sFMaterialShort.total"
+          />
+        </div>
     </div>
-    <div class="bottom">
-      <Pagination
-        :total="production.sFMaterialShort.pages"
-        @change-page="handlePages"
-        @update-size="handleSizeChange"
-        :totalRows="production.sFMaterialShort.total"
-      />
-    </div>
+    
   </div>
 </template>
 
@@ -80,9 +89,22 @@ import { ref, watch, onBeforeMount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import productionPlan from '../../store/modules/productionPlan'
 import useUserStore from '@/store/modules/user';
+import useUserMenu from "@/store/modules/menu"
+const userMenu = useUserMenu()
 
 let currentPage = ref(1)
 let currentSize = ref(20)
+
+const formatNumber = (value) => {
+    if (value) {
+      // 创建一个新的Intl.NumberFormat实例
+      const formatter = new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 0,  // 数字最少位数
+      });
+      // 返回格式化的数字
+      return formatter.format(value);
+    }
+};
 function handleSizeChange(newSize) {
   currentSize.value = newSize
   // console.log(currentSize.value,'currentSize')
@@ -182,15 +204,17 @@ function handlePages(page) {
 .container {
   display: flex;
   /* height: 555px; */
-  margin: 24px 32px;
+  margin: 24px 24px;
   flex-direction: column;
   /* background-color: red; */
 }
 .plan {
   flex-direction: row-reverse;
+  margin: 0;
+  margin-top:24px;
 }
 .head {
-  height: 60px;
+  height: 48px;
   width: 100%;
   background-color: #f1f4f6;
 }
@@ -198,8 +222,8 @@ button {
   border: none;
   background-color: #f1f4f6;
   padding: 0;
-  line-height: 60px;
-  padding: 0 30px;
+  line-height: 48px;
+  padding: 0 25px;
 }
 button:hover {
   background-color: #0053b5;
@@ -214,7 +238,7 @@ a:hover {
   text-decoration: underline;
 }
 span {
-  font-size: 15px;
+  font-size: 14px;
 }
 .main {
   /* background-color: blue; */
@@ -232,5 +256,9 @@ span {
   margin-top: 10px;
   display: flex;
   flex-direction: row-reverse;
+}
+.bottom {
+    position: fixed;
+    bottom: 0;
 }
 </style>

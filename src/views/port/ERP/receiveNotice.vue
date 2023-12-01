@@ -73,7 +73,7 @@
               <el-input v-model="row.mustQty" @keyup.enter="saveRow(row)" />
             </template>
             <template v-else>
-              {{ row.mustQty }}
+              {{ formatNumber(row.mustQty) }}
             </template>
           </template>
         </el-table-column>
@@ -83,7 +83,7 @@
               <el-input v-model="row.checkQty" @keyup.enter="saveRow(row)" />
             </template>
             <template v-else>
-              {{ row.checkQty }}
+              {{ formatNumber(row.checkQty) }}
             </template>
           </template>
         </el-table-column>
@@ -93,7 +93,7 @@
               <el-input v-model="row.receiveQty" @keyup.enter="saveRow(row)" />
             </template>
             <template v-else>
-              {{ row.receiveQty }}
+              {{ formatNumber(row.receiveQty) }}
             </template>
           </template>
         </el-table-column>
@@ -110,7 +110,7 @@
               />
             </template>
             <template v-else>
-              {{ row.csnReceiveBaseQty }}
+              {{ formatNumber(row.csnReceiveBaseQty) }}
             </template>
           </template>
         </el-table-column>
@@ -120,7 +120,7 @@
               <el-input v-model="row.inStockQty" @keyup.enter="saveRow(row)" />
             </template>
             <template v-else>
-              {{ row.inStockQty }}
+              {{ formatNumber(row.inStockQty) }}
             </template>
           </template>
         </el-table-column>
@@ -162,6 +162,16 @@ const ImmediateInventory = useImmediateInventory()
 const route = useRoute() //用于获取和访问当前路由的信息
 const router = useRouter() //用于获取和访问当前路由的信息
 
+const formatNumber = (value) => {
+    if (value) {
+      // 创建一个新的Intl.NumberFormat实例
+      const formatter = new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 0,  // 数字最少位数
+      });
+      // 返回格式化的数字
+      return formatter.format(value);
+    }
+};
 function downloadData() {
   ElMessageBox.confirm('请选择你要导出的数据', '提示', {
     distinguishCancelAndClose: true,

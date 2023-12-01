@@ -91,6 +91,9 @@
         <el-table-column prop="packagingMethod" label="包装方式" width="120">
         </el-table-column>
         <el-table-column prop="standardTime" label="标准工时" width="120">
+          <template v-slot:default="scope">
+            {{ formatNumber(scope.row.standardTime) }}
+          </template>
         </el-table-column>
         <el-table-column prop="maxPersonnel" label="人员Max" width="120">
         </el-table-column>
@@ -120,6 +123,16 @@ const route = useRoute() //用于获取和访问当前路由的信息
 const router = useRouter()
 const userMenu = useUserMenu()
 
+const formatNumber = (value) => {
+    if (value) {
+      // 创建一个新的Intl.NumberFormat实例
+      const formatter = new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 0,  // 数字最少位数
+      });
+      // 返回格式化的数字
+      return formatter.format(value);
+    }
+};
 function getRowClassName({ row, column, rowIndex, columnIndex }) {
   // console.log(row, 'row');
   if (column.property === 'employeeName') { 

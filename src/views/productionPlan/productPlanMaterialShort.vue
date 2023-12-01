@@ -6,7 +6,7 @@
           :header-cell-style="{borderColor:'#9db9d6',background:'#d9e9f8',color:'#000',textAlign:'center',fontWeight:'500'}"
           row-key="id"
           @row-dblclick="changeRow"
-          height="84vh"
+          max-height="calc(100vh - 115px)"
           >
             <el-table-column prop="ftaskId" label="任务号" width="70"></el-table-column>
             <el-table-column prop="fparentMaterialCode" label="父物料编码" width="185"></el-table-column>
@@ -14,18 +14,23 @@
             <el-table-column prop="fprocess" label="工序" width="70"></el-table-column>
             <el-table-column prop="fsubMaterialCode" label="子物料编码" width="150"></el-table-column>
             <el-table-column prop="fsubMaterialName" label="子物料名称" width="225"></el-table-column>
-            <el-table-column prop="fsubMaterialQuantity" label="子物料所需数量" width="130"></el-table-column>
+            <el-table-column prop="fsubMaterialQuantity" label="子物料所需数量" width="130">
+              <template v-slot:default="scope">
+                {{ formatNumber(scope.row.fsubMaterialQuantity) }}
+              </template>
+            </el-table-column>
             <el-table-column prop="fsubMaterialDeliveryTime" label="子物料有货时间" width="180"></el-table-column>
           </el-table>
+          <div class="bottom" :style="{ width: userMenu.isCollapse ? 'calc(100vw - 50px)' : 'calc(100vw - 250px)' }">
+            <Pagination 
+            :total="production.productPlanMaterialShort.pages" 
+            @change-page="handlePages"
+            @update-size="handleSizeChange"
+            :totalRows="production.productPlanMaterialShort.total"
+            />
+          </div>
     </div>
-    <div class="bottom">
-      <Pagination 
-       :total="production.productPlanMaterialShort.pages" 
-       @change-page="handlePages"
-       @update-size="handleSizeChange"
-       :totalRows="production.productPlanMaterialShort.total"
-      />
-    </div>
+    
   </div>
 </template>
 
@@ -34,9 +39,22 @@ import {ref,watch,onBeforeMount} from 'vue'
 import { useRoute,useRouter } from 'vue-router';
 import productionPlan from '../../store/modules/productionPlan';
 import useUserStore from '@/store/modules/user';
+import useUserMenu from "@/store/modules/menu"
+const userMenu = useUserMenu()
 
 let currentPage = ref(1)
 let currentSize = ref(20)
+
+const formatNumber = (value) => {
+    if (value) {
+      // 创建一个新的Intl.NumberFormat实例
+      const formatter = new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 0,  // 数字最少位数
+      });
+      // 返回格式化的数字
+      return formatter.format(value);
+    }
+};
 function handleSizeChange(newSize) {
 currentSize.value = newSize
 // console.log(currentSize.value,'currentSize')
@@ -135,15 +153,17 @@ function handlePages(page) {
 .container{
       display: flex;
       /* height: 555px; */
-      margin: 24px 32px;
+      margin: 24px 24px;
       flex-direction: column;
       /* background-color: red; */
     }
     .plan{
       flex-direction: row-reverse;
+      margin: 0;
+      margin-top:24px;
     }
     .head{
-      height: 60px;
+      height: 48px;
       width: 100%;
       background-color: #f1f4f6;
     }
@@ -151,8 +171,8 @@ function handlePages(page) {
       border: none;
       background-color: #f1f4f6;
       padding: 0;
-      line-height: 60px;
-      padding: 0 30px;
+      line-height: 48px;
+      padding: 0 25px;
     }
     button:hover{
       background-color: #0053b5;
@@ -167,7 +187,7 @@ function handlePages(page) {
       text-decoration: underline;
     }
     span{
-      font-size: 15px;
+      font-size: 14px;
     }
     .main{
       /* background-color: blue; */
@@ -186,4 +206,8 @@ function handlePages(page) {
         display: flex;
         flex-direction: row-reverse;
       }
+  .bottom {
+    position: fixed;
+    bottom: 0;
+}
 </style>

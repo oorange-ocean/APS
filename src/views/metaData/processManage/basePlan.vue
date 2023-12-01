@@ -60,22 +60,22 @@
         ></el-table-column>
         <el-table-column prop="processName" label="工序名称"></el-table-column>
         <el-table-column prop="switchTime" label="切换时间(s)" width="100">
+          <template v-slot:default="scope">
+            {{ formatNumber(scope.row.switchTime) }}
+          </template>
         </el-table-column>
         <el-table-column
           prop="packagingMethod"
           label="包装方式"
           width="90"
         ></el-table-column>
-        <el-table-column
-          prop="standardTime"
-          label="标准工时"
-          width="90"
-        ></el-table-column>
-        <el-table-column
-          prop="maxPersonnel"
-          label="人员Max"
-          width="85"
-        ></el-table-column>
+        <el-table-column prop="standardTime" label="标准工时" width="90">
+          <template v-slot:default="scope">
+            {{ formatNumber(scope.row.standardTime) }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="maxPersonnel" label="人员Max" width="85">
+        </el-table-column>
         <el-table-column
           prop="minPersonnel"
           label="人员Min"
@@ -91,13 +91,16 @@
           label="人数"
           width="80"
         ></el-table-column>
-        <el-table-column
-          prop="state"
-          label="状态"
-          width="80"
-        ></el-table-column>
+        <el-table-column prop="state" label="状态" width="80"></el-table-column>
       </el-table>
-      <div class="bottom" :style="{ width: userMenu.isCollapse ? 'calc(100vw - 50px)' : 'calc(100vw - 250px)' }">
+      <div
+        class="bottom"
+        :style="{
+          width: userMenu.isCollapse
+            ? 'calc(100vw - 50px)'
+            : 'calc(100vw - 250px)'
+        }"
+      >
         <Pagination
           :total="process.basePlanList.totalPages"
           @change-page="handlePages"
@@ -126,37 +129,39 @@ const process = processManage()
 const route = useRoute() //用于获取和访问当前路由的信息
 const router = useRouter()
 
+const formatNumber = (value) => {
+  if (value) {
+    // 创建一个新的Intl.NumberFormat实例
+    const formatter = new Intl.NumberFormat('en-US', {
+      minimumFractionDigits: 0 // 数字最少位数
+    })
+    // 返回格式化的数字
+    return formatter.format(value)
+  }
+}
 function getRowClassName({ row, column, rowIndex, columnIndex }) {
   // console.log(row, 'row');
-  if (column.property === 'employeeName') { 
+  if (column.property === 'employeeName') {
     if (row.employeeName === '员工1') {
-      return 'name1';
+      return 'name1'
     } else if (row.employeeName === '员工2') {
-      return 'name2';
-    }
-    else if (row.employeeName === '员工3') {
-      return 'name3';
-    }
-    else if (row.employeeName === '员工4') {
-      return 'name4';
-    }
-    else if (row.employeeName === '员工5') {
-      return 'name5';
-    }
-    else if (row.employeeName === '员工6') {
-      return 'name6';
-    }
-    else if (row.employeeName === '员工7') {
-      return 'name7';
-    }
-    else if (row.employeeName === '员工8') {
-      return 'name8';
-    }
-    else if (row.employeeName === '员工9') {
-      return 'name9';
-    }
-    else if (row.employeeName === '员工10') {
-      return 'name10';
+      return 'name2'
+    } else if (row.employeeName === '员工3') {
+      return 'name3'
+    } else if (row.employeeName === '员工4') {
+      return 'name4'
+    } else if (row.employeeName === '员工5') {
+      return 'name5'
+    } else if (row.employeeName === '员工6') {
+      return 'name6'
+    } else if (row.employeeName === '员工7') {
+      return 'name7'
+    } else if (row.employeeName === '员工8') {
+      return 'name8'
+    } else if (row.employeeName === '员工9') {
+      return 'name9'
+    } else if (row.employeeName === '员工10') {
+      return 'name10'
     }
   }
 }
@@ -289,12 +294,9 @@ function refresh() {
   padding: 0;
   /* padding: 8px 0; */
 }
-
 </style>
 
 <style scoped>
-
-
 .container {
   display: flex;
   /* height: 555px; */
@@ -305,7 +307,7 @@ function refresh() {
 .plan {
   flex-direction: row-reverse;
   margin: 0;
-  margin-top:24px;
+  margin-top: 24px;
 }
 .head {
   height: 48px;
@@ -346,39 +348,39 @@ span {
 }
 
 ::v-deep .name1 {
-  background-color: #FFC0CB; /* 某种颜色 */
+  background-color: #ffc0cb; /* 某种颜色 */
 }
 
 ::v-deep .name2 {
-  background-color: #ADD8E6; /* 另一种颜色 */
+  background-color: #add8e6; /* 另一种颜色 */
 }
 ::v-deep .name3 {
-  background-color: #FFA500; /* 某种颜色 */
+  background-color: #ffa500; /* 某种颜色 */
 }
 
 ::v-deep .name4 {
   background-color: yellow; /* 另一种颜色 */
 }
 ::v-deep .name5 {
-  background-color: #E6E6FA; /* 另一种颜色 */
+  background-color: #e6e6fa; /* 另一种颜色 */
 }
 ::v-deep .name6 {
-  background-color: #FFFFE0; /* 另一种颜色 */
+  background-color: #ffffe0; /* 另一种颜色 */
 }
 ::v-deep .name7 {
-  background-color: #D3D3D3; /* 另一种颜色 */
+  background-color: #d3d3d3; /* 另一种颜色 */
 }
 ::v-deep .name8 {
-  background-color: #FAFAD2; /* 另一种颜色 */
+  background-color: #fafad2; /* 另一种颜色 */
 }
 ::v-deep .name9 {
-  background-color: #FFD1DC; /* 另一种颜色 */
+  background-color: #ffd1dc; /* 另一种颜色 */
 }
 ::v-deep .name10 {
-  background-color: #F5FFFA; /* 另一种颜色 */
+  background-color: #f5fffa; /* 另一种颜色 */
 }
 .bottom {
-    position: fixed;
-    bottom: 0;
+  position: fixed;
+  bottom: 0;
 }
 </style>

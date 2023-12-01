@@ -115,7 +115,8 @@ const formatNumber = (value) => {
     if (value) {
       // 创建一个新的Intl.NumberFormat实例
       const formatter = new Intl.NumberFormat('en-US', {
-        minimumFractionDigits: 0,  // 数字最少位数
+        minimumFractionDigits: 2,  // 设置最小小数位数为 2
+        maximumFractionDigits: 2   // 设置最大小数位数为 2
       });
       // 返回格式化的数字
       return formatter.format(value);

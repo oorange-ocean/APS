@@ -88,7 +88,7 @@
               />
             </template>
             <template v-else>
-              {{ row.totalQuantity }}
+              {{ formatNumber(row.totalQuantity) }}
             </template>
           </template>
         </el-table-column>
@@ -101,7 +101,7 @@
               />
             </template>
             <template v-else>
-              {{ row.completedQuantity }}
+              {{ formatNumber(row.completedQuantity) }}
             </template>
           </template>
         </el-table-column>
@@ -118,7 +118,7 @@
               />
             </template>
             <template v-else>
-              {{ row.capacityPsPuPp }}
+              {{ formatNumber(row.capacityPsPuPp) }}
             </template>
           </template>
         </el-table-column>
@@ -131,7 +131,7 @@
               />
             </template>
             <template v-else>
-              {{ row.remainingQuantity }}
+              {{ formatNumber(row.remainingQuantity) }}
             </template>
           </template>
         </el-table-column>
@@ -144,7 +144,7 @@
               />
             </template>
             <template v-else>
-              {{ row.remainingCapacity }}
+              {{ formatNumber(row.remainingCapacity) }}
             </template>
           </template>
         </el-table-column>
@@ -206,6 +206,16 @@ const process = useProcess()
 const route = useRoute() //用于获取和访问当前路由的信息
 const router = useRouter() //用于获取和访问当前路由的信息
 
+const formatNumber = (value) => {
+    if (value) {
+      // 创建一个新的Intl.NumberFormat实例
+      const formatter = new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 0,  // 数字最少位数
+      });
+      // 返回格式化的数字
+      return formatter.format(value);
+    }
+};
 function downloadData() {
   ElMessageBox.confirm('请选择你要导出的数据', '提示', {
     distinguishCancelAndClose: true,

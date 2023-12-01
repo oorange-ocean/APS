@@ -82,7 +82,7 @@
               <el-input v-model="row.qty" @keyup.enter="saveRow(row)" />
             </template>
             <template v-else>
-              {{ row.qty }}
+              {{ formatNumber(row.qty) }}
             </template>
           </template>
         </el-table-column>
@@ -122,7 +122,7 @@
               />
             </template>
             <template v-else>
-              {{ row.stockInQuaAuxQty }}
+              {{ formatNumber(row.stockInQuaAuxQty) }}
             </template>
           </template>
         </el-table-column>
@@ -191,6 +191,16 @@ const ImmediateInventory = useImmediateInventory()
 const route = useRoute() //用于获取和访问当前路由的信息
 const router = useRouter() //用于获取和访问当前路由的信息
 
+const formatNumber = (value) => {
+    if (value) {
+      // 创建一个新的Intl.NumberFormat实例
+      const formatter = new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 0,  // 数字最少位数
+      });
+      // 返回格式化的数字
+      return formatter.format(value);
+    }
+};
 function downloadData() {
   ElMessageBox.confirm('请选择你要导出的数据', '提示', {
     distinguishCancelAndClose: true,

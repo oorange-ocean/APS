@@ -6,24 +6,28 @@
           :header-cell-style="{borderColor:'#9db9d6',background:'#d9e9f8',color:'#000',textAlign:'center',fontWeight:'500'}"
           row-key="id"
           @row-dblclick="changeRow"
-          height="84vh"
+          max-height="calc(100vh - 115px)"
           >
             <el-table-column prop="fmaterialCode" label="物料编码" width="200"></el-table-column>
             <el-table-column prop="fmaterialName" label="物料名称"></el-table-column>
-            <el-table-column prop="fquantity" label="数量" width="100"></el-table-column>
+            <el-table-column prop="fquantity" label="数量" width="100">
+              <template v-slot:default="scope">
+                {{ formatNumber(scope.row.fquantity) }}
+              </template>
+            </el-table-column>
             
             <el-table-column prop="fstartTime" label="开始制作时间" width="200"></el-table-column>
             <el-table-column prop="frequiredDeliveryTime" label="需入库时间" width="200"></el-table-column>
             
           </el-table>
-    </div>
-    <div class="bottom">
-      <Pagination 
-       :total="production.semiFinishedProducts.pages" 
-       @change-page="handlePages"
-       @update-size="handleSizeChange"
-       :totalRows="production.semiFinishedProducts.total"
-      />
+          <div class="bottom" :style="{ width: userMenu.isCollapse ? 'calc(100vw - 50px)' : 'calc(100vw - 250px)' }">
+            <Pagination 
+            :total="production.semiFinishedProducts.pages" 
+            @change-page="handlePages"
+            @update-size="handleSizeChange"
+            :totalRows="production.semiFinishedProducts.total"
+            />
+          </div>
     </div>
   </div>
 </template>
@@ -33,9 +37,22 @@ import {ref,watch,onBeforeMount} from 'vue'
 import { useRoute,useRouter } from 'vue-router';
 import productionPlan from '../../store/modules/productionPlan';
 import useUserStore from '@/store/modules/user';
+import useUserMenu from "@/store/modules/menu"
+const userMenu = useUserMenu()
 
 let currentPage = ref(1)
 let currentSize = ref(20)
+
+const formatNumber = (value) => {
+    if (value) {
+      // 创建一个新的Intl.NumberFormat实例
+      const formatter = new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 0,  // 数字最少位数
+      });
+      // 返回格式化的数字
+      return formatter.format(value);
+    }
+};
 function handleSizeChange(newSize) {
   currentSize.value = newSize
   // console.log(currentSize.value,'currentSize')
@@ -129,15 +146,17 @@ function handlePages(page) {
 .container{
       display: flex;
       /* height: 555px; */
-      margin: 24px 32px;
+      margin: 24px 24px;
       flex-direction: column;
       /* background-color: red; */
     }
     .plan{
       flex-direction: row-reverse;
+      margin: 0;
+      margin-top:24px;
     }
     .head{
-      height: 60px;
+      height: 48px;
       width: 100%;
       background-color: #f1f4f6;
     }
@@ -145,8 +164,8 @@ function handlePages(page) {
       border: none;
       background-color: #f1f4f6;
       padding: 0;
-      line-height: 60px;
-      padding: 0 30px;
+      line-height: 48px;
+      padding: 0 25px;
     }
     button:hover{
       background-color: #0053b5;
@@ -161,7 +180,7 @@ function handlePages(page) {
       text-decoration: underline;
     }
     span{
-      font-size: 15px;
+      font-size: 14px;
     }
     .main{
       /* background-color: blue; */
@@ -179,5 +198,9 @@ function handlePages(page) {
         margin-top: 10px;
         display: flex;
         flex-direction: row-reverse;
+      }
+      .bottom {
+        position: fixed;
+        bottom: 0;
       }
 </style>
