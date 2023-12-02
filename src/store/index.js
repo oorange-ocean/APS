@@ -12,6 +12,7 @@ import productionPlan from './modules/productionPlan'
 import machineManagement from './modules/metaData/machineManagement';
 import immediateInventory from './modules/port/ERP/immediateInventory';
 import dailyDataUpload from './modules/port/MES/dailyDataUpload';
+import fimRequest from './modules/port/FIM/fimRequest';
 
 export default createStore({
   modules: {
@@ -25,6 +26,7 @@ export default createStore({
     productionPlan: productionPlan,
     machineManagement: machineManagement,
     immediateInventory: immediateInventory,
-    dailyDataUpload:dailyDataUpload
+    dailyDataUpload: dailyDataUpload,
+    fimRequest:fimRequest
   },
 });

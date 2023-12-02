@@ -50,17 +50,6 @@
             prop="materialName"
             label="物料名称"
           >
-            <!-- <template #default="{ row }">
-              <template v-if="row.editable">
-                <el-input
-                  v-model="row.materialName"
-                  @keyup.enter="saveRow(row)"
-                />
-              </template>
-              <template v-else>
-                {{ row.materialName }}
-              </template>
-            </template> -->
           </el-table-column>
           <el-table-column prop="returnDate" label="归还日期" width="300">
             <template #default="{ row }">
