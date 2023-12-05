@@ -13,6 +13,9 @@ import machineManagement from './modules/metaData/machineManagement';
 import immediateInventory from './modules/port/ERP/immediateInventory';
 import dailyDataUpload from './modules/port/MES/dailyDataUpload';
 import fimRequest from './modules/port/FIM/fimRequest';
+import rawBasicData from './modules/metaData/materialBasicData/rawBasicData';
+import finishedProduct from './modules/metaData/materialBasicData/finishedProduct';
+import semiFinished from './modules/metaData/materialBasicData/semiFinished';
 
 export default createStore({
   modules: {
@@ -27,6 +30,9 @@ export default createStore({
     machineManagement: machineManagement,
     immediateInventory: immediateInventory,
     dailyDataUpload: dailyDataUpload,
-    fimRequest:fimRequest
+    fimRequest:fimRequest,
+    rawBasicData: rawBasicData,
+    finishedProduct: finishedProduct,
+    semiFinished:semiFinished
   },
 });

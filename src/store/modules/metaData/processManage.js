@@ -111,40 +111,6 @@ const processManage = defineStore(
                 })
             },
             downloadProceeName(param) {
-                // const headers = {
-                //     token: getToken()
-                // };
-                // axios.post('https://www.apsceshi.benewake.top/benewake/process/downloadProceeName',
-                //     param, {
-                //     headers:headers,
-                //     responseType: 'blob'
-                // })
-                //     .then(response => {
-                //         if (response.code == 201) {
-                //             console.log('导出processName列表返回201错误:',response.message)
-                //         } else {
-                //             const url = window.URL.createObjectURL(new Blob([response.data]));
-                //             const link = document.createElement('a');
-                //             link.href = url;
-                //             const date = new Date();
-                //             const formattedDate = date.getFullYear() +
-                //                 ('0' + (date.getMonth() + 1)).slice(-2) +
-                //                 ('0' + date.getDate()).slice(-2) +
-                //                 ('0' + date.getHours()).slice(-2) +
-                //                 ('0' + date.getMinutes()).slice(-2) +
-                //                 ('0' + date.getSeconds()).slice(-2);
-                //             link.setAttribute('download', '工序名称_'+formattedDate+'.xlsx'); // 设置文件名和扩展名
-                //             document.body.appendChild(link);
-                //             link.click();
-                //             document.body.removeChild(link); // 清理DOM
-                //             window.URL.revokeObjectURL(url); // 清除创建的URL
-                //         }
-                    
-                //   })
-                //   .catch(error => {
-                //       // 处理错误
-                //       console.error('导出工序名称Error:', error)
-                //   });
                 return new Promise((resolve, reject) => {
                     downloadProceeName(param).then(res => {
                         

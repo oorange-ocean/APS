@@ -17,9 +17,9 @@ const useGtt = defineStore(
                 "materialName": "TF03-485(单品包装)-V1.1",
                 "processName": "组装",
                 "quantity": 14,
-                "taskDate": "12-26",
+                "taskDate": "12-26",      //日期缺了年份
                 "startTime": "18:12",
-                "endTime": "19:0",
+                "endTime": "19:0",        //开始日期和结束日期要补0
                 "version": 1
               },
               {
