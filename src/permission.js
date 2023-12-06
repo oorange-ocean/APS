@@ -604,6 +604,15 @@ router.beforeEach((to, from, next) => {
                     ]
                   },
                   {
+                    name: 'attendanceManagement',
+                    path: '/attendanceManagement',
+                    hidden: false,
+                    component: '/metaData/workDate/attendanceManagement',
+                    meta: {
+                      title: '出勤管理'
+                    }
+                  },
+                  {
                     name: 'machineManagement',
                     path: '/machineManagement',
                     component: '/metaData/machineManagement',

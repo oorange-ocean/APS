@@ -186,7 +186,7 @@
               end-placeholder="结束时间"
               :default-time="defaultTime1"
               value-format="YYYY-MM-DD HH:mm:ss"
-              data-popper-placement="top"
+              popper-class="popperName"
             />
             <el-button @click="removeDate(index)" class="remove"
               >删除</el-button
@@ -200,7 +200,7 @@
             <el-button @click="dialogTableVisible = false" class="cancel"
               >取消</el-button
             >
-            <el-button @click="confirmDate">确认</el-button>
+            <el-button @click="confirmDate" class="adjustConfirm">确认</el-button>
           </span>
         </template>
       </el-dialog>
@@ -517,6 +517,7 @@ function saveRow(row) {
         unavailableTime: row.unavailableTime
       })
       .then((res) => {
+        refresh()
         console.log('产能修改成功')
       })
       .catch((error) => {
@@ -524,7 +525,7 @@ function saveRow(row) {
         console.log('产能修改失败')
       })
     // console.log('修改工序名')
-    refresh()
+    
     row.editable = false
   }
   // 新增数据
@@ -746,6 +747,9 @@ span {
 }
 .cancel {
   margin-right: 10px;
+}
+.adjustConfirm{
+  margin-right: 10px;  
 }
 .bottom {
     position: fixed;

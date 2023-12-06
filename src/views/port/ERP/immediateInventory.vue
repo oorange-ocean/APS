@@ -7,7 +7,7 @@
       <button @click="fresh"><span>刷新</span></button>
       <button @click="downloadData"><span>导出</span></button>
     </div>
-    <common-plan class="plan" />
+    <common-plan class="plan" :columnNames="ImmediateInventory.immediateInventory.column" />
     <div class="main" ref="tableContainer">
       <el-table
         :data="ImmediateInventory.immediateInventory.data"
@@ -33,7 +33,7 @@
           width="35"
           class="one"
         />
-        <el-table-column prop="materialId" label="物料编码" width="120">
+        <el-table-column prop="materialId" label="物料编码" width="120" v-if="schemeOne.materialId">
           <template #default="{ row }">
             <template v-if="row.editable">
               <el-input
@@ -49,9 +49,10 @@
         <el-table-column
           prop="materialName"
           label="物料名称"
+          v-if="schemeOne.materialName"
         >
         </el-table-column>
-        <el-table-column prop="stockName" label="仓库名称" width="130">
+        <el-table-column prop="stockName" label="仓库名称" width="130" v-if="schemeOne.stockName">
           <template #default="{ row }">
             <template v-if="row.editable">
               <el-input
@@ -64,7 +65,7 @@
             </template>
           </template>
         </el-table-column>
-        <el-table-column prop="baseQty" label="库存量(基本单位)" width="150">
+        <el-table-column prop="baseQty" label="库存量(基本单位)" width="150" v-if="schemeOne.baseQty">
           <template #default="{ row }">
             <template v-if="row.editable">
               <el-input
@@ -81,6 +82,7 @@
           prop="avbQty"
           label="可用量(主单位)"
           width="120"
+          v-if="schemeOne.avbQty"
         >
           <template #default="{ row }">
             <template v-if="row.editable">
@@ -94,7 +96,7 @@
             </template>
           </template>
         </el-table-column>
-        <el-table-column prop="lot" label="批号" width="175">
+        <el-table-column prop="lot" label="批号" width="175" v-if="schemeOne.lot">
           <template #default="{ row }">
             <template v-if="row.editable">
               <el-input v-model="row.lot" @keyup.enter="saveRow(row)" />
@@ -104,7 +106,7 @@
             </template>
           </template>
         </el-table-column>
-        <el-table-column prop="expiryDate" label="有效期至" width="180">
+        <el-table-column prop="expiryDate" label="有效期至" width="180" v-if="schemeOne.expiryDate">
           <template #default="{ row }">
             <template v-if="row.editable">
               <el-input
@@ -121,6 +123,7 @@
           prop="chVersion"
           label="版本号"
           width="120"
+          v-if="schemeOne.chVersion"
         ></el-table-column>
       </el-table>
       <div class="bottom" :style="{ width: userMenu.isCollapse ? 'calc(100vw - 50px)' : 'calc(100vw - 250px)' }">
@@ -163,7 +166,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted,onUnmounted } from "vue";
+import { ref, onMounted,onUnmounted,reactive } from "vue";
 import CommonPlan from "@/components/CommonPlan.vue";
 import useImmediateInventory from "../../../store/modules/port/ERP/immediateInventory";
 import { useRoute, useRouter } from "vue-router";
@@ -171,9 +174,12 @@ import Pagination from "@/components/Pagination.vue";
 import useUserStore from "@/store/modules/user";
 import useUserMenu from "@/store/modules/menu"
 const userMenu = useUserMenu()
+const ImmediateInventory = useImmediateInventory();
 
 let currentPage = ref(1);
 let currentSize = ref(100);
+
+let schemeOne = reactive(ImmediateInventory.immediateInventory.scheme[0]["方案一"]);
 
 
 const formatNumber = (value) => {
@@ -293,10 +299,6 @@ function downloadModel() {
     dialogVisible.value = false
   })
 }
-
-const ImmediateInventory = useImmediateInventory();
-const route = useRoute(); //用于获取和访问当前路由的信息
-const router = useRouter(); //用于获取和访问当前路由的信息
 
 function handleSizeChange(newSize) {
   currentSize.value = newSize;

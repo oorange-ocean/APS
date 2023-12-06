@@ -70,7 +70,42 @@ const immediateInventory = defineStore('immediateInventory', {
     immediateInventory: {
       data: [],
       pages: 1,
-      total: 0
+      total: 0,
+      column: [
+        '可用量(主单位)',
+        '物料编码',
+        '库存',
+        '库存量(基本单位)',
+        
+        '有效期至',
+        '仓库名称',
+        '物料名称',
+        '版本号'
+      ],
+      scheme: [
+        {
+          方案一: {
+            avbQty: true,
+            materialId: true,
+            baseQty: true,
+            lot: true,
+            expiryDate: true,
+            stockName: true,
+            materialName: true,
+            chVersion: true
+          },
+          方案二: {
+            avbQty: true,
+            materialId: true,
+            baseQty: true,
+            lot: true,
+            expiryDate: true,
+            stockName: true,
+            materialName: false,
+            chVersion: false
+          }
+        }
+      ]
     },
     outsourcedMaterial: {
       data: [],
@@ -132,63 +167,63 @@ const immediateInventory = defineStore('immediateInventory', {
     tfminsPcbaBurn: {
       data: [],
       total: 0,
-      page:1
+      page: 1
     },
     pcbaVersion: {
       data: [],
       total: 0,
-      page:1
+      page: 1
     },
     tfminisPcbaVersion: {
       data: [],
       total: 0,
-      page:1
+      page: 1
     },
     installationBoard: {
       data: [],
       total: 0,
-      page:1
+      page: 1
     },
     tfminisInstallationBoard: {
       data: [],
       total: 0,
-      page:1
+      page: 1
     },
     snLabeling: {
       data: [],
       total: 0,
-      page:1
+      page: 1
     },
     tfminisSnLabeling: {
       data: [],
       total: 0,
-      page:1
+      page: 1
     },
     calibrationTests: {
       data: [],
       total: 0,
-      page:1
+      page: 1
     },
     tfminisCalibrationTests: {
       data: [],
       total: 0,
-      page:1
+      page: 1
     },
     packagingTest: {
       data: [],
       total: 0,
-      page:1
+      page: 1
     },
     tfminisPackagingTest: {
       data: [],
       total: 0,
-      page:1
+      page: 1
     },
     tfminisMainBoardFixation: {
       data: [],
       total: 0,
-      page:1
-    },
+      page: 1
+    }
   }),
   actions: {
     getAllPage(page, size, type) {
@@ -247,63 +282,51 @@ const immediateInventory = defineStore('immediateInventory', {
                 this.pcbaBurn.data = res.data.list
                 this.pcbaBurn.pages = res.data.pages
                 this.pcbaBurn.total = res.data.total
-              }
-              else if (type == 21) {
+              } else if (type == 21) {
                 this.tfminsPcbaBurn.data = res.data.list
                 this.tfminsPcbaBurn.pages = res.data.pages
                 this.tfminsPcbaBurn.total = res.data.total
-              }
-              else if (type == 22) {
+              } else if (type == 22) {
                 this.pcbaVersion.data = res.data.list
                 this.pcbaVersion.pages = res.data.pages
                 this.pcbaVersion.total = res.data.total
-              }
-              else if (type == 23) {
+              } else if (type == 23) {
                 this.tfminisPcbaVersion.data = res.data.list
                 this.tfminisPcbaVersion.pages = res.data.pages
                 this.tfminisPcbaVersion.total = res.data.total
-              }
-              else if (type == 24) {
+              } else if (type == 24) {
                 this.installationBoard.data = res.data.list
                 this.installationBoard.pages = res.data.pages
                 this.installationBoard.total = res.data.total
-              }
-              else if (type == 25) {
+              } else if (type == 25) {
                 this.tfminisInstallationBoard.data = res.data.list
                 this.tfminisInstallationBoard.pages = res.data.pages
                 this.tfminisInstallationBoard.total = res.data.total
-              }
-              else if (type == 26) {
+              } else if (type == 26) {
                 this.snLabeling.data = res.data.list
                 this.snLabeling.pages = res.data.pages
                 this.snLabeling.total = res.data.total
-              }
-              else if (type == 27) {
+              } else if (type == 27) {
                 this.tfminisSnLabeling.data = res.data.list
                 this.tfminisSnLabeling.pages = res.data.pages
                 this.tfminisSnLabeling.total = res.data.total
-              }
-              else if (type == 28) {
+              } else if (type == 28) {
                 this.calibrationTests.data = res.data.list
                 this.calibrationTests.pages = res.data.pages
                 this.calibrationTests.total = res.data.total
-              }
-              else if (type == 29) {
+              } else if (type == 29) {
                 this.tfminisCalibrationTests.data = res.data.list
                 this.tfminisCalibrationTests.pages = res.data.pages
                 this.tfminisCalibrationTests.total = res.data.total
-              }
-              else if (type == 30) {
+              } else if (type == 30) {
                 this.packagingTest.data = res.data.list
                 this.packagingTest.pages = res.data.pages
                 this.packagingTest.total = res.data.total
-              }
-              else if (type == 31) {
+              } else if (type == 31) {
                 this.tfminisPackagingTest.data = res.data.list
                 this.tfminisPackagingTest.pages = res.data.pages
                 this.tfminisPackagingTest.total = res.data.total
-              }
-              else if (type == 32) {
+              } else if (type == 32) {
                 this.tfminisMainBoardFixation.data = res.data.list
                 this.tfminisMainBoardFixation.pages = res.data.pages
                 this.tfminisMainBoardFixation.total = res.data.total

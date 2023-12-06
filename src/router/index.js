@@ -153,6 +153,11 @@ export const dynamicRoutes = [
     name: 'rawMaterialBasicData',
   },
   {
+    path: '/attendanceManagement',
+    component: () => import('@/views/metaData/workDate/attendanceManagement'),
+    name: 'attendanceManagement',
+  },
+  {
     path: '/machineManagement',
     component: () => import('@/views/metaData/machineManagement'),
     name: 'machineManagement',

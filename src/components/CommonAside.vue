@@ -218,7 +218,7 @@ function logout() {
   userStore.roles = []
   userStore.routers = []
   localStorage.removeItem('name')
-  localStorage.removeItem('pageSize')
+  // localStorage.removeItem('pageSize')
   sessionStorage.removeItem('tabs')
   removeToken()
   router.push({ path: '/login' })

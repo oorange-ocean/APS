@@ -16,6 +16,7 @@ import fimRequest from './modules/port/FIM/fimRequest';
 import rawBasicData from './modules/metaData/materialBasicData/rawBasicData';
 import finishedProduct from './modules/metaData/materialBasicData/finishedProduct';
 import semiFinished from './modules/metaData/materialBasicData/semiFinished';
+import attendanceManagement from './modules/metaData/attendanceManagement'
 
 export default createStore({
   modules: {
@@ -33,6 +34,7 @@ export default createStore({
     fimRequest:fimRequest,
     rawBasicData: rawBasicData,
     finishedProduct: finishedProduct,
-    semiFinished:semiFinished
+    semiFinished: semiFinished,
+    attendanceManagement:attendanceManagement
   },
 });
