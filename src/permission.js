@@ -231,30 +231,12 @@ router.beforeEach((to, from, next) => {
                         }
                       },
                       {
-                        name: 'outsourcedMaterial',
-                        path: '/outsourcedMaterial',
-                        component: '/port/ERP/outsourcedMaterial',
-                        alwaysShow: 'true',
-                        meta: {
-                          title: '委外用料清单列表'
-                        }
-                      },
-                      {
                         name: 'productionMaterial',
                         path: '/productionMaterial',
                         component: '/port/ERP/productionMaterial',
                         alwaysShow: 'true',
                         meta: {
-                          title: '生产用料清单列表'
-                        }
-                      },
-                      {
-                        name: 'outsourcedOrder',
-                        path: '/outsourcedOrder',
-                        component: '/port/ERP/outsourcedOrder',
-                        alwaysShow: 'true',
-                        meta: {
-                          title: '委外订单列表'
+                          title: '用料清单列表'
                         }
                       },
                       {
@@ -263,16 +245,7 @@ router.beforeEach((to, from, next) => {
                         component: '/port/ERP/productionOrder',
                         alwaysShow: 'true',
                         meta: {
-                          title: '生产订单列表'
-                        }
-                      },
-                      {
-                        name: 'purchaseRequest',
-                        path: '/purchaseRequest',
-                        component: '/port/ERP/purchaseRequest',
-                        alwaysShow: 'true',
-                        meta: {
-                          title: '采购申请单列表'
+                          title: '委外/生产订单列表'
                         }
                       },
                       {
@@ -281,7 +254,7 @@ router.beforeEach((to, from, next) => {
                         component: '/port/ERP/purchaseOrder',
                         alwaysShow: 'true',
                         meta: {
-                          title: '采购订单列表'
+                          title: '采购列表'
                         }
                       },
                       {

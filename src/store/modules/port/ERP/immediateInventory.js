@@ -5,27 +5,23 @@ import {
   add,
   update,
   deleteData,
-  downloadSchemeManagement,
+  downloadInterfaceDate,
   importInterfaceData,
-  downloadInterfaceTemplate
+  downloadInterfaceTemplate,
+  getPageFiltrate
 } from '@/api/port/ERP/immediateInventory'
+import { getCols,getViews } from '@/api/commonPlan'
 
 function getFileName(type) {
   let fileName = ''
   if (type == 1) {
     fileName = '即时库存'
   } else if (type == 2) {
-    fileName = '委外用料清单列表'
-  } else if (type == 3) {
-    fileName = '生产用料清单列表'
+    fileName = '用料清单列表'
   } else if (type == 4) {
-    fileName = '委外订单列表'
-  } else if (type == 5) {
-    fileName = '生产订单列表'
+    fileName = '委外/生产订单列表'
   } else if (type == 6) {
-    fileName = '采购申请单列表'
-  } else if (type == 7) {
-    fileName = '采购订单列表'
+    fileName = '采购列表'
   } else if (type == 8) {
     fileName = '收料通知单列表'
   } else if (type == 9) {
@@ -71,82 +67,66 @@ const immediateInventory = defineStore('immediateInventory', {
       data: [],
       pages: 1,
       total: 0,
-      column: [
-        '可用量(主单位)',
-        '物料编码',
-        '库存',
-        '库存量(基本单位)',
-        
-        '有效期至',
-        '仓库名称',
-        '物料名称',
-        '版本号'
-      ],
-      scheme: [
-        {
-          方案一: {
-            avbQty: true,
-            materialId: true,
-            baseQty: true,
-            lot: true,
-            expiryDate: true,
-            stockName: true,
-            materialName: true,
-            chVersion: true
-          },
-          方案二: {
-            avbQty: true,
-            materialId: true,
-            baseQty: true,
-            lot: true,
-            expiryDate: true,
-            stockName: true,
-            materialName: false,
-            chVersion: false
-          }
-        }
-      ]
-    },
-    outsourcedMaterial: {
-      data: [],
-      total: 0,
-      pages: 1
+      // 所有列名
+      column:[],
+      // 所有视图
+      views: [],
+      // 视图的列名（包含了筛选条件）
+      viewColumn: [],
+      defaultViewId: null,
+      defaultViewName: '',
     },
     productionMaterial: {
       data: [],
       total: 0,
-      pages: 1
-    },
-    outsourcedOrder: {
-      data: [],
-      total: 0,
-      pages: 1
+      pages: 1,
+      column:[],
+      views: [],
+      viewColumn: [],
+      defaultViewId: null,
+      defaultViewName: '',
     },
     productionOrder: {
       data: [],
       total: 0,
-      pages: 1
-    },
-    purchaseRequest: {
-      data: [],
-      total: 0,
-      pages: 1
+      pages: 1,
+      column:[],
+      views: [],
+      viewColumn: [],
+      defaultViewId: null,
+      defaultViewName: '',
     },
     purchaseOrder: {
       data: [],
       total: 0,
-      pages: 1
+      pages: 1,
+      column:[],
+      views: [],
+      viewColumn: [],
+      defaultViewId: null,
+      defaultViewName: '',
     },
     receiveNotice: {
       data: [],
       total: 0,
-      pages: 1
+      pages: 1,
+      column: [],
+      views: [],
+      viewColumn: [],
+      defaultViewId: null,
+      defaultViewName: '',
     },
     inventoryLock: {
       data: [],
       total: 0,
-      pages: 1
+      pages: 1,
+      column:[],
+      views: [],
+      viewColumn: [],
+      defaultViewId: null,
+      defaultViewName: '',
     },
+
     materialBom: {
       data: [],
       total: 0,
@@ -373,10 +353,11 @@ const immediateInventory = defineStore('immediateInventory', {
           })
       })
     },
-    downloadSchemeManagement(param, type) {
+    // 导出
+    downloadInterfaceDate(param) {
       return new Promise((resolve, reject) => {
-        const fileName = getFileName(type)
-        downloadSchemeManagement(param, type, fileName)
+        const fileName = getFileName(param.tableId)
+        downloadInterfaceDate(param, fileName)
           .then((res) => {
             resolve(res)
           })
@@ -401,11 +382,110 @@ const immediateInventory = defineStore('immediateInventory', {
           })
       })
     },
+    // 导入模板
     downloadInterfaceTemplate(type, param) {
       const fileName = getFileName(type) + '导入模板'
       return new Promise((resolve, reject) => {
         downloadInterfaceTemplate(type, param, fileName)
           .then((res) => {
+            resolve(res)
+          })
+          .catch((error) => {
+            reject(error)
+          })
+      })
+    },
+
+
+    getCols(tableId) {
+      return new Promise((resolve, reject) => {
+          getCols(tableId).then(res => {
+              if (res.code == 200) {
+                  if (tableId == 1) {
+                      this.immediateInventory.column = res.data;
+                  }
+                  else if (tableId == 2)
+                  {
+                      this.productionMaterial.column = res.data;
+                  }
+                  else if (tableId == 4)
+                  {
+                      this.productionOrder.column = res.data;
+                  }
+                  else if (tableId == 6)
+                  {
+                      this.purchaseOrder.column = res.data;
+                  }
+              }
+              resolve(res)
+          }).catch(error => {
+              
+              reject(error)
+          })
+      })
+    },
+    getViews(tableId) {
+        return new Promise((resolve, reject) => {
+            getViews(tableId).then(res => {
+                if (res.code == 200) {
+                    if (tableId == 1) {
+                        this.immediateInventory.views = res.data.viewTableVos;
+                        this.immediateInventory.defaultViewId = res.data.defaultViewId;
+                        this.immediateInventory.defaultViewName = res.data.defaultViewName;
+                    }
+                    else if (tableId == 2) {
+                        this.productionMaterial.views = res.data.viewTableVos;
+                        this.productionMaterial.defaultViewId = res.data.defaultViewId;
+                        this.productionMaterial.defaultViewName = res.data.defaultViewName;
+                    }
+                    else if (tableId == 4) {
+                        this.productionOrder.views = res.data.viewTableVos;
+                        this.productionOrder.defaultViewId = res.data.defaultViewId;
+                        this.productionOrder.defaultViewName = res.data.defaultViewName;
+                    }
+                    else if (tableId == 6) {
+                        this.purchaseOrder.views = res.data.viewTableVos;
+                        this.purchaseOrder.defaultViewId = res.data.defaultViewId;
+                        this.purchaseOrder.defaultViewName = res.data.defaultViewName;
+                    }
+                }
+                resolve(res)
+            }).catch(error => {
+                
+                reject(error)
+            })
+        })
+    },
+    // 获取当前表格数据
+    getPageFiltrate(param,page,size) {
+      return new Promise((resolve, reject) => {
+        getPageFiltrate(param,page,size)
+          .then((res) => {
+            if (res.code == 200) {
+              if (param.tableId == 1) {
+                this.immediateInventory.data = res.data.list
+                this.immediateInventory.pages = res.data.pages
+                this.immediateInventory.total = res.data.total
+                this.immediateInventory.viewColumn = res.data.columnTables
+              } else if (param.tableId == 2) {
+                this.productionMaterial.data = res.data.list
+                this.productionMaterial.pages = res.data.pages
+                this.productionMaterial.total = res.data.total
+                this.productionMaterial.viewColumn = res.data.columnTables
+              }
+              else if (param.tableId == 4) {
+                this.productionOrder.data = res.data.list
+                this.productionOrder.pages = res.data.pages
+                this.productionOrder.total = res.data.total
+                this.productionOrder.viewColumn = res.data.columnTables
+              }
+              else if (param.tableId == 6) {
+                this.purchaseOrder.data = res.data.list
+                this.purchaseOrder.pages = res.data.pages
+                this.purchaseOrder.total = res.data.total
+                this.purchaseOrder.viewColumn = res.data.columnTables
+              }
+            }
             resolve(res)
           })
           .catch((error) => {

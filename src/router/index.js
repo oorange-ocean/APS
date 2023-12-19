@@ -168,29 +168,14 @@ export const dynamicRoutes = [
     name: 'immediateInventory',
   },
   {
-    path: '/outsourcedMaterial',
-    component: () => import('@/views/port/ERP/outsourcedMaterial'),
-    name: 'outsourcedMaterial',
-  },
-  {
     path: '/productionMaterial',
     component: () => import('@/views/port/ERP/productionMaterial'),
     name: 'productionMaterial',
   },
   {
-    path: '/outsourcedOrder',
-    component: () => import('@/views/port/ERP/outsourcedOrder'),
-    name: 'outsourcedOrder',
-  },
-  {
     path: '/productionOrder',
     component: () => import('@/views/port/ERP/productionOrder'),
     name: 'productionOrder',
-  },
-  {
-    path: '/purchaseRequest',
-    component: () => import('@/views/port/ERP/purchaseRequest'),
-    name: 'purchaseRequest',
   },
   {
     path: '/purchaseOrder',

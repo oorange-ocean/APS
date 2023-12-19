@@ -30,3 +30,6 @@
   --el-scrollbar-bg-color:#666 !important;
   /* --el-scrollbar-hover-bg-color:#444 !important; */
 }
+.el-table .caret-wrapper {
+  display: none !important;
+}

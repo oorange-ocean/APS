@@ -9,6 +9,14 @@ export function getAllPage(page,size,type) {
     })
 }
 
+export function getPageFiltrate(param,page,size) {
+    return request({
+        url: `/interface/getPageFiltrate/${page}/${size}`,
+        method: 'post',
+        data:param
+    })
+}
+
 export function add(param,type) {
     return request({    
         url: `/interface/add?type=${type}`,
@@ -33,8 +41,8 @@ export function deleteData(param,type) {
     })
 }
 // 导出
-export function downloadSchemeManagement(param,type,fileName) {
-    return download(`/interface/downloadInterfaceDate?type=${type}`, param, fileName,{
+export function downloadInterfaceDate(param,fileName) {
+    return download(`/interface/downloadInterfaceDate`, param, fileName,{
         headers: {
             token: getToken()
         }

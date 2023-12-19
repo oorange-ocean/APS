@@ -2,7 +2,7 @@
     <div class="pages">
             <button @click="goToFirstPage" class="normal">&lt;&lt;</button>
             <button @click="goToPreviousPage" class="normal">&lt;</button>
-            <span>第 <span class="page-number">{{ currentPage }}</span> 页</span>
+            <span>第 <span class="page-number">{{ props.currentPage }}</span> 页</span>
             <button @click="goToNextPage" class="normal">&gt;</button>
             <button @click="goToLastPage" class="normal">&gt;&gt;</button>
         
@@ -22,7 +22,7 @@
 </template>
 
 <script setup>
-import { ref, computed,watch } from 'vue';
+import { ref, computed } from 'vue';
 import useUserStore from '../store/modules/user';
 
 const props = defineProps({
@@ -34,11 +34,13 @@ const props = defineProps({
     type: Number,
     default: 100,
   },
+  currentPage:Number
 });
 
 
 const userStore = useUserStore();
 const currentPage = ref(1);
+currentPage.value = props.currentPage
 const size = ref(userStore.pageSize); // 使 size 变为响应式
 
 const totalHang = computed(() => props.totalRows);
@@ -50,6 +52,7 @@ const goToFirstPage = () => {
 };
 
 const goToPreviousPage = () => {
+  currentPage.value = props.currentPage
   if (currentPage.value > 1) {
     currentPage.value--;
     emit("change-page", currentPage.value);
@@ -57,6 +60,7 @@ const goToPreviousPage = () => {
 };
 
 const goToNextPage = () => {
+  currentPage.value = props.currentPage
   if (currentPage.value < totalPages.value) {
     currentPage.value++;
     emit("change-page", currentPage.value);
@@ -97,7 +101,8 @@ const emit = defineEmits(['change-page', 'update-size']);
   position: relative;
   align-items: center;
   justify-content: center;
-  /* width: 100%; */
+  width: 100%;
+  background-color: #fff;
 }
 .normal {
   background-color: #fff;
