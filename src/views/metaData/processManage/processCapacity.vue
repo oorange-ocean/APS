@@ -87,6 +87,16 @@
             </template>
           </template>
         </el-table-column>
+        <el-table-column prop="concurrencyCount" label="并行数据" width="120">
+          <template #default="{ row }">
+            <template v-if="row.editable">
+              <el-input v-model="row.concurrencyCount" @keyup.enter="saveRow(row)" />
+            </template>
+            <template v-else>
+              {{ row.concurrencyCount }}
+            </template>
+          </template>
+        </el-table-column>
         <el-table-column prop="switchTime" label="切换时间(s)" width="120">
           <template #default="{ row }">
             <template v-if="row.editable">
@@ -433,6 +443,7 @@ const newRow = {
   switchTime: '',
   packagingMethod: '',
   standardTime: '',
+  concurrencyCount:'',
   maxPersonnel: 1,
   minPersonnel: 1,
   editable: true
@@ -496,7 +507,8 @@ function saveRow(row) {
         packagingMethod: row.packagingMethod,
         standardTime: row.standardTime,
         maxPersonnel: row.maxPersonnel,
-        minPersonnel: row.minPersonnel
+        minPersonnel: row.minPersonnel,
+        concurrencyCount:row.concurrencyCount
       })
       .then((res) => {
         console.log('产能修改成功')
@@ -521,7 +533,8 @@ function saveRow(row) {
         packagingMethod: row.packagingMethod,
         standardTime: row.standardTime,
         maxPersonnel: row.maxPersonnel,
-        minPersonnel: row.minPersonnel
+        minPersonnel: row.minPersonnel,
+        concurrencyCount:row.concurrencyCount
       })
       .then((res) => {
         addAble = true
@@ -705,7 +718,6 @@ span {
   /* background-color: blue; */
   /* width: 100%; */
   flex: 1;
-  margin-top: 20px;
 }
 .el-table {
   border: 1px solid #9db9d6;

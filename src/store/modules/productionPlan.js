@@ -129,7 +129,9 @@ const productionPlan = defineStore(
                             this.productPlan.data = res.data.list
                             this.productPlan.pages = res.data.pages
                             this.productPlan.total = res.data.total
-                            this.productPlan.viewColumn = res.data.columnTables
+                            if (!param.cols) {
+                                this.productPlan.viewColumn = res.data.columnTables
+                            }
                         }
                         resolve(res)
                     }).catch(error => {
@@ -145,7 +147,9 @@ const productionPlan = defineStore(
                             this.semiFinishedProducts.data = res.data.list
                             this.semiFinishedProducts.pages = res.data.pages
                             this.semiFinishedProducts.total = res.data.total
-                            this.semiFinishedProducts.viewColumn = res.data.columnTables
+                            if (!param.cols) {
+                                this.semiFinishedProducts.viewColumn = res.data.columnTables
+                              }
                         }
                         resolve(res)
                     }).catch(error => {
@@ -161,7 +165,9 @@ const productionPlan = defineStore(
                             this.productPlanMaterialShort.data = res.data.list
                             this.productPlanMaterialShort.pages = res.data.pages
                             this.productPlanMaterialShort.total = res.data.total
-                            this.productPlanMaterialShort.viewColumn = res.data.columnTables
+                            if (!param.cols) {
+                                this.productPlanMaterialShort.viewColumn = res.data.columnTables
+                            }
                         }
                         resolve(res)
                     }).catch(error => {
@@ -177,7 +183,9 @@ const productionPlan = defineStore(
                             this.sFMaterialShort.data = res.data.list
                             this.sFMaterialShort.pages = res.data.pages
                             this.sFMaterialShort.total = res.data.total
-                            this.sFMaterialShort.viewColumn = res.data.columnTables
+                            if (!param.cols) {
+                                this.sFMaterialShort.viewColumn = res.data.columnTables
+                            }
                         }
                         resolve(res)
                     }).catch(error => {

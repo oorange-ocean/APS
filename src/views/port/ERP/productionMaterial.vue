@@ -74,7 +74,7 @@
         <el-table-column
           prop="materialName"
           label="产品名称"
-          width="220"
+          width="250"
           :sort-orders="['ascending', 'descending']"
           sortable="custom"
           v-if="plan.materialName"
@@ -153,7 +153,7 @@
         <el-table-column
           prop="materialType"
           label="子项类型"
-          width="85"
+          width="120"
           :sort-orders="['ascending', 'descending']"
           sortable="custom"
           v-if="plan.materialType"
@@ -179,7 +179,7 @@
         <el-table-column
           prop="mustQty"
           label="应发数量"
-          width="85"
+          width="120"
           :sort-orders="['ascending', 'descending']"
           sortable="custom"
           v-if="plan.mustQty"
@@ -202,7 +202,7 @@
         <el-table-column
           prop="pickedQty"
           label="已领数量"
-          width="85"
+          width="120"
           :sort-orders="['ascending', 'descending']"
           sortable="custom"
           v-if="plan.pickedQty"
@@ -225,6 +225,7 @@
         <el-table-column
           prop="goodReturnQty"
           label="良品退料数量"
+          width="150"
           :sort-orders="['ascending', 'descending']"
           sortable="custom"
           v-if="plan.goodReturnQty"
@@ -250,6 +251,7 @@
         <el-table-column
           prop="processDefectReturnQty"
           label="作业不良退料数量"
+          width="160"
           :sort-orders="['ascending', 'descending']"
           sortable="custom"
           v-if="plan.processDefectReturnQty"
@@ -275,7 +277,7 @@
         <el-table-column
           prop="dzmaterialId"
           label="定制物料编码"
-          width="130"
+          width="150"
           :sort-orders="['ascending', 'descending']"
           sortable="custom"
           v-if="plan.dzmaterialId"
@@ -301,7 +303,7 @@
         <el-table-column
           prop="formName"
           label="表单名称"
-          width="130"
+          width="150"
           :sort-orders="['ascending', 'descending']"
           sortable="custom"
           v-if="plan.formName"

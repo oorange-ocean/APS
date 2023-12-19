@@ -430,7 +430,7 @@ const handleDoubleClick = (view) => {
   }
   selectedColumns.value = props.columnNames.filter((columnName) => {
     return props.viewColumn.some((viewColumnItem) => {
-      return viewColumnItem.chColName === columnName.chColName
+      return viewColumnItem.voColName === columnName.voColName
     })
   })
   if (currentViewId.value == defaultViewId.value) {

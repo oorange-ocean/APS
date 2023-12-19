@@ -10,7 +10,7 @@ import {
   downloadInterfaceTemplate,
   getPageFiltrate
 } from '@/api/port/ERP/immediateInventory'
-import { getCols,getViews } from '@/api/commonPlan'
+import { getCols, getViews } from '@/api/commonPlan'
 
 function getFileName(type) {
   let fileName = ''
@@ -68,43 +68,43 @@ const immediateInventory = defineStore('immediateInventory', {
       pages: 1,
       total: 0,
       // 所有列名
-      column:[],
+      column: [],
       // 所有视图
       views: [],
       // 视图的列名（包含了筛选条件）
       viewColumn: [],
       defaultViewId: null,
-      defaultViewName: '',
+      defaultViewName: ''
     },
     productionMaterial: {
       data: [],
       total: 0,
       pages: 1,
-      column:[],
+      column: [],
       views: [],
       viewColumn: [],
       defaultViewId: null,
-      defaultViewName: '',
+      defaultViewName: ''
     },
     productionOrder: {
       data: [],
       total: 0,
       pages: 1,
-      column:[],
+      column: [],
       views: [],
       viewColumn: [],
       defaultViewId: null,
-      defaultViewName: '',
+      defaultViewName: ''
     },
     purchaseOrder: {
       data: [],
       total: 0,
       pages: 1,
-      column:[],
+      column: [],
       views: [],
       viewColumn: [],
       defaultViewId: null,
-      defaultViewName: '',
+      defaultViewName: ''
     },
     receiveNotice: {
       data: [],
@@ -114,28 +114,38 @@ const immediateInventory = defineStore('immediateInventory', {
       views: [],
       viewColumn: [],
       defaultViewId: null,
-      defaultViewName: '',
+      defaultViewName: ''
     },
     inventoryLock: {
       data: [],
       total: 0,
       pages: 1,
-      column:[],
+      column: [],
       views: [],
       viewColumn: [],
       defaultViewId: null,
-      defaultViewName: '',
+      defaultViewName: ''
     },
 
     materialBom: {
       data: [],
       total: 0,
-      pages: 1
+      pages: 1,
+      column: [],
+      views: [],
+      viewColumn: [],
+      defaultViewId: null,
+      defaultViewName: ''
     },
     outboundApplication: {
       data: [],
       total: 0,
-      pages: 1
+      pages: 1,
+      column: [],
+      views: [],
+      viewColumn: [],
+      defaultViewId: null,
+      defaultViewName: ''
     },
 
     // MES
@@ -396,94 +406,148 @@ const immediateInventory = defineStore('immediateInventory', {
       })
     },
 
-
     getCols(tableId) {
       return new Promise((resolve, reject) => {
-          getCols(tableId).then(res => {
-              if (res.code == 200) {
-                  if (tableId == 1) {
-                      this.immediateInventory.column = res.data;
-                  }
-                  else if (tableId == 2)
-                  {
-                      this.productionMaterial.column = res.data;
-                  }
-                  else if (tableId == 4)
-                  {
-                      this.productionOrder.column = res.data;
-                  }
-                  else if (tableId == 6)
-                  {
-                      this.purchaseOrder.column = res.data;
-                  }
+        getCols(tableId)
+          .then((res) => {
+            if (res.code == 200) {
+              if (tableId == 1) {
+                this.immediateInventory.column = res.data
+              } else if (tableId == 2) {
+                this.productionMaterial.column = res.data
+              } else if (tableId == 4) {
+                this.productionOrder.column = res.data
+              } else if (tableId == 6) {
+                this.purchaseOrder.column = res.data
+              } else if (tableId == 8) {
+                this.receiveNotice.column = res.data
+              } else if (tableId == 9) {
+                this.inventoryLock.column = res.data
+              } else if (tableId == 10) {
+                this.materialBom.column = res.data
+              } else if (tableId == 11) {
+                this.outboundApplication.column = res.data
               }
-              resolve(res)
-          }).catch(error => {
-              
-              reject(error)
+            }
+            resolve(res)
+          })
+          .catch((error) => {
+            reject(error)
           })
       })
     },
     getViews(tableId) {
-        return new Promise((resolve, reject) => {
-            getViews(tableId).then(res => {
-                if (res.code == 200) {
-                    if (tableId == 1) {
-                        this.immediateInventory.views = res.data.viewTableVos;
-                        this.immediateInventory.defaultViewId = res.data.defaultViewId;
-                        this.immediateInventory.defaultViewName = res.data.defaultViewName;
-                    }
-                    else if (tableId == 2) {
-                        this.productionMaterial.views = res.data.viewTableVos;
-                        this.productionMaterial.defaultViewId = res.data.defaultViewId;
-                        this.productionMaterial.defaultViewName = res.data.defaultViewName;
-                    }
-                    else if (tableId == 4) {
-                        this.productionOrder.views = res.data.viewTableVos;
-                        this.productionOrder.defaultViewId = res.data.defaultViewId;
-                        this.productionOrder.defaultViewName = res.data.defaultViewName;
-                    }
-                    else if (tableId == 6) {
-                        this.purchaseOrder.views = res.data.viewTableVos;
-                        this.purchaseOrder.defaultViewId = res.data.defaultViewId;
-                        this.purchaseOrder.defaultViewName = res.data.defaultViewName;
-                    }
-                }
-                resolve(res)
-            }).catch(error => {
-                
-                reject(error)
-            })
-        })
+      return new Promise((resolve, reject) => {
+        getViews(tableId)
+          .then((res) => {
+            if (res.code == 200) {
+              if (tableId == 1) {
+                this.immediateInventory.views = res.data.viewTableVos
+                this.immediateInventory.defaultViewId = res.data.defaultViewId
+                this.immediateInventory.defaultViewName =
+                  res.data.defaultViewName
+              } else if (tableId == 2) {
+                this.productionMaterial.views = res.data.viewTableVos
+                this.productionMaterial.defaultViewId = res.data.defaultViewId
+                this.productionMaterial.defaultViewName =
+                  res.data.defaultViewName
+              } else if (tableId == 4) {
+                this.productionOrder.views = res.data.viewTableVos
+                this.productionOrder.defaultViewId = res.data.defaultViewId
+                this.productionOrder.defaultViewName = res.data.defaultViewName
+              } else if (tableId == 6) {
+                this.purchaseOrder.views = res.data.viewTableVos
+                this.purchaseOrder.defaultViewId = res.data.defaultViewId
+                this.purchaseOrder.defaultViewName = res.data.defaultViewName
+              } else if (tableId == 8) {
+                this.receiveNotice.views = res.data.viewTableVos
+                this.receiveNotice.defaultViewId = res.data.defaultViewId
+                this.receiveNotice.defaultViewName = res.data.defaultViewName
+              } else if (tableId == 9) {
+                this.inventoryLock.views = res.data.viewTableVos
+                this.inventoryLock.defaultViewId = res.data.defaultViewId
+                this.inventoryLock.defaultViewName = res.data.defaultViewName
+              } else if (tableId == 10) {
+                this.materialBom.views = res.data.viewTableVos
+                this.materialBom.defaultViewId = res.data.defaultViewId
+                this.materialBom.defaultViewName = res.data.defaultViewName
+              } else if (tableId == 11) {
+                this.outboundApplication.views = res.data.viewTableVos
+                this.outboundApplication.defaultViewId = res.data.defaultViewId
+                this.outboundApplication.defaultViewName = res.data.defaultViewName
+              }
+            }
+            resolve(res)
+          })
+          .catch((error) => {
+            reject(error)
+          })
+      })
     },
     // 获取当前表格数据
-    getPageFiltrate(param,page,size) {
+    getPageFiltrate(param, page, size) {
       return new Promise((resolve, reject) => {
-        getPageFiltrate(param,page,size)
+        getPageFiltrate(param, page, size)
           .then((res) => {
             if (res.code == 200) {
               if (param.tableId == 1) {
                 this.immediateInventory.data = res.data.list
                 this.immediateInventory.pages = res.data.pages
                 this.immediateInventory.total = res.data.total
-                this.immediateInventory.viewColumn = res.data.columnTables
+                console.log(param.cols, 'cols')
+                if (!param.cols) {
+                  this.immediateInventory.viewColumn = res.data.columnTables
+                }
               } else if (param.tableId == 2) {
                 this.productionMaterial.data = res.data.list
                 this.productionMaterial.pages = res.data.pages
                 this.productionMaterial.total = res.data.total
-                this.productionMaterial.viewColumn = res.data.columnTables
-              }
-              else if (param.tableId == 4) {
+                if (!param.cols) {
+                  this.productionMaterial.viewColumn = res.data.columnTables
+                }
+              } else if (param.tableId == 4) {
                 this.productionOrder.data = res.data.list
                 this.productionOrder.pages = res.data.pages
                 this.productionOrder.total = res.data.total
-                this.productionOrder.viewColumn = res.data.columnTables
-              }
-              else if (param.tableId == 6) {
+                if (!param.cols) {
+                  this.productionOrder.viewColumn = res.data.columnTables
+                }
+              } else if (param.tableId == 6) {
                 this.purchaseOrder.data = res.data.list
                 this.purchaseOrder.pages = res.data.pages
                 this.purchaseOrder.total = res.data.total
-                this.purchaseOrder.viewColumn = res.data.columnTables
+                if (!param.cols) {
+                  this.purchaseOrder.viewColumn = res.data.columnTables
+                }
+              } else if (param.tableId == 8) {
+                this.receiveNotice.data = res.data.list
+                this.receiveNotice.pages = res.data.pages
+                this.receiveNotice.total = res.data.total
+                if (!param.cols) {
+                  this.receiveNotice.viewColumn = res.data.columnTables
+                }
+              } else if (param.tableId == 9) {
+                this.inventoryLock.data = res.data.list
+                this.inventoryLock.pages = res.data.pages
+                this.inventoryLock.total = res.data.total
+                if (!param.cols) {
+                  this.inventoryLock.viewColumn = res.data.columnTables
+                }
+              } else if (param.tableId == 10) {
+                this.materialBom.data = res.data.list
+                this.materialBom.pages = res.data.pages
+                this.materialBom.total = res.data.total
+                if (!param.cols) {
+                  this.materialBom.viewColumn = res.data.columnTables
+                }
+              }
+              else if (param.tableId == 11) {
+                this.outboundApplication.data = res.data.list
+                this.outboundApplication.pages = res.data.pages
+                this.outboundApplication.total = res.data.total
+                if (!param.cols) {
+                  this.outboundApplication.viewColumn = res.data.columnTables
+                }
               }
             }
             resolve(res)
