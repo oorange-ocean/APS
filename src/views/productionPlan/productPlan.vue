@@ -232,7 +232,7 @@
 </template>
 
 <script setup>
-import { ref, onBeforeMount, reactive, onMounted, computed, onBeforeUnmount, nextTick } from 'vue'
+import { ref, onBeforeMount, reactive, onMounted, computed, onBeforeUnmount } from 'vue'
 import {renderSortIcon} from '@/utils/sortIcon'
 import productionPlan from '../../store/modules/productionPlan'
 import useUserStore from '@/store/modules/user'

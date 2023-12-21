@@ -8,6 +8,14 @@ export function getDailyDataList(page,size) {
         method: 'get',
     })
 }
+// 查询日别数据（加了筛选）
+export function getDailyDataFilter(param,page,size) {
+    return request({    
+        url: `/interface/getDailyDataFilter/${page}/${size}`,
+        method: 'post',
+        data:param
+    })
+}
 // 导出
 export function downloadDailyData(param) {
     return download('/interface/downloadDailyData', param, '日别数据',{

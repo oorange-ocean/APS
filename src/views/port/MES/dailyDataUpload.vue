@@ -8,9 +8,24 @@
       <button @click="dialogVisible = true"><span>导入</span></button>
       <button @click="downloadData"><span>导出</span></button>
     </div>
-    <common-plan class="plan" />
     <div class="main" ref="tableContainer">
+      <div class="common" ref="commonPlan">
+        <common-plan
+          class="plan"
+          :columnNames="dailyDataUpload.dailyDataUpload.column"
+          :viewColumn="dailyDataUpload.dailyDataUpload.viewColumn"
+          :currentViewId="currentViewId"
+          :currentViewName="currentViewName"
+          :apiUrl="'/interface/dailyDatasearchLike'"
+          :currentTableId="34"
+          :currentOrder="currentOrder"
+          @lookView="lookView"
+          @searchView="searchView"
+          @getCurrentOption="getCurrentOption"
+        />
+      </div>
       <el-table
+        ref="myTable"
         :data="dailyDataUpload.dailyDataUpload.data"
         border
         :cell-style="{ borderColor: '#9db9d6', textAlign: 'center' }"
@@ -24,8 +39,8 @@
         row-key="id"
         @selection-change="handleChange"
         @row-dblclick="changeRow"
-        max-height="calc(100vh - 258px)"
-        ref="myTable"
+        @sort-change="onSortChange"
+        :max-height="tableMaxHeight"
       >
         <el-table-column
           type="selection"
@@ -34,20 +49,43 @@
           width="35"
           class="one"
         />
-        <el-table-column prop="orderNumber" label="订单编号" width="120">
-            <template #default="{ row }">
+        <el-table-column
+          prop="orderNumber"
+          label="订单编号"
+          width="120"
+          :sort-orders="['ascending', 'descending']"
+          sortable="custom"
+          v-if="plan.orderNumber"
+        >
+          <template v-slot:header="{ column }">
+            <div>
+              {{ column.label }}
+              <span v-html="renderSortIcon(column)"></span>
+            </div>
+          </template>
+          <template #default="{ row }">
             <template v-if="row.editable">
-              <el-input
-                v-model="row.orderNumber"
-                @keyup.enter="saveRow(row)"
-              />
+              <el-input v-model="row.orderNumber" @keyup.enter="saveRow(row)" />
             </template>
             <template v-else>
               {{ row.orderNumber }}
             </template>
           </template>
         </el-table-column>
-        <el-table-column prop="materialCode" label="物料编码" width="120">
+        <el-table-column
+          prop="materialCode"
+          label="物料编码"
+          width="120"
+          :sort-orders="['ascending', 'descending']"
+          sortable="custom"
+          v-if="plan.materialCode"
+        >
+          <template v-slot:header="{ column }">
+            <div>
+              {{ column.label }}
+              <span v-html="renderSortIcon(column)"></span>
+            </div>
+          </template>
           <template #default="{ row }">
             <template v-if="row.editable">
               <el-input
@@ -60,26 +98,64 @@
             </template>
           </template>
         </el-table-column>
-        <el-table-column prop="materialName" label="物料名称" width="280">
-        </el-table-column>
-        <el-table-column prop="processName" label="工序" width="250">
-            <template #default="{ row }">
-                <template v-if="row.editable">
-                <el-autocomplete
-                    v-model="row.processName"
-                    :fetch-suggestions="querySearch"
-                    clearable
-                    class="inline-input w-50"
-                    placeholder="Please Input"
-                    @select="(item) => handleSelect(item, row)"
-                />
-                </template>
-                <template v-else>
-                    {{ row.processName }}
-                </template>
+        <el-table-column
+          prop="materialName"
+          label="物料名称"
+          width="280"
+          :sort-orders="['ascending', 'descending']"
+          sortable="custom"
+          v-if="plan.materialName"
+        >
+          <template v-slot:header="{ column }">
+            <div>
+              {{ column.label }}
+              <span v-html="renderSortIcon(column)"></span>
+            </div>
           </template>
         </el-table-column>
-        <el-table-column prop="totalQuantity" label="总数量">
+        <el-table-column
+          prop="processName"
+          label="工序"
+          width="250"
+          :sort-orders="['ascending', 'descending']"
+          sortable="custom"
+          v-if="plan.processName"
+        >
+          <template v-slot:header="{ column }">
+            <div>
+              {{ column.label }}
+              <span v-html="renderSortIcon(column)"></span>
+            </div>
+          </template>
+          <template #default="{ row }">
+            <template v-if="row.editable">
+              <el-autocomplete
+                v-model="row.processName"
+                :fetch-suggestions="querySearch"
+                clearable
+                class="inline-input w-50"
+                placeholder="Please Input"
+                @select="(item) => handleSelect(item, row)"
+              />
+            </template>
+            <template v-else>
+              {{ row.processName }}
+            </template>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="totalQuantity"
+          label="总数量"
+          :sort-orders="['ascending', 'descending']"
+          sortable="custom"
+          v-if="plan.totalQuantity"
+        >
+          <template v-slot:header="{ column }">
+            <div>
+              {{ column.label }}
+              <span v-html="renderSortIcon(column)"></span>
+            </div>
+          </template>
           <template #default="{ row }">
             <template v-if="row.editable">
               <el-input
@@ -92,8 +168,21 @@
             </template>
           </template>
         </el-table-column>
-        <el-table-column prop="completedQuantity" label="完成数量" width="120">
-            <template #default="{ row }">
+        <el-table-column
+          prop="completedQuantity"
+          label="完成数量"
+          width="120"
+          :sort-orders="['ascending', 'descending']"
+          sortable="custom"
+          v-if="plan.completedQuantity"
+        >
+          <template v-slot:header="{ column }">
+            <div>
+              {{ column.label }}
+              <span v-html="renderSortIcon(column)"></span>
+            </div>
+          </template>
+          <template #default="{ row }">
             <template v-if="row.editable">
               <el-input
                 v-model="row.completedQuantity"
@@ -109,7 +198,16 @@
           prop="capacityPsPuPp"
           label="产能（秒/台/人）"
           width="175"
+          :sort-orders="['ascending', 'descending']"
+          sortable="custom"
+          v-if="plan.capacityPsPuPp"
         >
+          <template v-slot:header="{ column }">
+            <div>
+              {{ column.label }}
+              <span v-html="renderSortIcon(column)"></span>
+            </div>
+          </template>
           <template #default="{ row }">
             <template v-if="row.editable">
               <el-input
@@ -122,7 +220,20 @@
             </template>
           </template>
         </el-table-column>
-        <el-table-column prop="remainingQuantity" label="剩余数量" width="180">
+        <el-table-column
+          prop="remainingQuantity"
+          label="剩余数量"
+          width="180"
+          :sort-orders="['ascending', 'descending']"
+          sortable="custom"
+          v-if="plan.remainingQuantity"
+        >
+          <template v-slot:header="{ column }">
+            <div>
+              {{ column.label }}
+              <span v-html="renderSortIcon(column)"></span>
+            </div>
+          </template>
           <template #default="{ row }">
             <template v-if="row.editable">
               <el-input
@@ -135,7 +246,20 @@
             </template>
           </template>
         </el-table-column>
-        <el-table-column prop="remainingCapacity" label="剩余产能" width="180">
+        <el-table-column
+          prop="remainingCapacity"
+          label="剩余产能"
+          width="180"
+          :sort-orders="['ascending', 'descending']"
+          sortable="custom"
+          v-if="plan.remainingCapacity"
+        >
+          <template v-slot:header="{ column }">
+            <div>
+              {{ column.label }}
+              <span v-html="renderSortIcon(column)"></span>
+            </div>
+          </template>
           <template #default="{ row }">
             <template v-if="row.editable">
               <el-input
@@ -149,16 +273,24 @@
           </template>
         </el-table-column>
       </el-table>
-      <div class="bottom" :style="{ width: userMenu.isCollapse ? 'calc(100vw - 50px)' : 'calc(100vw - 250px)' }">
+      <div
+        class="bottom"
+        :style="{
+          width: userMenu.isCollapse
+            ? 'calc(100vw - 50px)'
+            : 'calc(100vw - 250px)'
+        }"
+      >
         <Pagination
           :total="dailyDataUpload.dailyDataUpload.pages"
           @change-page="handlePages"
           @update-size="handleSizeChange"
           :totalRows="dailyDataUpload.dailyDataUpload.total"
+          :currentPage="currentPage"
         />
       </div>
     </div>
-    
+
     <el-dialog title="导入文件" v-model="dialogVisible" width="30%">
       <!-- 文件上传 -->
       <el-upload
@@ -178,45 +310,224 @@
           >覆盖导入</el-button
         >
         <el-button @click="addUpload" class="normal">追加导入</el-button>
-        <el-button @click="downloadModel" class="normal"
-          >下载模板</el-button
-        >
+        <el-button @click="downloadModel" class="normal">下载模板</el-button>
       </span>
     </el-dialog>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import {
+  ref,
+  onMounted,
+  reactive,
+  computed,
+  onBeforeUnmount
+} from 'vue'
+import { renderSortIcon } from '@/utils/sortIcon'
 import CommonPlan from '@/components/CommonPlan.vue'
 import useDailyDataUpload from '@/store/modules/port/MES/dailyDataUpload'
-import { useRoute, useRouter } from 'vue-router'
 import Pagination from '@/components/Pagination.vue'
 import useUserStore from '@/store/modules/user'
 import useProcess from '@/store/modules/metaData/processManage'
-import useUserMenu from "@/store/modules/menu"
+import useUserMenu from '@/store/modules/menu'
 const userMenu = useUserMenu()
-
-let currentPage = ref(1)
-let currentSize = ref(100)
-
 const dailyDataUpload = useDailyDataUpload()
 const process = useProcess()
 
-const route = useRoute() //用于获取和访问当前路由的信息
-const router = useRouter() //用于获取和访问当前路由的信息
+let currentPage = ref(1)
+let currentSize = ref(100)
+let currentViewId = ref(null)   //当前视图id
+let currentViewName = ref('') //当前视图名字
+const plan = ref({})    //当前方案各个列的true和false
+const tableContainer = ref(null)    //点击其他视图或者点击下一页时自动滑动到顶部
+const commonPlan = ref(null);
+const commonPlanHeight = ref(0);
+const tableId = ref(34)
+const localCurrentOption = ref([])    //子组件中传过来的currentOption
+const currentOrder = ref({})    //当前排序的字段
+let column = reactive([])       //所有列名
+let viewColumn = reactive([])   //当前视图的所拥有的列名
+
+// 获取到子组件中currentOption的值
+function getCurrentOption(currentOption) {
+  localCurrentOption.value = currentOption;
+}
+
+// 字段的排序
+function onSortChange(sortDetails) {
+  // prop 即为当前排序的字段
+  // order 即为排序的方式
+  // 1. 升序 order = 'ascending'
+  // 2. 降序 order = 'descending'
+  // 3. 取消排序 order = null
+  //子组件传过来currentOption,还有根据prop对应column中的voColName,提取出colId
+  if (viewColumn.length != 0) {
+    const id = viewColumn.find(item => item.voColName == sortDetails.prop).id   //视图列id
+    currentOrder.value.id = id
+  }
+  const colId = column.find(item => item.voColName == sortDetails.prop).id     //全部列id
+  currentOrder.value.valueOperator = sortDetails.order
+  currentOrder.value.colId = colId
+  let param= {
+      tableId:tableId.value,
+      viewId: currentViewId.value,
+      cols: [
+        currentOrder.value,
+      ]
+    };
+
+  // 判断有没有筛选条件，传的参数不一样
+  if (localCurrentOption.value) {
+    param.cols.push(...localCurrentOption.value)
+  }
+  
+  // console.log(localCurrentOption.value, 'localCurrentOption.value')
+  dailyDataUpload
+      .getDailyDataFilter(param, currentPage.value, currentSize.value)
+    .then((res) => {
+      if (res.code == 201) {
+        ElMessageBox.alert(res.message, '提示', {
+          confirmButtonText: '好的'
+        })
+      } else {
+        const scrollContainer = tableContainer.value.querySelector(
+          '.el-scrollbar__wrap'
+        )
+        if (scrollContainer) {
+          scrollContainer.scrollTop = 0 // 滚动到顶部
+        }
+        console.log('获取成品計劃数据成功')
+      }
+      
+    })
+    .catch((error) => {})
+}
+
+// 动态计算表格高度
+const tableMaxHeight = computed(() => {
+  return `calc(100vh - ${190 + commonPlanHeight.value}px)`;
+});
+
+onMounted(() => {
+  const observer = new ResizeObserver(entries => {
+    for (let entry of entries) {
+      commonPlanHeight.value = entry.target.offsetHeight;
+    }
+  });
+
+  if (commonPlan.value) {
+    observer.observe(commonPlan.value);
+  }
+
+  onBeforeUnmount(() => {
+    if (commonPlan.value) {
+      observer.unobserve(commonPlan.value);
+    }
+  });
+});
+
+// 给剩余的列拼上false
+function transformColumns(column, viewColumn) {
+  // 从 column1 创建初始对象，所有值设为 false
+  const result = column.reduce((acc, item) => {
+    acc[item.voColName] = false;
+    return acc;
+  }, {});
+
+  // 更新 result 对象，将 scheme1 中存在的字段设置为 true
+  viewColumn.forEach(col => {
+    if (col.voColName in result) {
+      result[col.voColName] = true;
+    }
+  });
+  return result;
+}
+
+// 查看视图
+function lookView(viewId,viewName) {
+  currentViewId.value = viewId
+  currentViewName.value = viewName
+  currentPage.value = 1
+  dailyDataUpload
+    .getDailyDataFilter({
+      tableId:tableId.value,viewId: currentViewId.value
+    }, currentPage.value, currentSize.value)
+    .then((res) => {
+      if (res.code == 201) {
+        ElMessageBox.alert(res.message, '提示', {
+          confirmButtonText: '好的'
+        })
+      }
+      viewColumn = dailyDataUpload.dailyDataUpload.viewColumn
+      // console.log(viewColumn,'viewColumn')
+      if (viewId == "-1") {
+          plan.value = column.reduce((acc, item) => {
+            acc[item.voColName] = true;
+            return acc;
+          }, {});
+      } else {
+        plan.value = transformColumns(column, viewColumn)
+      }
+      const scrollContainer = tableContainer.value.querySelector(
+        '.el-scrollbar__wrap'
+      )
+      if (scrollContainer) {
+        scrollContainer.scrollTop = 0 // 滚动到顶部
+      }
+    })
+    .catch((error) => { })
+  
+  // console.log(viewId,viewName,'111')
+}
+// 搜索视图
+function searchView(param) {
+  dailyDataUpload
+      .getDailyDataFilter(param,currentPage.value, currentSize.value)
+    .then((res) => {
+      if (res.code == 201) {
+        ElMessageBox.alert(res.message, '提示', {
+          confirmButtonText: '好的'
+        })
+      }
+      const scrollContainer = tableContainer.value.querySelector(
+        '.el-scrollbar__wrap'
+      )
+      if (scrollContainer) {
+        scrollContainer.scrollTop = 0 // 滚动到顶部
+      }
+      console.log('获取分页表格数据成功')
+    })
+    .catch((error) => {})
+}
+
 
 const formatNumber = (value) => {
-    if (value) {
-      // 创建一个新的Intl.NumberFormat实例
-      const formatter = new Intl.NumberFormat('en-US', {
-        minimumFractionDigits: 0,  // 数字最少位数
-      });
-      // 返回格式化的数字
-      return formatter.format(value);
-    }
-};
+  if (value) {
+    // 创建一个新的Intl.NumberFormat实例
+    const formatter = new Intl.NumberFormat('en-US', {
+      minimumFractionDigits: 0 // 数字最少位数
+    })
+    // 返回格式化的数字
+    return formatter.format(value)
+  }
+}
 function downloadData() {
+  let cols = [];
+  // 当 currentOrder.value 有键时，添加 currentOrder.value
+  if (Object.keys(currentOrder.value).length !== 0) {
+    cols.push(currentOrder.value);
+  }
+
+  // 当 localCurrentOption.value 存在时，添加 localCurrentOption.value
+  if (localCurrentOption.value) {
+    cols.push(...localCurrentOption.value);
+  }
+  const param = {
+    tableId:tableId.value,
+    viewId: currentViewId.value,
+    cols: cols
+  }
   ElMessageBox.confirm('请选择你要导出的数据', '提示', {
     distinguishCancelAndClose: true,
     confirmButtonText: '当前页',
@@ -228,7 +539,8 @@ function downloadData() {
         .downloadDailyData({
           type: 3,
           page: currentPage.value,
-          size: currentSize.value
+          size: currentSize.value,
+          ...param
         })
         .then((res) => {
           ElMessage({
@@ -242,7 +554,8 @@ function downloadData() {
       if (action === 'cancel') {
         dailyDataUpload
           .downloadDailyData({
-            type: 4
+            type: 4,
+            ...param
           })
           .then((res) => {
             ElMessage({
@@ -269,9 +582,9 @@ async function addUpload() {
   if (!fileToUpload.value) {
     // console.log('没有选择文件')
     ElMessageBox.alert('请上传文件后导入', '提示', {
-        type: 'info',
-        confirmButtonText: '好的'
-      })
+      type: 'info',
+      confirmButtonText: '好的'
+    })
     dialogVisible.value = false
     return
   }
@@ -320,17 +633,38 @@ function overUpload() {
     })
 }
 function downloadModel() {
-  dailyDataUpload.downloadDailyDataUploadTemplate().then(res => {
+  dailyDataUpload.downloadDailyDataUploadTemplate().then((res) => {
     dialogVisible.value = false
   })
 }
 
 function handleSizeChange(newSize) {
   currentSize.value = newSize
-  // console.log(currentSize.value,'currentSize')
-  dailyDataUpload.getDailyDataList(currentPage.value, currentSize.value)
+  let cols = [];
+  // 当 currentOrder.value 有键时，添加 currentOrder.value
+  if (Object.keys(currentOrder.value).length !== 0) {
+    cols.push(currentOrder.value);
+  }
+
+  // 当 localCurrentOption.value 存在时，添加 localCurrentOption.value
+  if (localCurrentOption.value) {
+    cols.push(...localCurrentOption.value);
+  }
+  const param = {
+    tableId:tableId.value,
+    viewId: currentViewId.value,
+    cols: cols
+  }
+  dailyDataUpload
+    .getDailyDataFilter(param
+      , currentPage.value, currentSize.value)
     .then((res) => {
-      console.log('获取分页表格数据成功')
+      if (res.code == 201) {
+        ElMessageBox.alert(res.message, '提示', {
+          confirmButtonText: '好的'
+        })
+      }
+      console.log('获取成品計劃数据成功')
     })
     .catch((error) => {})
 }
@@ -346,7 +680,6 @@ const querySearch = (queryString, cb) => {
   cb(results)
 }
 
-
 const createFilter = (queryString) => {
   return (item) => {
     return item.value.indexOf(queryString) !== -1
@@ -356,33 +689,32 @@ const createFilter = (queryString) => {
 let addAble = true //限制每次只能新增一行
 
 const newRow = {
-    "processName": "",
-    "orderNumber": "",
-    "materialCode": "",
-    "materialName": "",
-    "totalQuantity": "",
-    "completedQuantity": "",
-    "capacityPsPuPp": "",
-    "remainingQuantity": "",
-    "remainingCapacity": "",
-    // 其他必要的字段
-    "chVersion": '',
-    "editable": true
+  processName: '',
+  orderNumber: '',
+  materialCode: '',
+  materialName: '',
+  totalQuantity: '',
+  completedQuantity: '',
+  capacityPsPuPp: '',
+  remainingQuantity: '',
+  remainingCapacity: '',
+  // 其他必要的字段
+  chVersion: '',
+  editable: true
 }
 const selectedRows = ref([]) // 存储选中的行数据
 
-
 onMounted(() => {
-    process
+  process
     .getProcessNamePools()
     .then((res) => {
       selectProcessName.value = process.processNames.data.map((item) => {
-        return { id: item.id,value: item.processName }
+        return { id: item.id, value: item.processName }
       })
       console.log('点开了工序名称的下拉框')
     })
     .catch((error) => {})
-    refresh()
+  refresh()
 })
 const handleSelect = (item, row) => {
   console.log(item, 'item')
@@ -431,27 +763,26 @@ function saveRow(row) {
   // 修改数据
   //   console.log('修改数据', row)
   if (row.id) {
-    dailyDataUpload.addOrUpdateDailyData(
-      {
-        "id": row.id,
-        "processId":row.processId,
-        "processName": row.processName,
-        "orderNumber": row.orderNumber,
-        "materialCode": row.materialCode,
-        "materialName": row.materialName,
-        "totalQuantity": row.totalQuantity,
-        "completedQuantity": row.completedQuantity,
-        "capacityPsPuPp": row.capacityPsPuPp,
-        "remainingQuantity": row.remainingQuantity,
-        "remainingCapacity": row.remainingCapacity,
-      }
-    )
+    dailyDataUpload
+      .addOrUpdateDailyData({
+        id: row.id,
+        processId: row.processId,
+        processName: row.processName,
+        orderNumber: row.orderNumber,
+        materialCode: row.materialCode,
+        materialName: row.materialName,
+        totalQuantity: row.totalQuantity,
+        completedQuantity: row.completedQuantity,
+        capacityPsPuPp: row.capacityPsPuPp,
+        remainingQuantity: row.remainingQuantity,
+        remainingCapacity: row.remainingCapacity
+      })
       .then((res) => {
         console.log('产能修改成功')
-        refresh()
+        refreshContent()
       })
       .catch((error) => {
-        refresh()
+        refreshContent()
         console.log(row.id)
         console.log('产能修改失败')
       })
@@ -461,20 +792,19 @@ function saveRow(row) {
   // 新增数据
   else {
     // console.log(addAble,'@@@')
-    dailyDataUpload.addOrUpdateDailyData(
-        {
-        "processId":row.processId,
-        "processName": row.processName,
-        "orderNumber": row.orderNumber,
-        "materialCode": row.materialCode,
-        "materialName": row.materialName,
-        "totalQuantity": row.totalQuantity,
-        "completedQuantity": row.completedQuantity,
-        "capacityPsPuPp": row.capacityPsPuPp,
-        "remainingQuantity": row.remainingQuantity,
-        "remainingCapacity": row.remainingCapacity,
-      }
-    )
+    dailyDataUpload
+      .addOrUpdateDailyData({
+        processId: row.processId,
+        processName: row.processName,
+        orderNumber: row.orderNumber,
+        materialCode: row.materialCode,
+        materialName: row.materialName,
+        totalQuantity: row.totalQuantity,
+        completedQuantity: row.completedQuantity,
+        capacityPsPuPp: row.capacityPsPuPp,
+        remainingQuantity: row.remainingQuantity,
+        remainingCapacity: row.remainingCapacity
+      })
       .then((res) => {
         addAble = true
         if (res.code == 200) {
@@ -484,12 +814,12 @@ function saveRow(row) {
             confirmButtonText: '好'
           })
         }
-        refresh()
+        refreshContent()
       })
       .catch((error) => {
         console.log(error)
         console.log('产能添加失败')
-        refresh()
+        refreshContent()
       })
 
     // 序号自动加1
@@ -499,12 +829,34 @@ function saveRow(row) {
     // addAble = true;
   }
 }
-const tableContainer = ref(null)
+
 function handlePages(page) {
-  // console.log(page)
   currentPage.value = page
-  dailyDataUpload.getDailyDataList(page, currentSize.value)
+  let cols = [];
+  // 当 currentOrder.value 有键时，添加 currentOrder.value
+  if (Object.keys(currentOrder.value).length !== 0) {
+    cols.push(currentOrder.value);
+  }
+
+  // 当 localCurrentOption.value 存在时，添加 localCurrentOption.value
+  if (localCurrentOption.value) {
+    cols.push(...localCurrentOption.value);
+  }
+  const param = {
+    tableId:tableId.value,
+    viewId: currentViewId.value,
+    cols: cols
+  }
+  
+  dailyDataUpload
+    .getDailyDataFilter(param,
+      currentPage.value, currentSize.value)
     .then((res) => {
+      if (res.code == 201) {
+        ElMessageBox.alert(res.message, '提示', {
+          confirmButtonText: '好的'
+        })
+      }
       const scrollContainer = tableContainer.value.querySelector(
         '.el-scrollbar__wrap'
       )
@@ -515,6 +867,7 @@ function handlePages(page) {
     })
     .catch((error) => {})
 }
+
 function deleteSelectedRows() {
   // 在这里处理删除选中行的逻辑，可以从 selectedRows 中获取选中行的数据
   // 批量删除
@@ -534,16 +887,18 @@ function deleteSelectedRows() {
       type: 'warning'
     })
       .then(() => {
-        dailyDataUpload.removeDailyData(list)
+        dailyDataUpload
+          .removeDailyData(list)
           .then((res) => {
             console.log('删除产能成功')
             ElMessage({
               type: 'success',
               message: '删除成功'
             })
-            refresh()
+            refreshContent()
           })
           .catch((error) => {
+            refreshContent()
             console.log(error)
             console.log('批量删除产能失败')
           })
@@ -561,24 +916,80 @@ function handleChange(selection) {
   selectedRows.value = selection
 }
 
-function refresh() {
-  addAble = true
+// 只刷新查到的内容
+function refreshContent() {
+  addAble = true;
   currentSize.value = useUserStore().pageSize
-  dailyDataUpload.getDailyDataList(currentPage.value, currentSize.value)
-    .then((res) => {
-      if (res.code == 200) {
+  // 刷新列
+  let cols = [];
+  // 当 currentOrder.value 有键时，添加 currentOrder.value
+  if (Object.keys(currentOrder.value).length !== 0) {
+    cols.push(currentOrder.value);
+  }
+
+  // 当 localCurrentOption.value 存在时，添加 localCurrentOption.value
+  if (localCurrentOption.value) {
+    cols.push(...localCurrentOption.value);
+  }
+  const param = {
+    tableId:tableId.value,
+    viewId: currentViewId.value,
+    cols: cols
+  }
+  dailyDataUpload
+      .getDailyDataFilter(param,currentPage.value, currentSize.value)
+      .then((res) => {
+        if (res.code == 201) {
+          ElMessageBox.alert(res.message, '提示', {
+            confirmButtonText: '好的'
+          })
+        }
+        
+      })
+    .catch((error) => { })
+  myTable.value.clearSelection()
+}
+
+// 一开始进入界面的大刷
+function refresh() {
+  addAble = true;
+  currentSize.value = useUserStore().pageSize
+  // 获取所有视图
+  dailyDataUpload.getViews(tableId.value).then(res => {
+    currentViewId.value = dailyDataUpload.dailyDataUpload.defaultViewId
+    // 获取所有的列
+    dailyDataUpload.getCols(tableId.value).then(res => {
+      // 获取到列名和视图列后再赋值给column和viewColumn
+      column = dailyDataUpload.dailyDataUpload.column
+      viewColumn = dailyDataUpload.dailyDataUpload.viewColumn
+      // 如果是“全部”就给plan赋值
+      if (currentViewId.value == -1) {
+        plan.value = column.reduce((acc, item) => {
+          acc[item.voColName] = true;
+          return acc;
+        }, {});
+        console.log(plan.value,'plan11')
       } else {
-        ElMessageBox.alert(res.message, '提示', {
-          confirmButtonText: '好'
-        })
+        plan.value = transformColumns(column, viewColumn)
       }
+      // 获取拥有的数据和所拥有的列
+      dailyDataUpload
+      .getDailyDataFilter({tableId:tableId.value,viewId: currentViewId.value},currentPage.value, currentSize.value)
+      .then((res) => {
+        if (res.code == 201) {
+          ElMessageBox.alert(res.message, '提示', {
+            confirmButtonText: '好的'
+          })
+        }
+        
+      })
+      .catch((error) => { })
       myTable.value.clearSelection()
     })
-    .catch((error) => {})
-  console.log('查询所有工序产能')
+  })
 }
 function fresh() {
-  refresh()
+  refreshContent()
   ElMessage({
     type: "success",
     message: "刷新成功",
@@ -604,7 +1015,7 @@ function fresh() {
 .plan {
   flex-direction: row-reverse;
   margin: 0;
-  margin-top:24px;
+  margin-top: 24px;
 }
 .head {
   height: 48px;
@@ -644,14 +1055,13 @@ span {
   /* background-color: blue; */
   /* width: 100%; */
   flex: 1;
-  margin-top: 20px;
 }
 .el-table {
   border: 1px solid #9db9d6;
   /* background-color: red; */
 }
 .bottom {
-    position: fixed;
-    bottom: 0;
+  position: fixed;
+  bottom: 0;
 }
 </style>

@@ -203,69 +203,9 @@ export const dynamicRoutes = [
     name: 'outboundApplication',
   },
   {
-    path: '/pcbaBurn',
-    component: () => import('@/views/port/MES/pcbaBurn'),
-    name: 'pcbaBurn',
-  },
-  {
-    path: '/tfminisPcbaBurn',
-    component: () => import('@/views/port/MES/tfminisPcbaBurn'),
-    name: 'tfminisPcbaBurn',
-  },
-  {
-    path: '/pcbaVersion',
-    component: () => import('@/views/port/MES/pcbaVersion'),
-    name: 'pcbaVersion',
-  },
-  {
-    path: '/tfminisPcbaVersion',
-    component: () => import('@/views/port/MES/tfminisPcbaVersion'),
-    name: 'tfminisPcbaVersion',
-  },
-  {
-    path: '/installationBoard',
-    component: () => import('@/views/port/MES/installationBoard'),
-    name: 'installationBoard',
-  },
-  {
-    path: '/tfminisInstallationBoard',
-    component: () => import('@/views/port/MES/tfminisInstallationBoard'),
-    name: 'tfminisInstallationBoard',
-  },
-  {
-    path: '/snLabeling',
-    component: () => import('@/views/port/MES/snLabeling'),
-    name: 'snLabeling',
-  },
-  {
-    path: '/tfminisSnLabeling',
-    component: () => import('@/views/port/MES/tfminisSnLabeling'),
-    name: 'tfminisSnLabeling',
-  },
-  {
-    path: '/calibrationTests',
-    component: () => import('@/views/port/MES/calibrationTests'),
-    name: 'calibrationTests',
-  },
-  {
-    path: '/tfminisCalibrationTests',
-    component: () => import('@/views/port/MES/tfminisCalibrationTests'),
-    name: 'tfminisCalibrationTests',
-  },
-  {
-    path: '/packagingTest',
-    component: () => import('@/views/port/MES/packagingTest'),
-    name: 'packagingTest',
-  },
-  {
-    path: '/tfminisPackagingTest',
-    component: () => import('@/views/port/MES/tfminisPackagingTest'),
-    name: 'tfminisPackagingTest',
-  },
-  {
-    path: '/tfminisMainBoardFixation',
-    component: () => import('@/views/port/MES/tfminisMainBoardFixation'),
-    name: 'tfminisMainBoardFixation',
+    path: '/mesUnfinished',
+    component: () => import('@/views/port/MES/mesUnfinished'),
+    name: 'mesUnfinished',
   },
   {
     path: '/dailyDataUpload',

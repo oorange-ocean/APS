@@ -5,19 +5,18 @@
       <button @click="modifyRow"><span>修改</span></button>
       <button @click="deleteSelectedRows"><span>删除</span></button>
       <button @click="fresh"><span>刷新</span></button>
-      <button @click="dialogVisible = true"><span>导入</span></button>
       <button @click="downloadData"><span>导出</span></button>
     </div>
     <div class="main" ref="tableContainer">
       <div class="common" ref="commonPlan">
         <common-plan
           class="plan"
-          :columnNames="useFimRequest.fimRequest.column"
-          :viewColumn="useFimRequest.fimRequest.viewColumn"
+          :columnNames="ImmediateInventory.mesUnfinished.column"
+          :viewColumn="ImmediateInventory.mesUnfinished.viewColumn"
           :currentViewId="currentViewId"
           :currentViewName="currentViewName"
-          :apiUrl="'/fimData/fimRequestSearchLike'"
-          :currentTableId="35"
+          :apiUrl="'/interface/searchLike'"
+          :currentTableId="33"
           :currentOrder="currentOrder"
           @lookView="lookView"
           @searchView="searchView"
@@ -26,7 +25,7 @@
       </div>
       <el-table
         ref="myTable"
-        :data="useFimRequest.fimRequest.data"
+        :data="ImmediateInventory.mesUnfinished.data"
         border
         :cell-style="{ borderColor: '#9db9d6', textAlign: 'center' }"
         :header-cell-style="{
@@ -39,8 +38,8 @@
         row-key="id"
         @selection-change="handleChange"
         @row-dblclick="changeRow"
-        :max-height="tableMaxHeight"
         @sort-change="onSortChange"
+        :max-height="tableMaxHeight"
       >
         <el-table-column
           type="selection"
@@ -50,12 +49,12 @@
           class="one"
         />
         <el-table-column
-          prop="documentNumber"
-          label="单据编号"
+          prop="productionOrderNumber"
+          label="生产订单编号"
           width="150"
-          sortable="custom"
           :sort-orders="['ascending', 'descending']"
-          v-if="plan.documentNumber"
+          sortable="custom"
+          v-if="plan.productionOrderNumber"
         >
           <template v-slot:header="{ column }">
             <div>
@@ -66,44 +65,21 @@
           <template #default="{ row }">
             <template v-if="row.editable">
               <el-input
-                v-model="row.documentNumber"
+                v-model="row.productionOrderNumber"
                 @keyup.enter="saveRow(row)"
               />
             </template>
             <template v-else>
-              {{ row.documentNumber }}
-            </template>
-          </template>
-        </el-table-column>
-        <el-table-column
-          prop="creator"
-          label="创建人"
-          width="90"
-          sortable="custom"
-          :sort-orders="['ascending', 'descending']"
-          v-if="plan.creator"
-        >
-          <template v-slot:header="{ column }">
-            <div>
-              {{ column.label }}
-              <span v-html="renderSortIcon(column)"></span>
-            </div>
-          </template>
-          <template #default="{ row }">
-            <template v-if="row.editable">
-              <el-input v-model="row.creator" @keyup.enter="saveRow(row)" />
-            </template>
-            <template v-else>
-              {{ row.creator }}
+              {{ row.productionOrderNumber }}
             </template>
           </template>
         </el-table-column>
         <el-table-column
           prop="materialCode"
           label="物料编码"
-          width="200"
-          sortable="custom"
+          width="130"
           :sort-orders="['ascending', 'descending']"
+          sortable="custom"
           v-if="plan.materialCode"
         >
           <template v-slot:header="{ column }">
@@ -128,8 +104,8 @@
           prop="materialName"
           label="物料名称"
           width="300"
-          sortable="custom"
           :sort-orders="['ascending', 'descending']"
+          sortable="custom"
           v-if="plan.materialName"
         >
           <template v-slot:header="{ column }">
@@ -139,14 +115,36 @@
             </div>
           </template>
         </el-table-column>
-
         <el-table-column
-          prop="customerName"
-          label="客户名称"
-          width="300"
-          sortable="custom"
+          prop="totalNumber"
+          label="订单总数"
+          width="120"
           :sort-orders="['ascending', 'descending']"
-          v-if="plan.customerName"
+          sortable="custom"
+          v-if="plan.totalNumber"
+        >
+          <template v-slot:header="{ column }">
+            <div>
+              {{ column.label }}
+              <span v-html="renderSortIcon(column)"></span>
+            </div>
+          </template>
+          <template #default="{ row }">
+            <template v-if="row.editable">
+              <el-input v-model="row.totalNumber" @keyup.enter="saveRow(row)" />
+            </template>
+            <template v-else>
+              {{ formatNumber(row.totalNumber) }}
+            </template>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="burnInCompletionQuantity"
+          label="本次完成数"
+          width="120"
+          :sort-orders="['ascending', 'descending']"
+          sortable="custom"
+          v-if="plan.burnInCompletionQuantity"
         >
           <template v-slot:header="{ column }">
             <div>
@@ -157,68 +155,22 @@
           <template #default="{ row }">
             <template v-if="row.editable">
               <el-input
-                v-model="row.customerName"
+                v-model="row.burnInCompletionQuantity"
                 @keyup.enter="saveRow(row)"
               />
             </template>
             <template v-else>
-              {{ row.customerName }}
+              {{ formatNumber(row.burnInCompletionQuantity) }}
             </template>
           </template>
         </el-table-column>
         <el-table-column
-          prop="salesperson"
-          label="销售员"
-          width="90"
-          sortable="custom"
+          prop="burnQualifiedCount"
+          label="合格数"
+          width="120"
           :sort-orders="['ascending', 'descending']"
-          v-if="plan.salesperson"
-        >
-          <template v-slot:header="{ column }">
-            <div>
-              {{ column.label }}
-              <span v-html="renderSortIcon(column)"></span>
-            </div>
-          </template>
-          <template #default="{ row }">
-            <template v-if="row.editable">
-              <el-input v-model="row.salesperson" @keyup.enter="saveRow(row)" />
-            </template>
-            <template v-else>
-              {{ row.salesperson }}
-            </template>
-          </template>
-        </el-table-column>
-        <el-table-column
-          prop="quantity"
-          label="数量"
-          width="90"
           sortable="custom"
-          :sort-orders="['ascending', 'descending']"
-          v-if="plan.quantity"
-        >
-          <template v-slot:header="{ column }">
-            <div>
-              {{ column.label }}
-              <span v-html="renderSortIcon(column)"></span>
-            </div>
-          </template>
-          <template #default="{ row }">
-            <template v-if="row.editable">
-              <el-input v-model="row.quantity" @keyup.enter="saveRow(row)" />
-            </template>
-            <template v-else>
-              {{ row.quantity }}
-            </template>
-          </template>
-        </el-table-column>
-        <el-table-column
-          prop="expectedDeliveryDate"
-          label="期望发货日期"
-          width="200"
-          sortable="custom"
-          :sort-orders="['ascending', 'descending']"
-          v-if="plan.expectedDeliveryDate"
+          v-if="plan.burnQualifiedCount"
         >
           <template v-slot:header="{ column }">
             <div>
@@ -229,22 +181,22 @@
           <template #default="{ row }">
             <template v-if="row.editable">
               <el-input
-                v-model="row.expectedDeliveryDate"
+                v-model="row.burnQualifiedCount"
                 @keyup.enter="saveRow(row)"
               />
             </template>
             <template v-else>
-              {{ row.expectedDeliveryDate }}
+              {{ row.burnQualifiedCount }}
             </template>
           </template>
         </el-table-column>
         <el-table-column
-          prop="documentType"
-          label="单据类型"
-          width="200"
-          sortable="custom"
+          prop="unBurnQualifiedCount"
+          label="不合格数"
+          width="120"
           :sort-orders="['ascending', 'descending']"
-          v-if="plan.documentType"
+          sortable="custom"
+          v-if="plan.unBurnQualifiedCount"
         >
           <template v-slot:header="{ column }">
             <div>
@@ -255,13 +207,126 @@
           <template #default="{ row }">
             <template v-if="row.editable">
               <el-input
-                v-model="row.documentType"
+                v-model="row.unBurnQualifiedCount"
                 @keyup.enter="saveRow(row)"
               />
             </template>
             <template v-else>
-              {{ row.documentType }}
+              {{ formatNumber(row.unBurnQualifiedCount) }}
             </template>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="burnFixtureNumber"
+          label="工装编号"
+          width="120"
+          :sort-orders="['ascending', 'descending']"
+          sortable="custom"
+          v-if="plan.burnFixtureNumber"
+        >
+          <template v-slot:header="{ column }">
+            <div>
+              {{ column.label }}
+              <span v-html="renderSortIcon(column)"></span>
+            </div>
+          </template>
+          <template #default="{ row }">
+            <template v-if="row.editable">
+              <el-input
+                v-model="row.burnFixtureNumber"
+                @keyup.enter="saveRow(row)"
+              />
+            </template>
+            <template v-else>
+              {{ formatNumber(row.burnFixtureNumber) }}
+            </template>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="burnFixtureId"
+          label="机器ID"
+          width="120"
+          :sort-orders="['ascending', 'descending']"
+          sortable="custom"
+          v-if="plan.burnFixtureId"
+        >
+          <template v-slot:header="{ column }">
+            <div>
+              {{ column.label }}
+              <span v-html="renderSortIcon(column)"></span>
+            </div>
+          </template>
+          <template #default="{ row }">
+            <template v-if="row.editable">
+              <el-input
+                v-model="row.burnFixtureId"
+                @keyup.enter="saveRow(row)"
+              />
+            </template>
+            <template v-else>
+              {{ formatNumber(row.burnFixtureId) }}
+            </template>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="process"
+          label="工序"
+          width="150"
+          :sort-orders="['ascending', 'descending']"
+          sortable="custom"
+          v-if="plan.process"
+        >
+          <template v-slot:header="{ column }">
+            <div>
+              {{ column.label }}
+              <span v-html="renderSortIcon(column)"></span>
+            </div>
+          </template>
+          <template #default="{ row }">
+            <template v-if="row.editable">
+              <el-input v-model="row.process" @keyup.enter="saveRow(row)" />
+            </template>
+            <template v-else>
+              {{ row.process }}
+            </template>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="workpiece"
+          label="工件"
+          width="120"
+          :sort-orders="['ascending', 'descending']"
+          sortable="custom"
+          v-if="plan.workpiece"
+        >
+          <template v-slot:header="{ column }">
+            <div>
+              {{ column.label }}
+              <span v-html="renderSortIcon(column)"></span>
+            </div>
+          </template>
+          <template #default="{ row }">
+            <template v-if="row.editable">
+              <el-input v-model="row.workpiece" @keyup.enter="saveRow(row)" />
+            </template>
+            <template v-else>
+              {{ row.workpiece }}
+            </template>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="chVersion"
+          label="版本号"
+          width="120"
+          :sort-orders="['ascending', 'descending']"
+          sortable="custom"
+          v-if="plan.chVersion"
+        >
+          <template v-slot:header="{ column }">
+            <div>
+              {{ column.label }}
+              <span v-html="renderSortIcon(column)"></span>
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -274,55 +339,34 @@
         }"
       >
         <Pagination
-          :total="useFimRequest.fimRequest.pages"
+          :total="ImmediateInventory.mesUnfinished.pages"
           @change-page="handlePages"
           @update-size="handleSizeChange"
-          :totalRows="useFimRequest.fimRequest.total"
+          :totalRows="ImmediateInventory.mesUnfinished.total"
           :currentPage="currentPage"
         />
       </div>
-    </div>
-
-    <div class="importData">
-      <el-dialog title="导入文件" v-model="dialogVisible" width="30%">
-        <!-- 文件上传 -->
-        <el-upload
-          class="upload-demo"
-          drag
-          :auto-upload="false"
-          :file-list="fileList"
-          :on-change="handleFileChange"
-        >
-          <i class="el-icon-upload"></i>
-          <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-        </el-upload>
-
-        <!-- 底部操作按钮 -->
-        <span slot="footer" class="dialog-footer">
-          <el-button @click="overUpload" class="confirm normal"
-            >覆盖导入</el-button
-          >
-          <el-button @click="addUpload" class="normal">追加导入</el-button>
-          <el-button @click="downloadModel" class="normal">下载模板</el-button>
-        </span>
-      </el-dialog>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, watch, onBeforeMount, onMounted, onUnmounted, computed, onBeforeUnmount,reactive } from 'vue'
+import {
+  ref,
+  onUnmounted,
+  onMounted,
+  reactive,
+  computed,
+  onBeforeUnmount
+} from 'vue'
 import { renderSortIcon } from '@/utils/sortIcon'
 import CommonPlan from '@/components/CommonPlan.vue'
-import processManage from '../../../store/modules/metaData/processManage'
 import useImmediateInventory from '../../../store/modules/port/ERP/immediateInventory'
-import { useRoute, useRouter } from 'vue-router'
 import Pagination from '@/components/Pagination.vue'
 import useUserStore from '@/store/modules/user'
 import useUserMenu from '@/store/modules/menu'
-import fimRequest from '@/store/modules/port/FIM/fimRequest'
 const userMenu = useUserMenu()
-const useFimRequest = fimRequest()
+const ImmediateInventory = useImmediateInventory()
 
 let currentPage = ref(1)
 let currentSize = ref(100)
@@ -332,12 +376,11 @@ const plan = ref({})    //当前方案各个列的true和false
 const tableContainer = ref(null)    //点击其他视图或者点击下一页时自动滑动到顶部
 const commonPlan = ref(null);
 const commonPlanHeight = ref(0);
-const tableId = ref(35)
+const tableId = ref(33)
 const localCurrentOption = ref([])    //子组件中传过来的currentOption
 const currentOrder = ref({})    //当前排序的字段
 let column = reactive([])       //所有列名
 let viewColumn = reactive([])   //当前视图的所拥有的列名
-
 
 // 获取到子组件中currentOption的值
 function getCurrentOption(currentOption) {
@@ -373,8 +416,8 @@ function onSortChange(sortDetails) {
   }
   
   // console.log(localCurrentOption.value, 'localCurrentOption.value')
-  useFimRequest
-    .getFimRequestPageFilter(param, currentPage.value, currentSize.value)
+  ImmediateInventory
+    .getPageFiltrate(param, currentPage.value, currentSize.value)
     .then((res) => {
       if (res.code == 201) {
         ElMessageBox.alert(res.message, '提示', {
@@ -438,13 +481,10 @@ function transformColumns(column, viewColumn) {
 function lookView(viewId,viewName) {
   currentViewId.value = viewId
   currentViewName.value = viewName
-  if (currentViewId.value != -1) {
-    currentPage.value = 1
-  }
-  
-  useFimRequest
-    .getFimRequestPageFilter({
-      viewId: currentViewId.value
+  currentPage.value = 1
+  ImmediateInventory
+    .getPageFiltrate({
+      tableId:tableId.value,viewId: currentViewId.value
     }, currentPage.value, currentSize.value)
     .then((res) => {
       if (res.code == 201) {
@@ -452,7 +492,7 @@ function lookView(viewId,viewName) {
           confirmButtonText: '好的'
         })
       }
-      viewColumn = useFimRequest.fimRequest.viewColumn
+      viewColumn = ImmediateInventory.mesUnfinished.viewColumn
       // console.log(viewColumn,'viewColumn')
       if (viewId == "-1") {
           plan.value = column.reduce((acc, item) => {
@@ -475,8 +515,8 @@ function lookView(viewId,viewName) {
 }
 // 搜索视图
 function searchView(param) {
-  useFimRequest
-    .getFimRequestPageFilter(param,currentPage.value, currentSize.value)
+  ImmediateInventory
+    .getPageFiltrate(param,currentPage.value, currentSize.value)
     .then((res) => {
       if (res.code == 201) {
         ElMessageBox.alert(res.message, '提示', {
@@ -494,6 +534,17 @@ function searchView(param) {
     .catch((error) => {})
 }
 
+
+const formatNumber = (value) => {
+  if (value) {
+    // 创建一个新的Intl.NumberFormat实例
+    const formatter = new Intl.NumberFormat('en-US', {
+      minimumFractionDigits: 0 // 数字最少位数
+    })
+    // 返回格式化的数字
+    return formatter.format(value)
+  }
+}
 
 function downloadData() {
   let cols = [];
@@ -518,8 +569,8 @@ function downloadData() {
     type: 'warning'
   })
     .then(() => {
-      useFimRequest
-        .downloadFimRequest({
+      ImmediateInventory
+        .downloadInterfaceDate({
           type: 3,
           page: currentPage.value,
           size: currentSize.value,
@@ -531,97 +582,30 @@ function downloadData() {
               type: 'success',
               message: '导出当前页成功'
             })
+          }else if(res.code == 201){
+            ElMessage({
+              type: 'error',
+              message: res.message
+            })
           }
           // console.log(res,'res')
         })
     })
     .catch((action) => {
       if (action === 'cancel') {
-        useFimRequest
-          .downloadFimRequest({
+        ImmediateInventory
+          .downloadInterfaceDate({
             type: 4,
             ...param
           })
           .then((res) => {
-            if (res.code == 200) {
-              ElMessage({
-                type: 'success',
-                message: '导出全部页成功'
-              })
-            }
+            ElMessage({
+              type: 'success',
+              message: '导出全部页成功'
+            })
           })
       }
     })
-}
-const dialogVisible = ref(false)
-const fileToUpload = ref(null)
-const fileList = ref([])
-const importType = ref(1)
-
-function handleFileChange(file) {
-  // 存储用户选中的文件
-  fileToUpload.value = file
-}
-// console.log(fileToUpload.value, 'fileToUpload')
-
-async function addUpload() {
-  if (!fileToUpload.value) {
-    // console.log('没有选择文件')
-    ElMessageBox.alert('请上传文件后导入', '提示', {
-      type: 'info',
-      confirmButtonText: '好的'
-    })
-    // dialogVisible.value = false
-    return
-  }
-
-  const uploadData = {
-    file: fileToUpload.value,
-    type: importType.value // 您可以根据需要添加其他数据
-  }
-  useFimRequest.importInterfaceData(uploadData).then((res) => {
-    // console.log(res,'res')
-    if (res.code == 200) {
-      ElMessageBox.alert('导入成功', '提示', {
-        type: 'success',
-        confirmButtonText: '好的'
-      })
-    } else if (res.code == 201) {
-      ElMessageBox.alert(res.message, '导入失败', {
-        type: 'error',
-        confirmButtonText: '好的'
-      })
-    }
-    importType.value = 1
-    refresh()
-  })
-
-  // 重置文件
-  fileList.value = []
-  fileToUpload.value = null
-  dialogVisible.value = false
-}
-function overUpload() {
-  ElMessageBox.confirm('该操作将会覆盖全部数据，是否执行？', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning'
-  })
-    .then(() => {
-      importType.value = 2 //设置成覆盖类型
-      addUpload()
-    })
-    .catch(() => {
-      ElMessage({
-        type: 'info',
-        message: '取消覆盖导入'
-      })
-    })
-}
-function downloadModel() {
-  useFimRequest.fimRequestTemplate().then((res) => {
-    dialogVisible.value = false
-  })
 }
 
 function handleSizeChange(newSize) {
@@ -641,8 +625,8 @@ function handleSizeChange(newSize) {
     viewId: currentViewId.value,
     cols: cols
   }
-  useFimRequest
-    .getFimRequestPageFilter(param
+  ImmediateInventory
+    .getPageFiltrate(param
       , currentPage.value, currentSize.value)
     .then((res) => {
       if (res.code == 201) {
@@ -681,26 +665,35 @@ const createFilter = (queryString) => {
 let addAble = true //限制每次只能新增一行
 
 const newRow = {
-  documentNumber: '',
-  creator: '',
+  productionOrderNumber: '',
   materialCode: '',
   materialName: '',
-  customerName: '',
-  salesperson: '',
-  quantity: '',
-  expectedDeliveryDate: '',
-  documentType: '',
-  version: '',
+  burnInCompletionQuantity: '',
+  burnQualifiedCount: '',
+  unburnQualifiedCount: null,
+  burnFixtureNumber: '',
+  totalNumber: null,
+  burnFixtureId: null,
+  process: '',
+  workpiece: '',
   editable: true
 }
 const selectedRows = ref([]) // 存储选中的行数据
 
+// 监控路由，切换页面时自动刷新表格数据
+// watch(
+//   () => route.path,
+//   () => {
+//     refresh();
+//   }
+// );
+
 onMounted(() => {
   refresh()
 })
-// onUnmounted (() => {
-//   ImmediateInventory.resetState()
-// })
+onUnmounted(() => {
+  ImmediateInventory.resetState()
+})
 
 function changeRow(row) {
   row.editable = true
@@ -727,7 +720,7 @@ function addRow() {
     if (scrollContainer) {
       scrollContainer.scrollTop = 0 // 滚动到顶部
     }
-    useFimRequest.fimRequest.data.unshift({ ...newRow })
+    ImmediateInventory.mesUnfinished.data.unshift({ ...newRow })
     addAble = false
   } else {
     return
@@ -739,19 +732,23 @@ function saveRow(row) {
   // 修改数据
   //   console.log('修改数据', row)
   if (row.id) {
-    useFimRequest
-      .addOrUpdateFimRequest({
+    ImmediateInventory.update(
+      {
         id: row.id,
-        documentNumber: row.documentNumber,
-        creator: row.creator,
+        productionOrderNumber: row.productionOrderNumber,
         materialCode: row.materialCode,
         materialName: row.materialName,
-        customerName: row.customerName,
-        salesperson: row.salesperson,
-        quantity: row.quantity,
-        expectedDeliveryDate: row.expectedDeliveryDate,
-        documentType: row.documentType
-      })
+        burnInCompletionQuantity: row.burnInCompletionQuantity,
+        burnQualifiedCount: row.burnQualifiedCount,
+        unburnQualifiedCount: row.unburnQualifiedCount,
+        burnFixtureNumber: row.burnFixtureNumber,
+        totalNumber: row.totalNumber,
+        burnFixtureId: row.burnFixtureId,
+        process: row.process,
+        workpiece: row.workpiece,
+      },
+      33
+    )
       .then((res) => {
         console.log('产能修改成功')
         refreshContent()
@@ -767,18 +764,22 @@ function saveRow(row) {
   // 新增数据
   else {
     // console.log(addAble,'@@@')
-    useFimRequest
-      .addOrUpdateFimRequest({
-        documentNumber: row.documentNumber,
-        creator: row.creator,
+    ImmediateInventory.add(
+      {
+        productionOrderNumber: row.productionOrderNumber,
         materialCode: row.materialCode,
         materialName: row.materialName,
-        customerName: row.customerName,
-        salesperson: row.salesperson,
-        quantity: row.quantity,
-        expectedDeliveryDate: row.expectedDeliveryDate,
-        documentType: row.documentType
-      })
+        burnInCompletionQuantity: row.burnInCompletionQuantity,
+        burnQualifiedCount: row.burnQualifiedCount,
+        unburnQualifiedCount: row.unburnQualifiedCount,
+        burnFixtureNumber: row.burnFixtureNumber,
+        totalNumber: row.totalNumber,
+        burnFixtureId: row.burnFixtureId,
+        process: row.process,
+        workpiece: row.workpiece
+      },
+      33
+    )
       .then((res) => {
         addAble = true
         if (res.code == 200) {
@@ -822,8 +823,8 @@ function handlePages(page) {
     cols: cols
   }
   
-  useFimRequest
-    .getFimRequestPageFilter(param,
+  ImmediateInventory
+    .getPageFiltrate(param,
       currentPage.value, currentSize.value)
     .then((res) => {
       if (res.code == 201) {
@@ -861,8 +862,7 @@ function deleteSelectedRows() {
       type: 'warning'
     })
       .then(() => {
-        useFimRequest
-          .removeFimRequest(list)
+        ImmediateInventory.deleteData(list, 33)
           .then((res) => {
             console.log('删除产能成功')
             ElMessage({
@@ -890,53 +890,52 @@ function handleChange(selection) {
   selectedRows.value = selection
 }
 
+// 只刷新查到的内容
 function refreshContent() {
+  addAble = true;
   currentSize.value = useUserStore().pageSize
   // 刷新列
-  let cols = []
+  let cols = [];
   // 当 currentOrder.value 有键时，添加 currentOrder.value
   if (Object.keys(currentOrder.value).length !== 0) {
-    cols.push(currentOrder.value)
+    cols.push(currentOrder.value);
   }
 
   // 当 localCurrentOption.value 存在时，添加 localCurrentOption.value
   if (localCurrentOption.value) {
-    cols.push(...localCurrentOption.value)
+    cols.push(...localCurrentOption.value);
   }
   const param = {
-    tableId: tableId.value,
+    tableId:tableId.value,
     viewId: currentViewId.value,
     cols: cols
   }
-  useFimRequest
-    .getFimRequestPageFilter(
-    param,
-    currentPage.value,
-    currentSize.value
-  )
-    .then((res) => {
-      if (res.code == 201) {
-        ElMessageBox.alert(res.message, '提示', {
-          confirmButtonText: '好的'
-        })
-      }
-    })
-    .catch((error) => {})
+  ImmediateInventory
+      .getPageFiltrate(param,currentPage.value, currentSize.value)
+      .then((res) => {
+        if (res.code == 201) {
+          ElMessageBox.alert(res.message, '提示', {
+            confirmButtonText: '好的'
+          })
+        }
+        
+      })
+    .catch((error) => { })
   myTable.value.clearSelection()
 }
 
+// 一开始进入界面的大刷
 function refresh() {
+  addAble = true;
   currentSize.value = useUserStore().pageSize
   // 获取所有视图
-  useFimRequest.getViews(tableId.value).then(res => {
-    currentViewId.value = useFimRequest.fimRequest.defaultViewId
-    // currentViewName.value = production.productPlan.defaultViewName
+  ImmediateInventory.getViews(tableId.value).then(res => {
+    currentViewId.value = ImmediateInventory.mesUnfinished.defaultViewId
     // 获取所有的列
-    useFimRequest.getCols(tableId.value).then(res => {
+    ImmediateInventory.getCols(tableId.value).then(res => {
       // 获取到列名和视图列后再赋值给column和viewColumn
-      column = useFimRequest.fimRequest.column
-      viewColumn = useFimRequest.fimRequest.viewColumn
-      console.log(currentViewId.value,'currentViewId147')
+      column = ImmediateInventory.mesUnfinished.column
+      viewColumn = ImmediateInventory.mesUnfinished.viewColumn
       // 如果是“全部”就给plan赋值
       if (currentViewId.value == -1) {
         plan.value = column.reduce((acc, item) => {
@@ -948,28 +947,27 @@ function refresh() {
         plan.value = transformColumns(column, viewColumn)
       }
       // 获取拥有的数据和所拥有的列
-    useFimRequest
-      .getFimRequestPageFilter({viewId:currentViewId.value},currentPage.value, currentSize.value)
+      ImmediateInventory
+      .getPageFiltrate({tableId:tableId.value,viewId: currentViewId.value},currentPage.value, currentSize.value)
       .then((res) => {
         if (res.code == 201) {
           ElMessageBox.alert(res.message, '提示', {
             confirmButtonText: '好的'
           })
         }
-        console.log('查询产品计划列表')
+        
       })
       .catch((error) => { })
-
+      myTable.value.clearSelection()
     })
   })
 }
-
 function fresh() {
   refreshContent()
   ElMessage({
-    type: 'success',
-    message: '刷新成功'
-  })
+    type: "success",
+    message: "刷新成功",
+  });
 }
 </script>
 
@@ -1010,24 +1008,12 @@ button:hover {
   cursor: pointer;
   color: #fff;
 }
-.dialog-footer {
-  display: flex;
-  flex-direction: row-reverse;
-  margin-top: 1.25rem;
-}
-.confirm {
-  margin-left: 1.25rem;
-}
-.normal {
-  padding: 0.5rem 0.9375rem;
-  border: 0.125rem solid rgb(220, 223, 230);
-  background-color: #fff;
-  margin-left: 0.625rem;
-}
 span {
   font-size: 14px;
 }
 .main {
+  /* background-color: blue; */
+  /* width: 100%; */
   flex: 1;
 }
 .el-table {

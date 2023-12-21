@@ -16,6 +16,24 @@ export function getFimPriority(page,size) {
     })
 }
 
+// FIM优先级
+export function getFimPriorityFiltrate(param,page,size) {
+    return request({    
+        url: `/scResult/getFimPriorityFiltrate/${page}/${size}`,
+        method: 'post',
+        data:param
+    })
+}
+
+// FIM需求
+export function getFimRequestPageFilter(param,page,size) {
+    return request({    
+        url: `/fimData/getFimRequestPageFilter/${page}/${size}`,
+        method: 'post',
+        data:param
+    })
+}
+
 export function addOrUpdateFimRequest(param) {
     return request({    
         url: '/fimData/addOrUpdateFimRequest',
@@ -33,7 +51,7 @@ export function removeFimRequest(param) {
 }
 // 导出FIM需求
 export function downloadFimRequest(param){
-    return download('/fimData/downloadFimRequest', param, 'FIM需求表',{
+    return download('/fimData/download', param, 'FIM需求表',{
         headers: {
             token: getToken()
         }

@@ -107,7 +107,7 @@
             </template>
           </template>
         </el-table-column>
-        <el-table-column prop="baseQty" label="库存量(基本单位)" width="180" 
+        <el-table-column prop="baseQty" label="库存量(基本单位)" width="180"
         :sort-orders="['ascending', 'descending']"
         sortable="custom"
         v-if="plan.baseQty">

@@ -1,11 +1,6 @@
 import request from "@/utils/request";
-
-export function getProductionPlan(pages,size) {
-    return request({    
-        url: `/scResult/getProductionPlan/${pages}/${size}`,
-        method: 'get',
-    })
-}
+import { download } from '@/utils/request';
+import {getToken} from '@/utils/auth'
 
 export function getProductionFiltrate(param,pages,size) {
     return request({    
@@ -39,17 +34,38 @@ export function semiMaterialShortageFiltrate(param,pages,size) {
         data:param
     })
 }
+// 导出生产计划和FIM优先级
+export function downloadTable(param) {
+    let fileName = ''
+    if(param.tableId == 48){
+        fileName = 'FIM优先级'
+    }
+    // 使用封装的 download 方法
+    return download('/scResult/download', param, fileName,{
+        headers: {
+            token: getToken()
+        }
+    });
+}
+
 
 
 // // 模糊查询自动补全
 // export function searchLike(param) {
-//     return request({    
+//     return request({
 //         url: `/scResult/searchLike`,
 //         method: 'post',
 //         data:param
 //     })
 // }
 
+
+export function getProductionPlan(pages,size) {
+    return request({    
+        url: `/scResult/getProductionPlan/${pages}/${size}`,
+        method: 'get',
+    })
+}
 export function getSemiFinishedGoodsProductionPlan(pages,size) {
     return request({    
         url: `/scResult/getSemiFinishedGoodsProductionPlan/${pages}/${size}`,

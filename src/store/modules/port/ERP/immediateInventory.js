@@ -30,34 +30,9 @@ function getFileName(type) {
     fileName = '物料清单列表'
   } else if (type == 11) {
     fileName = '出库申请单'
-  } else if (type == 20) {
-    fileName = 'PCBA烧录'
-  } else if (type == 21) {
-    fileName = 'TFmini-S-PCBA烧录'
-  } else if (type == 22) {
-    fileName = 'PCBA分版'
-  } else if (type == 23) {
-    fileName = 'TFmini-S-PCBA分版'
-  } else if (type == 24) {
-    fileName = '安装主板'
-  } else if (type == 25) {
-    fileName = 'TFmini-S-安装主板'
-  } else if (type == 26) {
-    fileName = '贴SN'
-  } else if (type == 27) {
-    fileName = 'TFmini-S-贴SN'
-  } else if (type == 28) {
-    fileName = '校准测试'
-  } else if (type == 29) {
-    fileName = 'TFmini-S-校准测试'
-  } else if (type == 30) {
-    fileName = '包装校验'
-  } else if (type == 31) {
-    fileName = 'TFmini-S-包装校验'
-  } else if (type == 32) {
-    fileName = 'TFmini-S-主板固定'
+  } else if (type == 33) {
+    fileName = 'Mes未完工'
   }
-
   return fileName
 }
 
@@ -148,72 +123,17 @@ const immediateInventory = defineStore('immediateInventory', {
       defaultViewName: ''
     },
 
-    // MES
-    pcbaBurn: {
+    // MES未完工
+    mesUnfinished: {
       data: [],
       total: 0,
-      pages: 1
+      pages: 1,
+      column: [],
+      views: [],
+      viewColumn: [],
+      defaultViewId: null,
+      defaultViewName: ''
     },
-    tfminsPcbaBurn: {
-      data: [],
-      total: 0,
-      page: 1
-    },
-    pcbaVersion: {
-      data: [],
-      total: 0,
-      page: 1
-    },
-    tfminisPcbaVersion: {
-      data: [],
-      total: 0,
-      page: 1
-    },
-    installationBoard: {
-      data: [],
-      total: 0,
-      page: 1
-    },
-    tfminisInstallationBoard: {
-      data: [],
-      total: 0,
-      page: 1
-    },
-    snLabeling: {
-      data: [],
-      total: 0,
-      page: 1
-    },
-    tfminisSnLabeling: {
-      data: [],
-      total: 0,
-      page: 1
-    },
-    calibrationTests: {
-      data: [],
-      total: 0,
-      page: 1
-    },
-    tfminisCalibrationTests: {
-      data: [],
-      total: 0,
-      page: 1
-    },
-    packagingTest: {
-      data: [],
-      total: 0,
-      page: 1
-    },
-    tfminisPackagingTest: {
-      data: [],
-      total: 0,
-      page: 1
-    },
-    tfminisMainBoardFixation: {
-      data: [],
-      total: 0,
-      page: 1
-    }
   }),
   actions: {
     getAllPage(page, size, type) {
@@ -428,6 +348,9 @@ const immediateInventory = defineStore('immediateInventory', {
               } else if (tableId == 11) {
                 this.outboundApplication.column = res.data
               }
+              else if (tableId == 33) {
+                this.mesUnfinished.column = res.data
+              }
             }
             resolve(res)
           })
@@ -476,6 +399,11 @@ const immediateInventory = defineStore('immediateInventory', {
                 this.outboundApplication.defaultViewId = res.data.defaultViewId
                 this.outboundApplication.defaultViewName = res.data.defaultViewName
               }
+              else if (tableId == 33) {
+                this.mesUnfinished.views = res.data.viewTableVos
+                this.mesUnfinished.defaultViewId = res.data.defaultViewId
+                this.mesUnfinished.defaultViewName = res.data.defaultViewName
+              }
             }
             resolve(res)
           })
@@ -494,7 +422,6 @@ const immediateInventory = defineStore('immediateInventory', {
                 this.immediateInventory.data = res.data.list
                 this.immediateInventory.pages = res.data.pages
                 this.immediateInventory.total = res.data.total
-                console.log(param.cols, 'cols')
                 if (!param.cols) {
                   this.immediateInventory.viewColumn = res.data.columnTables
                 }
@@ -547,6 +474,14 @@ const immediateInventory = defineStore('immediateInventory', {
                 this.outboundApplication.total = res.data.total
                 if (!param.cols) {
                   this.outboundApplication.viewColumn = res.data.columnTables
+                }
+              }
+              else if (param.tableId == 33) {
+                this.mesUnfinished.data = res.data.list
+                this.mesUnfinished.pages = res.data.pages
+                this.mesUnfinished.total = res.data.total
+                if (!param.cols) {
+                  this.mesUnfinished.viewColumn = res.data.columnTables
                 }
               }
             }

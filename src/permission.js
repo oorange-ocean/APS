@@ -303,120 +303,12 @@ router.beforeEach((to, from, next) => {
                     },
                     children: [
                       {
-                        name: 'pcbaBurn',
-                        path: '/pcbaBurn',
-                        component: '/port/MES/pcbaBurn',
+                        name: 'mesUnfinished',
+                        path: '/mesUnfinished',
+                        component: '/port/MES/mesUnfinished',
                         alwaysShow: 'true',
                         meta: {
-                          title: 'PCBA烧录'
-                        }
-                      },
-                      {
-                        name: 'tfminisPcbaBurn',
-                        path: '/tfminisPcbaBurn',
-                        component: '/port/MES/tfminisPcbaBurn',
-                        alwaysShow: 'true',
-                        meta: {
-                          title: 'TFmini-S-PCBA烧录'
-                        }
-                      },
-                      {
-                        name: 'pcbaVersion',
-                        path: '/pcbaVersion',
-                        component: '/port/MES/pcbaVersion',
-                        alwaysShow: 'true',
-                        meta: {
-                          title: 'PCBA分版'
-                        }
-                      },
-                      {
-                        name: 'tfminisPcbaVersion',
-                        path: '/tfminisPcbaVersion',
-                        component: '/port/MES/tfminisPcbaVersion',
-                        alwaysShow: 'true',
-                        meta: {
-                          title: 'TFmini-S-PCBA分版'
-                        }
-                      },
-                      {
-                        name: 'installationBoard',
-                        path: '/installationBoard',
-                        component: '/port/MES/installationBoard',
-                        alwaysShow: 'true',
-                        meta: {
-                          title: '安装主板'
-                        }
-                      },
-                      {
-                        name: 'tfminisInstallationBoard',
-                        path: '/tfminisInstallationBoard',
-                        component: '/port/MES/tfminisInstallationBoard',
-                        alwaysShow: 'true',
-                        meta: {
-                          title: 'TFmini-S-安装主板'
-                        }
-                      },
-                      {
-                        name: 'snLabeling',
-                        path: '/snLabeling',
-                        component: '/port/MES/snLabeling',
-                        alwaysShow: 'true',
-                        meta: {
-                          title: '贴SN'
-                        }
-                      },
-                      {
-                        name: 'tfminisSnLabeling',
-                        path: '/tfminisSnLabeling',
-                        component: '/port/MES/tfminisSnLabeling',
-                        alwaysShow: 'true',
-                        meta: {
-                          title: 'TFmini-S-贴SN'
-                        }
-                      },
-                      {
-                        name: 'calibrationTests',
-                        path: '/calibrationTests',
-                        component: '/port/MES/calibrationTests',
-                        alwaysShow: 'true',
-                        meta: {
-                          title: '校准测试'
-                        }
-                      },
-                      {
-                        name: 'tfminisCalibrationTests',
-                        path: '/tfminisCalibrationTests',
-                        component: '/port/MES/tfminisCalibrationTests',
-                        alwaysShow: 'true',
-                        meta: {
-                          title: 'TFmini-S-校准测试'
-                        }
-                      },
-                      {
-                        name: 'packagingTest',
-                        path: '/packagingTest',
-                        component: '/port/MES/packagingTest',
-                        alwaysShow: 'true',
-                        meta: {
-                          title: '包装校验'
-                        }
-                      },
-                      {
-                        name: 'tfminisPackagingTest',
-                        path: '/tfminisPackagingTest',
-                        component: '/port/MES/tfminisPackagingTest',
-                        alwaysShow: 'true',
-                        meta: {
-                          title: 'TFmini-S-包装校验'
-                        }
-                      },
-                      {
-                        name: 'tfminisMainBoardFixation',
-                        path: '/tfminisMainBoardFixation',
-                        component: '/port/MES/tfminisMainBoardFixation',
-                        alwaysShow: 'true',
-                        meta: {
-                          title: 'TFmini-S-主板固定'
+                          title: 'Mes未完工'
                         }
                       },
                       {

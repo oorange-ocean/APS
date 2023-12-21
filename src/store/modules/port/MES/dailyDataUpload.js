@@ -1,30 +1,24 @@
 import { defineStore } from "pinia";
 import {
     getDailyDataList, downloadDailyData, importloadDailyData,
-    downloadDailyDataUploadTemplate,addOrUpdateDailyData,removeDailyData
+    downloadDailyDataUploadTemplate, addOrUpdateDailyData, removeDailyData,
+    getDailyDataFilter
 } from '@/api/port/Mes/dailyDataUpload';
+import { getCols, getViews } from '@/api/commonPlan'
 
 const dailyDataUpload = defineStore(
     'dailyDataUpload',
     {
         state: () => ({
             dailyDataUpload: {
-                data: [
-                    {
-                        "processName": "包装",
-                        "orderNumber": "ORD001",
-                        "materialCode": "12.01.01.116",
-                        "materialName": "航插板 V2.3",
-                        "processId": null,
-                        "totalQuantity": "100",
-                        "completedQuantity": "50",
-                        "capacityPsPuPp": "30",
-                        "remainingQuantity": "50",
-                        "remainingCapacity": "20"
-                    }
-                ],
+                data: [],
                 total: 0,
-                pages:1,
+                pages: 1,
+                column: [],
+                views: [],
+                viewColumn: [],
+                defaultViewId: null,
+                defaultViewName: ''
                 
             }
         }),
@@ -96,7 +90,55 @@ const dailyDataUpload = defineStore(
                         reject(error)
                     })
                 })
-            }
+            },
+
+
+            getCols(tableId) {
+                return new Promise((resolve, reject) => {
+                  getCols(tableId)
+                    .then((res) => {
+                      if (res.code == 200) {
+                        this.dailyDataUpload.column = res.data
+                      }
+                      resolve(res)
+                    })
+                    .catch((error) => {
+                      reject(error)
+                    })
+                })
+              },
+              getViews(tableId) {
+                return new Promise((resolve, reject) => {
+                  getViews(tableId)
+                    .then((res) => {
+                      if (res.code == 200) {
+                          this.dailyDataUpload.views = res.data.viewTableVos
+                          this.dailyDataUpload.defaultViewId = res.data.defaultViewId
+                          this.dailyDataUpload.defaultViewName = res.data.defaultViewName
+                      }
+                      resolve(res)
+                    })
+                    .catch((error) => {
+                      reject(error)
+                    })
+                })
+              },
+            getDailyDataFilter(param,page,size) {
+                return new Promise((resolve, reject) => {
+                    getDailyDataFilter(param,page,size).then(res => {
+                        this.dailyDataUpload.data = res.data.list
+                        this.dailyDataUpload.pages = res.data.pages
+                        this.dailyDataUpload.total = res.data.total
+                        if (!param.cols) {
+                            this.dailyDataUpload.viewColumn = res.data.columnTables
+                        }
+                        resolve(res)
+                    }).catch(error => {
+                        
+                        reject(error)
+                    })
+                })
+            },
         }
     }
 )
