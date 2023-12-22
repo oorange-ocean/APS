@@ -184,6 +184,21 @@
             </div>
           </template>
         </el-table-column>
+        <el-table-column
+          prop="chVersion"
+          label="版本号"
+          width="100"
+          v-if="plan.chVersion"
+          sortable="custom"
+          :sort-orders="['ascending', 'descending']"
+        >
+          <template v-slot:header="{ column }">
+            <div>
+              {{ column.label }}
+              <span v-html="renderSortIcon(column)"></span>
+            </div>
+          </template>
+        </el-table-column>
       </el-table>
       <div
         class="bottom"
@@ -397,6 +412,7 @@ const formatNumber = (value) => {
     return formatter.format(value)
   }
 }
+// 导出
 function downloadData() {
   let cols = []
   // 当 currentOrder.value 有键时，添加 currentOrder.value
@@ -584,7 +600,7 @@ function refresh() {
   // 获取所有视图
   useFimRequest.getViews(tableId.value).then(res => {
     currentViewId.value = useFimRequest.fimPriority.defaultViewId
-    // currentViewName.value = production.productPlan.defaultViewName
+    currentViewName.value = useFimRequest.fimPriority.defaultViewName
     // 获取所有的列
     useFimRequest.getCols(tableId.value).then(res => {
       // 获取到列名和视图列后再赋值给column和viewColumn

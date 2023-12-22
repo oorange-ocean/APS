@@ -1,5 +1,9 @@
 <template>
   <div class="container">
+    <div class="head">
+      <button @click="fresh"><span>刷新</span></button>
+      <button @click="downloadData"><span>导出</span></button>
+    </div>
     <div class="main" ref="tableContainer">
       <div class="common" ref="commonPlan">
         <common-plan
@@ -18,6 +22,7 @@
       </div>
 
       <el-table
+        ref="myTable"
         :data="production.semiFinishedProducts.data"
         border
         :cell-style="{ borderColor: '#9db9d6', textAlign: 'center' }"
@@ -111,6 +116,21 @@
             </div>
           </template>
         </el-table-column>
+        <el-table-column
+          prop="chVersion"
+          label="版本号"
+          width="100"
+          v-if="plan.chVersion"
+          sortable="custom"
+          :sort-orders="['ascending', 'descending']"
+        >
+          <template v-slot:header="{ column }">
+            <div>
+              {{ column.label }}
+              <span v-html="renderSortIcon(column)"></span>
+            </div>
+          </template>
+        </el-table-column>
       </el-table>
       <div
         class="bottom"
@@ -148,6 +168,7 @@ import useUserMenu from '@/store/modules/menu'
 import CommonPlan from '@/components/CommonPlan.vue'
 const userMenu = useUserMenu()
 const production = productionPlan()
+const myTable = ref(null)
 
 let currentPage = ref(1)
 let currentSize = ref(20)
@@ -217,7 +238,7 @@ function onSortChange(sortDetails) {
 
 // 动态计算表格高度
 const tableMaxHeight = computed(() => {
-  return `calc(100vh - ${115 + commonPlanHeight.value}px)`
+  return `calc(100vh - ${190 + commonPlanHeight.value}px)`
 })
 
 onMounted(() => {
@@ -354,12 +375,106 @@ function handleSizeChange(newSize) {
     .catch((error) => {})
 }
 
+// 导出
+function downloadData() {
+  let cols = []
+  // 当 currentOrder.value 有键时，添加 currentOrder.value
+  if (Object.keys(currentOrder.value).length !== 0) {
+    cols.push(currentOrder.value)
+  }
+
+  // 当 localCurrentOption.value 存在时，添加 localCurrentOption.value
+  if (localCurrentOption.value) {
+    cols.push(...localCurrentOption.value)
+  }
+  const param = {
+    tableId: tableId.value,
+    viewId: currentViewId.value,
+    cols: cols
+  }
+  ElMessageBox.confirm('请选择你要导出的数据', '提示', {
+    distinguishCancelAndClose: true,
+    confirmButtonText: '当前页',
+    cancelButtonText: '全部页',
+    type: 'warning'
+  })
+    .then(() => {
+      production.downloadTable({
+          type: 3,
+          page: currentPage.value,
+          size: currentSize.value,
+          ...param
+        })
+        .then((res) => {
+          if (res.code == 200) {
+            ElMessage({
+              type: 'success',
+              message: '导出当前页成功'
+            })
+          }
+          // console.log(res,'res')
+        })
+    })
+    .catch((action) => {
+      if (action === 'cancel') {
+        production.downloadTable({
+            type: 4,
+            ...param
+          })
+          .then((res) => {
+            if (res.code == 200) {
+              ElMessage({
+                type: 'success',
+                message: '导出全部页成功'
+              })
+            }
+          })
+      }
+    })
+}
+
+// 只刷新内容
+function refreshContent() {
+  currentSize.value = useUserStore().pageSize
+  // 刷新列
+  let cols = []
+  // 当 currentOrder.value 有键时，添加 currentOrder.value
+  if (Object.keys(currentOrder.value).length !== 0) {
+    cols.push(currentOrder.value)
+  }
+
+  // 当 localCurrentOption.value 存在时，添加 localCurrentOption.value
+  if (localCurrentOption.value) {
+    cols.push(...localCurrentOption.value)
+  }
+  const param = {
+    tableId: tableId.value,
+    viewId: currentViewId.value,
+    cols: cols
+  }
+  production
+    .semiFinishedGoodsFiltrate(
+    param,
+    currentPage.value,
+    currentSize.value
+  )
+    .then((res) => {
+      if (res.code == 201) {
+        ElMessageBox.alert(res.message, '提示', {
+          confirmButtonText: '好的'
+        })
+      }
+    })
+    .catch((error) => {})
+  myTable.value.clearSelection()
+}
+
 function refresh() {
   currentSize.value = useUserStore().pageSize
   // 获取所有视图
   production.getViews(tableId.value).then((res) => {
     currentViewId.value = production.semiFinishedProducts.defaultViewId
-    // currentViewName.value = production.productPlan.defaultViewName
+    currentViewName.value = production.semiFinishedProducts.defaultViewName
     // 获取所有的列
     production.getCols(tableId.value).then((res) => {
       // 获取到列名和视图列后再赋值给column和viewColumn
@@ -434,6 +549,14 @@ function handlePages(page) {
     })
     .catch((error) => {})
 }
+
+function fresh() {
+  refreshContent()
+  ElMessage({
+    type: 'success',
+    message: '刷新成功'
+  })
+}
 </script>
 
 <style>
@@ -457,6 +580,7 @@ function handlePages(page) {
 .plan {
   flex-direction: row-reverse;
   margin: 0;
+  margin-top: 24px;
 }
 .head {
   height: 48px;

@@ -264,6 +264,9 @@ function savePlan() {
           }
         })
         process.createBasePlan.Edited = false
+        process.createBasePlan.productFamily = ''
+        process.createBasePlan.number = ''
+        process.createBasePlan.data = []
       }
       if (res.code == 201) {
         ElMessageBox.alert(res.message, '无法保存', {

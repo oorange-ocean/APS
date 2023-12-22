@@ -775,6 +775,7 @@ function refresh() {
   // 获取所有视图
   ImmediateInventory.getViews(tableId.value).then((res) => {
     currentViewId.value = ImmediateInventory.outboundApplication.defaultViewId
+    currentViewName.value = ImmediateInventory.outboundApplication.defaultViewName
     // 获取所有的列
     ImmediateInventory.getCols(tableId.value).then((res) => {
       // 获取到列名和视图列后再赋值给column和viewColumn

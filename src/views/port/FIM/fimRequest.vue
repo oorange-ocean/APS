@@ -930,7 +930,7 @@ function refresh() {
   // 获取所有视图
   useFimRequest.getViews(tableId.value).then(res => {
     currentViewId.value = useFimRequest.fimRequest.defaultViewId
-    // currentViewName.value = production.productPlan.defaultViewName
+    currentViewName.value = useFimRequest.fimRequest.defaultViewName
     // 获取所有的列
     useFimRequest.getCols(tableId.value).then(res => {
       // 获取到列名和视图列后再赋值给column和viewColumn

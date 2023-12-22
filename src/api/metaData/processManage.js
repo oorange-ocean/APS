@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 import { download,uploadFile } from '../../utils/request';
-import {getToken} from '@/utils/auth'
+import { getToken } from '@/utils/auth'
 // 工序命名池界面
 // 新增和修改共用的接口，新增我就传name，修改我就传id和name
 export function updateProcessName(params) {

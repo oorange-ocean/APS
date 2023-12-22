@@ -272,7 +272,7 @@ router.beforeEach((to, from, next) => {
                         component: '/port/ERP/inventoryLock',
                         alwaysShow: 'true',
                         meta: {
-                          title: '锁库存列表'
+                          title: '库存锁库列表'
                         }
                       },
                       {
@@ -308,7 +308,7 @@ router.beforeEach((to, from, next) => {
                         component: '/port/MES/mesUnfinished',
                         alwaysShow: 'true',
                         meta: {
-                          title: 'Mes未完工'
+                          title: 'MES 未完工'
                         }
                       },
                       {

@@ -492,28 +492,28 @@ watch(
   { deep: true }
 )
 // 用于回显筛选条件
-const uniqueColumnsMap = new Map();   // 用于去重
+
 watch(
   () => props.viewColumn,
   (newValue, oldValue) => {
     // 不是“全部”视图时，从viewColumn里面获取列
     if (currentViewId.value != -1) {
+      const uniqueColumnsMap = new Map();   // 用于去重 
       if (props.viewColumn.length > 0) {
         props.viewColumn.forEach((item) => {
-        if (!uniqueColumnsMap.has(item.id)) {
-          uniqueColumnsMap.set(item.id, {
+        if (!uniqueColumnsMap.has(item.colId)) {
+          uniqueColumnsMap.set(item.colId, {
             id: item.id,
             colId: item.colId,
             chColName: item.chColName,
             voColName: item.voColName
           });
         }
-      });
+        });
       // 从 Map 对象中提取去重后的值
       currentColumn.value = Array.from(uniqueColumnsMap.values());
       
         // console.log('执行watch了')
-        // console.log(currentColumn.value, 'currentColumn')
         // 筛选出来判断条件不为空的值，这个就是要回显的筛选条件，而为null的就是视图列，不展示
         currentOption.value = props.viewColumn.filter(
           (item) => item.valueOperator != null
@@ -550,8 +550,6 @@ onMounted(() => {
       defaultViewId.value = res.data.defaultViewId
       defaultViewName.value = res.data.defaultViewName
       currentViewName.value = res.data.defaultViewName 
-      console.log(res.data.viewTableVos, 'res.data.viewTableVos')
-      console.log(currentViews.value, 'views')
     }
   })
 })
@@ -603,7 +601,6 @@ function savePlan() {
     //   colValue: item.colValue
     // }))
   })
-  console.log(props.currentOrder,'111')
   if (Object.keys(props.currentOrder).length != 0) {
     data.value.cols.push(props.currentOrder);
   }
@@ -691,17 +688,17 @@ function updatePlan() {
     viewId: currentViewId.value,
     cols: selectedColumns.value.map((col) => ({ colId: col.id })) //colId是普通的列名
   })
-  console.log(data.value, '修改方案')
+  // console.log(data.value, '修改方案')
   saveView(data.value).then((res) => {
     // emit('getViews', tableId.value)
     getViews(tableId.value).then(res => {
-      console.log(res,'res')
+      // console.log(res,'res')
       if (res.code == 200) {
         currentViews.value = res.data.viewTableVos
         defaultViewId.value = res.data.defaultViewId
         defaultViewName.value = res.data.defaultViewName
-        console.log(res.data.viewTableVos,'res.data.viewTableVos')
-        console.log(currentViews.value, 'views')
+        // console.log(res.data.viewTableVos,'res.data.viewTableVos')
+        // console.log(currentViews.value, 'views')
       }
     })
     emit('lookView', currentViewId.value, currentViewName.value)

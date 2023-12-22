@@ -8,9 +8,24 @@
       <button @click="dialogVisible = true"><span>导入</span></button>
       <button @click="downloadData"><span>导出</span></button>
     </div>
-    <common-plan class="plan" />
     <div class="main" ref="tableContainer">
+      <div class="common" ref="commonPlan">
+        <common-plan
+          class="plan"
+          :columnNames="rawBasicData.rawMaterialBasic.column"
+          :viewColumn="rawBasicData.rawMaterialBasic.viewColumn"
+          :currentViewId="currentViewId"
+          :currentViewName="currentViewName"
+          :apiUrl="'/masterData/searchLike'"
+          :currentTableId="66"
+          :currentOrder="currentOrder"
+          @lookView="lookView"
+          @searchView="searchView"
+          @getCurrentOption="getCurrentOption"
+        />
+      </div>
       <el-table
+        ref="myTable"
         :data="rawBasicData.rawMaterialBasic.data"
         border
         :cell-style="{ borderColor: '#9db9d6', textAlign: 'center' }"
@@ -24,8 +39,8 @@
         row-key="id"
         @selection-change="handleChange"
         @row-dblclick="changeRow"
-        max-height="calc(100vh - 258px)"
-        ref="myTable"
+        :max-height="tableMaxHeight"
+        @sort-change="onSortChange"
       >
         <el-table-column
           type="selection"
@@ -34,29 +49,87 @@
           width="35"
           class="one"
         />
-        <el-table-column prop="materialCode" label="物料编码" min-width="150">
+        <el-table-column
+          prop="materialCode"
+          label="物料编码"
+          min-width="150"
+          sortable="custom"
+          :sort-orders="['ascending', 'descending']"
+          v-if="plan.materialCode"
+        >
+        <template v-slot:header="{ column }">
+            <div>
+              {{ column.label }}
+              <span v-html="renderSortIcon(column)"></span>
+            </div>
+          </template>
           <template #default="{ row }">
             <template v-if="row.editable">
-              <el-input v-model="row.materialCode" @keyup.enter="saveRow(row)" />
+              <el-input
+                v-model="row.materialCode"
+                @keyup.enter="saveRow(row)"
+              />
             </template>
             <template v-else>
               {{ row.materialCode }}
             </template>
           </template>
         </el-table-column>
-        <el-table-column prop="materialName" label="物料名称" min-width="200">
+        <el-table-column
+          prop="materialName"
+          label="物料名称"
+          min-width="200"
+          sortable="custom"
+          :sort-orders="['ascending', 'descending']"
+          v-if="plan.materialName"
+        >
+        <template v-slot:header="{ column }">
+            <div>
+              {{ column.label }}
+              <span v-html="renderSortIcon(column)"></span>
+            </div>
+          </template>
         </el-table-column>
-        <el-table-column prop="materialProperty" label="物料属性" min-width="90">
+        <el-table-column
+          prop="materialProperty"
+          label="物料属性"
+          min-width="90"
+          sortable="custom"
+          :sort-orders="['ascending', 'descending']"
+          v-if="plan.materialProperty"
+        >
+        <template v-slot:header="{ column }">
+            <div>
+              {{ column.label }}
+              <span v-html="renderSortIcon(column)"></span>
+            </div>
+          </template>
           <template #default="{ row }">
             <template v-if="row.editable">
-              <el-input v-model="row.materialProperty" @keyup.enter="saveRow(row)" />
+              <el-input
+                v-model="row.materialProperty"
+                @keyup.enter="saveRow(row)"
+              />
             </template>
             <template v-else>
               {{ row.materialProperty }}
             </template>
           </template>
         </el-table-column>
-        <el-table-column prop="materialGroup" label="物料分组" min-width="110">
+        <el-table-column
+          prop="materialGroup"
+          label="物料分组"
+          min-width="110"
+          sortable="custom"
+          :sort-orders="['ascending', 'descending']"
+          v-if="plan.materialGroup"
+        >
+        <template v-slot:header="{ column }">
+            <div>
+              {{ column.label }}
+              <span v-html="renderSortIcon(column)"></span>
+            </div>
+          </template>
           <template #default="{ row }">
             <template v-if="row.editable">
               <el-input
@@ -73,7 +146,16 @@
           prop="procurementLeadTime"
           label="采购周期"
           min-width="110"
+          sortable="custom"
+          :sort-orders="['ascending', 'descending']"
+          v-if="plan.procurementLeadTime"
         >
+        <template v-slot:header="{ column }">
+            <div>
+              {{ column.label }}
+              <span v-html="renderSortIcon(column)"></span>
+            </div>
+          </template>
           <template #default="{ row }">
             <template v-if="row.editable">
               <el-input
@@ -86,7 +168,20 @@
             </template>
           </template>
         </el-table-column>
-        <el-table-column prop="moq" label="MOQ" min-width="100">
+        <el-table-column
+          prop="moq"
+          label="MOQ"
+          min-width="100"
+          sortable="custom"
+          :sort-orders="['ascending', 'descending']"
+          v-if="plan.moq"
+        >
+        <template v-slot:header="{ column }">
+            <div>
+              {{ column.label }}
+              <span v-html="renderSortIcon(column)"></span>
+            </div>
+          </template>
           <template #default="{ row }">
             <template v-if="row.editable">
               <el-input v-model="row.moq" @keyup.enter="saveRow(row)" />
@@ -96,7 +191,20 @@
             </template>
           </template>
         </el-table-column>
-        <el-table-column prop="mpq" label="MPQ" min-width="100">
+        <el-table-column
+          prop="mpq"
+          label="MPQ"
+          min-width="100"
+          sortable="custom"
+          :sort-orders="['ascending', 'descending']"
+          v-if="plan.mpq"
+        >
+        <template v-slot:header="{ column }">
+            <div>
+              {{ column.label }}
+              <span v-html="renderSortIcon(column)"></span>
+            </div>
+          </template>
           <template #default="{ row }">
             <template v-if="row.editable">
               <el-input v-model="row.mpq" @keyup.enter="saveRow(row)" />
@@ -106,7 +214,20 @@
             </template>
           </template>
         </el-table-column>
-        <el-table-column prop="safetyStock" label="安全库存" min-width="100">
+        <el-table-column
+          prop="safetyStock"
+          label="安全库存"
+          min-width="100"
+          sortable="custom"
+          :sort-orders="['ascending', 'descending']"
+          v-if="plan.safetyStock"
+        >
+        <template v-slot:header="{ column }">
+            <div>
+              {{ column.label }}
+              <span v-html="renderSortIcon(column)"></span>
+            </div>
+          </template>
           <template #default="{ row }">
             <template v-if="row.editable">
               <el-input v-model="row.safetyStock" @keyup.enter="saveRow(row)" />
@@ -117,16 +238,24 @@
           </template>
         </el-table-column>
       </el-table>
-      <div class="bottom" :style="{ width: userMenu.isCollapse ? 'calc(100vw - 50px)' : 'calc(100vw - 250px)' }">
+      <div
+        class="bottom"
+        :style="{
+          width: userMenu.isCollapse
+            ? 'calc(100vw - 50px)'
+            : 'calc(100vw - 250px)'
+        }"
+      >
         <Pagination
           :total="rawBasicData.rawMaterialBasic.pages"
           @change-page="handlePages"
           @update-size="handleSizeChange"
           :totalRows="rawBasicData.rawMaterialBasic.total"
+          :currentPage="currentPage"
         />
       </div>
     </div>
-    
+
     <div class="importData">
       <el-dialog title="导入文件" v-model="dialogVisible" width="30%">
         <!-- 文件上传 -->
@@ -147,9 +276,7 @@
             >覆盖导入</el-button
           >
           <el-button @click="addUpload" class="normal">追加导入</el-button>
-          <el-button @click="downloadModel" class="normal"
-            >下载模板</el-button
-          >
+          <el-button @click="downloadModel" class="normal">下载模板</el-button>
         </span>
       </el-dialog>
     </div>
@@ -157,20 +284,211 @@
 </template>
 
 <script setup>
-import { ref, onMounted,onUnmounted  } from 'vue'
+import {
+  ref,
+  onMounted,
+  onUnmounted,
+  reactive,
+  computed,
+  onBeforeUnmount
+} from 'vue'
+import { renderSortIcon } from '@/utils/sortIcon'
 import CommonPlan from '@/components/CommonPlan.vue'
 import Pagination from '@/components/Pagination.vue'
 import useUserStore from '@/store/modules/user'
 import useRawBasicData from '@/store/modules/metaData/materialBasicData/rawBasicData'
-import useUserMenu from "@/store/modules/menu"
+import useUserMenu from '@/store/modules/menu'
 const userMenu = useUserMenu()
 const rawBasicData = useRawBasicData()
 
-
 let currentPage = ref(1)
-let currentSize = ref(20)
+let currentSize = ref(100)
+let currentViewId = ref(null) //当前视图id
+let currentViewName = ref('') //当前视图名字
+const plan = ref({}) //当前方案各个列的true和false
+const tableContainer = ref(null) //点击其他视图或者点击下一页时自动滑动到顶部
+const commonPlan = ref(null)
+const commonPlanHeight = ref(0)
+const tableId = ref(66)
+const localCurrentOption = ref([]) //子组件中传过来的currentOption
+const currentOrder = ref({}) //当前排序的字段
+let column = reactive([]) //所有列名
+let viewColumn = reactive([]) //当前视图的所拥有的列名
+
+// 获取到子组件中currentOption的值
+function getCurrentOption(currentOption) {
+  localCurrentOption.value = currentOption
+}
+
+// 字段的排序
+function onSortChange(sortDetails) {
+  // prop 即为当前排序的字段
+  // order 即为排序的方式
+  // 1. 升序 order = 'ascending'
+  // 2. 降序 order = 'descending'
+  // 3. 取消排序 order = null
+  //子组件传过来currentOption,还有根据prop对应column中的voColName,提取出colId
+  if (viewColumn.length != 0) {
+    const id = viewColumn.find((item) => item.voColName == sortDetails.prop).id //视图列id
+    currentOrder.value.id = id
+  }
+  const colId = column.find((item) => item.voColName == sortDetails.prop).id //全部列id
+  currentOrder.value.valueOperator = sortDetails.order
+  currentOrder.value.colId = colId
+  let param = {
+    tableId: tableId.value,
+    viewId: currentViewId.value,
+    cols: [currentOrder.value]
+  }
+
+  // 判断有没有筛选条件，传的参数不一样
+  if (localCurrentOption.value) {
+    param.cols.push(...localCurrentOption.value)
+  }
+
+  // console.log(localCurrentOption.value, 'localCurrentOption.value')
+  rawBasicData
+    .getMetaData(param, currentPage.value, currentSize.value)
+    .then((res) => {
+      if (res.code == 201) {
+        ElMessageBox.alert(res.message, '提示', {
+          confirmButtonText: '好的'
+        })
+      } else {
+        const scrollContainer = tableContainer.value.querySelector(
+          '.el-scrollbar__wrap'
+        )
+        if (scrollContainer) {
+          scrollContainer.scrollTop = 0 // 滚动到顶部
+        }
+        console.log('获取成品計劃数据成功')
+      }
+    })
+    .catch((error) => {})
+}
+
+// 动态计算表格高度
+const tableMaxHeight = computed(() => {
+  return `calc(100vh - ${190 + commonPlanHeight.value}px)`
+})
+
+onMounted(() => {
+  const observer = new ResizeObserver((entries) => {
+    for (let entry of entries) {
+      commonPlanHeight.value = entry.target.offsetHeight
+    }
+  })
+
+  if (commonPlan.value) {
+    observer.observe(commonPlan.value)
+  }
+
+  onBeforeUnmount(() => {
+    if (commonPlan.value) {
+      observer.unobserve(commonPlan.value)
+    }
+  })
+})
+
+// 给剩余的列拼上false
+function transformColumns(column, viewColumn) {
+  // 从 column1 创建初始对象，所有值设为 false
+  const result = column.reduce((acc, item) => {
+    acc[item.voColName] = false
+    return acc
+  }, {})
+
+  // 更新 result 对象，将 scheme1 中存在的字段设置为 true
+  viewColumn.forEach((col) => {
+    if (col.voColName in result) {
+      result[col.voColName] = true
+    }
+  })
+  return result
+}
+
+// 查看视图
+function lookView(viewId, viewName) {
+  currentViewId.value = viewId
+  currentViewName.value = viewName
+  if (currentViewId.value != -1) {
+    currentPage.value = 1
+  }
+
+  rawBasicData
+    .getMetaData(
+      {
+        viewId: currentViewId.value,
+        tableId: tableId.value
+      },
+      currentPage.value,
+      currentSize.value
+    )
+    .then((res) => {
+      if (res.code == 201) {
+        ElMessageBox.alert(res.message, '提示', {
+          confirmButtonText: '好的'
+        })
+      }
+      viewColumn = rawBasicData.rawMaterialBasic.viewColumn
+      // console.log(viewColumn,'viewColumn')
+      if (viewId == '-1') {
+        plan.value = column.reduce((acc, item) => {
+          acc[item.voColName] = true
+          return acc
+        }, {})
+      } else {
+        plan.value = transformColumns(column, viewColumn)
+      }
+      const scrollContainer = tableContainer.value.querySelector(
+        '.el-scrollbar__wrap'
+      )
+      if (scrollContainer) {
+        scrollContainer.scrollTop = 0 // 滚动到顶部
+      }
+    })
+    .catch((error) => {})
+
+  // console.log(viewId,viewName,'111')
+}
+// 搜索视图
+function searchView(param) {
+  rawBasicData
+    .getMetaData(param, currentPage.value, currentSize.value)
+    .then((res) => {
+      if (res.code == 201) {
+        ElMessageBox.alert(res.message, '提示', {
+          confirmButtonText: '好的'
+        })
+      }
+      const scrollContainer = tableContainer.value.querySelector(
+        '.el-scrollbar__wrap'
+      )
+      if (scrollContainer) {
+        scrollContainer.scrollTop = 0 // 滚动到顶部
+      }
+      console.log('获取分页表格数据成功')
+    })
+    .catch((error) => {})
+}
+
 
 function downloadData() {
+  let cols = []
+  // 当 currentOrder.value 有键时，添加 currentOrder.value
+  if (Object.keys(currentOrder.value).length !== 0) {
+    cols.push(currentOrder.value)
+  }
+
+  // 当 localCurrentOption.value 存在时，添加 localCurrentOption.value
+  if (localCurrentOption.value) {
+    cols.push(...localCurrentOption.value)
+  }
+  const param = {
+    tableId: tableId.value,
+    viewId: currentViewId.value,
+    cols: cols
+  }
   ElMessageBox.confirm('请选择你要导出的数据', '提示', {
     distinguishCancelAndClose: true,
     confirmButtonText: '当前页',
@@ -179,38 +497,39 @@ function downloadData() {
   })
     .then(() => {
       rawBasicData
-        .downloadRawMaterial({
+        .downloadMetaData({
           type: 3,
           page: currentPage.value,
-          size: currentSize.value
+          size: currentSize.value,
+          ...param
         })
         .then((res) => {
-          if (res.code == 200) {
-              ElMessage({
-                  type: 'success',
-                  message: '导出当前页成功'
-              })
-          }
+            ElMessage({
+              type: 'success',
+              message: '导出当前页成功'
+            })
           // console.log(res,'res')
         })
     })
     .catch((action) => {
       if (action === 'cancel') {
         rawBasicData
-          .downloadRawMaterial({
-            type: 4
+          .downloadMetaData({
+            type: 4,
+            ...param
           })
           .then((res) => {
             if (res.code == 200) {
               ElMessage({
-                  type: 'success',
-                  message: '导出全部页成功'
+                type: 'success',
+                message: '导出全部页成功'
               })
             }
           })
       }
     })
 }
+
 const dialogVisible = ref(false)
 const fileToUpload = ref(null)
 const fileList = ref([])
@@ -226,9 +545,9 @@ async function addUpload() {
   if (!fileToUpload.value) {
     // console.log('没有选择文件')
     ElMessageBox.alert('请上传文件后导入', '提示', {
-        type: 'info',
-        confirmButtonText: '好的'
-      })
+      type: 'info',
+      confirmButtonText: '好的'
+    })
     // dialogVisible.value = false
     return
   }
@@ -276,20 +595,37 @@ function overUpload() {
     })
 }
 function downloadModel() {
-  rawBasicData.rawMaterialTemplate().then(res => {
+  rawBasicData.rawMaterialTemplate().then((res) => {
     dialogVisible.value = false
   })
 }
 
-
-
-
 function handleSizeChange(newSize) {
   currentSize.value = newSize
-  // console.log(currentSize.value,'currentSize')
-  rawBasicData.getRawMaterialBasic(currentPage.value, currentSize.value)
+  let cols = []
+  // 当 currentOrder.value 有键时，添加 currentOrder.value
+  if (Object.keys(currentOrder.value).length !== 0) {
+    cols.push(currentOrder.value)
+  }
+
+  // 当 localCurrentOption.value 存在时，添加 localCurrentOption.value
+  if (localCurrentOption.value) {
+    cols.push(...localCurrentOption.value)
+  }
+  const param = {
+    tableId: tableId.value,
+    viewId: currentViewId.value,
+    cols: cols
+  }
+  rawBasicData
+    .getMetaData(param, currentPage.value, currentSize.value)
     .then((res) => {
-      console.log('获取分页表格数据成功')
+      if (res.code == 201) {
+        ElMessageBox.alert(res.message, '提示', {
+          confirmButtonText: '好的'
+        })
+      }
+      console.log('获取成品計劃数据成功')
     })
     .catch((error) => {})
 }
@@ -297,15 +633,15 @@ function handleSizeChange(newSize) {
 let addAble = true //限制每次只能新增一行
 
 const newRow = {
-  "materialCode": "",
-  "materialName": null,
-  "materialProperty": "",
-  "materialGroup": "",
-  "procurementLeadTime": "",
-  "moq": "",
-  "mpq": "",
-  "safetyStock": null,
-  "editable": true
+  materialCode: '',
+  materialName: null,
+  materialProperty: '',
+  materialGroup: '',
+  procurementLeadTime: '',
+  moq: '',
+  mpq: '',
+  safetyStock: null,
+  editable: true
 }
 const selectedRows = ref([]) // 存储选中的行数据
 
@@ -320,7 +656,7 @@ const selectedRows = ref([]) // 存储选中的行数据
 onMounted(() => {
   refresh()
 })
-onUnmounted (() => {
+onUnmounted(() => {
   rawBasicData.resetState()
 })
 
@@ -361,19 +697,18 @@ function saveRow(row) {
   // 修改数据
   //   console.log('修改数据', row)
   if (row.id) {
-    rawBasicData.addOrUpdateRawMaterial(
-      {
-        "id": row.id,
-        "materialCode": row.materialCode,
-        "materialName": row.materialName,
-        "materialProperty": row.materialProperty,
-        "materialGroup": row.materialGroup,
-        "procurementLeadTime": row.procurementLeadTime,
-        "moq": row.moq,
-        "mpq": row.mpq,
-        "safetyStock": row.safetyStock
-      }
-    )
+    rawBasicData
+      .addOrUpdateRawMaterial({
+        id: row.id,
+        materialCode: row.materialCode,
+        materialName: row.materialName,
+        materialProperty: row.materialProperty,
+        materialGroup: row.materialGroup,
+        procurementLeadTime: row.procurementLeadTime,
+        moq: row.moq,
+        mpq: row.mpq,
+        safetyStock: row.safetyStock
+      })
       .then((res) => {
         refresh()
       })
@@ -386,22 +721,20 @@ function saveRow(row) {
   // 新增数据
   else {
     // console.log(addAble,'@@@')
-    rawBasicData.addOrUpdateRawMaterial(
-      {
-        "materialCode": row.materialCode,
-        "materialName": row.materialName,
-        "materialProperty": row.materialProperty,
-        "materialGroup": row.materialGroup,
-        "procurementLeadTime": row.procurementLeadTime,
-        "moq": row.moq,
-        "mpq": row.mpq,
-        "safetyStock": row.safetyStock
-      }
-    )
+    rawBasicData
+      .addOrUpdateRawMaterial({
+        materialCode: row.materialCode,
+        materialName: row.materialName,
+        materialProperty: row.materialProperty,
+        materialGroup: row.materialGroup,
+        procurementLeadTime: row.procurementLeadTime,
+        moq: row.moq,
+        mpq: row.mpq,
+        safetyStock: row.safetyStock
+      })
       .then((res) => {
         addAble = true
         if (res.code == 200) {
-
         } else {
           ElMessageBox.alert('数据不能为空', '添加数据失败', {
             confirmButtonText: '好'
@@ -422,12 +755,33 @@ function saveRow(row) {
     // addAble = true;
   }
 }
-const tableContainer = ref(null)
+
 function handlePages(page) {
-  // console.log(page)
   currentPage.value = page
-  rawBasicData.getRawMaterialBasic(page, currentSize.value)
+  let cols = []
+  // 当 currentOrder.value 有键时，添加 currentOrder.value
+  if (Object.keys(currentOrder.value).length !== 0) {
+    cols.push(currentOrder.value)
+  }
+
+  // 当 localCurrentOption.value 存在时，添加 localCurrentOption.value
+  if (localCurrentOption.value) {
+    cols.push(...localCurrentOption.value)
+  }
+  const param = {
+    tableId: tableId.value,
+    viewId: currentViewId.value,
+    cols: cols
+  }
+
+  rawBasicData
+    .getMetaData(param, currentPage.value, currentSize.value)
     .then((res) => {
+      if (res.code == 201) {
+        ElMessageBox.alert(res.message, '提示', {
+          confirmButtonText: '好的'
+        })
+      }
       const scrollContainer = tableContainer.value.querySelector(
         '.el-scrollbar__wrap'
       )
@@ -438,6 +792,7 @@ function handlePages(page) {
     })
     .catch((error) => {})
 }
+
 function deleteSelectedRows() {
   // 在这里处理删除选中行的逻辑，可以从 selectedRows 中获取选中行的数据
   // 批量删除
@@ -457,16 +812,18 @@ function deleteSelectedRows() {
       type: 'warning'
     })
       .then(() => {
-        rawBasicData.removeRawMaterial(list)
+        rawBasicData
+          .removeRawMaterial(list)
           .then((res) => {
             console.log('删除产能成功')
             ElMessage({
               type: 'success',
               message: '删除成功'
             })
-            refresh()
+            refreshContent()
           })
           .catch((error) => {
+            refreshContent()
             console.log(error)
             console.log('批量删除产能失败')
           })
@@ -485,28 +842,86 @@ function handleChange(selection) {
 }
 
 function refresh() {
+  currentSize.value = useUserStore().pageSize
+  // 获取所有视图
+  rawBasicData.getViews(tableId.value).then((res) => {
+    currentViewId.value = rawBasicData.rawMaterialBasic.defaultViewId
+    currentViewName.value = rawBasicData.rawMaterialBasic.defaultViewName
+    // 获取所有的列
+    rawBasicData.getCols(tableId.value).then((res) => {
+      // 获取到列名和视图列后再赋值给column和viewColumn
+      column = rawBasicData.rawMaterialBasic.column
+      viewColumn = rawBasicData.rawMaterialBasic.viewColumn
+      // 如果是“全部”就给plan赋值
+      if (currentViewId.value == -1) {
+        plan.value = column.reduce((acc, item) => {
+          acc[item.voColName] = true
+          return acc
+        }, {})
+        console.log(plan.value, 'plan11')
+      } else {
+        plan.value = transformColumns(column, viewColumn)
+      }
+      // 获取拥有的数据和所拥有的列
+      rawBasicData
+        .getMetaData(
+          { viewId: currentViewId.value, tableId: tableId.value },
+          currentPage.value,
+          currentSize.value
+        )
+        .then((res) => {
+          if (res.code == 201) {
+            ElMessageBox.alert(res.message, '提示', {
+              confirmButtonText: '好的'
+            })
+          }
+          console.log('查询产品计划列表')
+        })
+        .catch((error) => {})
+    })
+  })
+}
+
+// 只刷新内容
+function refreshContent() {
   addAble = true
   currentSize.value = useUserStore().pageSize
-  rawBasicData.getRawMaterialBasic(currentPage.value, currentSize.value)
+  // 刷新列
+  let cols = []
+  // 当 currentOrder.value 有键时，添加 currentOrder.value
+  if (Object.keys(currentOrder.value).length !== 0) {
+    cols.push(currentOrder.value)
+  }
+
+  // 当 localCurrentOption.value 存在时，添加 localCurrentOption.value
+  if (localCurrentOption.value) {
+    cols.push(...localCurrentOption.value)
+  }
+  const param = {
+    tableId: tableId.value,
+    viewId: currentViewId.value,
+    cols: cols
+  }
+  rawBasicData
+    .getMetaData(param, currentPage.value, currentSize.value)
     .then((res) => {
-      if (res.code == 200) {
-        
-      } else {
+      if (res.code == 201) {
         ElMessageBox.alert(res.message, '提示', {
-          confirmButtonText: '好'
+          confirmButtonText: '好的'
         })
       }
       myTable.value.clearSelection()
     })
     .catch((error) => {})
-  console.log('查询所有工序产能')
+  myTable.value.clearSelection()
 }
+
 function fresh() {
-  refresh()
+  refreshContent()
   ElMessage({
-    type: "success",
-    message: "刷新成功",
-  });
+    type: 'success',
+    message: '刷新成功'
+  })
 }
 </script>
 
@@ -528,7 +943,7 @@ function fresh() {
 .plan {
   flex-direction: row-reverse;
   margin: 0;
-  margin-top:24px;
+  margin-top: 24px;
 }
 .head {
   height: 48px;
@@ -566,14 +981,13 @@ span {
 }
 .main {
   flex: 1;
-  margin-top: 20px;
 }
 .el-table {
   border: 1px solid #9db9d6;
   /* background-color: red; */
 }
 .bottom {
-    position: fixed;
-    bottom: 0;
+  position: fixed;
+  bottom: 0;
 }
 </style>

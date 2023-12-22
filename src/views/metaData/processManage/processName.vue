@@ -4,13 +4,28 @@
       <button @click="addRow"><span class="first">新增</span></button>
       <button @click="modifyRow"><span>修改</span></button>
       <button @click="deleteSelectedRows"><span>删除</span></button>
-      <button @click="refresh"><span>刷新</span></button>
+      <button @click="fresh"><span>刷新</span></button>
       <button @click="dialogVisible = true"><span>导入</span></button>
       <button @click="downloadData"><span>导出</span></button>
     </div>
-    <common-plan class="plan" />
     <div class="main" ref="tableContainer">
+      <div class="common" ref="commonPlan">
+        <common-plan
+          class="plan"
+          :columnNames="process.processNames.column"
+          :viewColumn="process.processNames.viewColumn"
+          :currentViewId="currentViewId"
+          :currentViewName="currentViewName"
+          :apiUrl="'/masterData/searchLike'"
+          :currentTableId="60"
+          :currentOrder="currentOrder"
+          @lookView="lookView"
+          @searchView="searchView"
+          @getCurrentOption="getCurrentOption"
+        />
+      </div>
       <el-table
+        ref="myTable"
         :data="process.processNames.data"
         border
         :cell-style="{ borderColor: '#9db9d6', textAlign: 'center' }"
@@ -24,8 +39,8 @@
         row-key="id"
         @selection-change="handleChange"
         @row-dblclick="changeRow"
-        ref="myTable"
-        max-height="calc(100vh - 258px)"
+        :max-height="tableMaxHeight"
+        @sort-change="onSortChange"
       >
         <el-table-column
           type="selection"
@@ -34,8 +49,28 @@
           width="35"
           class="one"
         />
-        <el-table-column prop="number" label="序号" width="100" />
-        <el-table-column prop="processName" label="工序名称">
+        <el-table-column
+          prop="number"
+          label="序号"
+          width="100"
+          sortable="custom"
+          :sort-orders="['ascending', 'descending']"
+          v-if="true"
+        >
+        </el-table-column>
+        <el-table-column
+          prop="processName"
+          label="工序名称"
+          sortable="custom"
+          :sort-orders="['ascending', 'descending']"
+          v-if="plan.processName"
+        >
+          <template v-slot:header="{ column }">
+            <div>
+              {{ column.label }}
+              <span v-html="renderSortIcon(column)"></span>
+            </div>
+          </template>
           <template #default="{ row }">
             <template v-if="row.editable">
               <el-input v-model="row.processName" @keyup.enter="saveRow(row)" />
@@ -46,60 +81,239 @@
           </template>
         </el-table-column>
       </el-table>
-      <div class="bottom" :style="{ width: userMenu.isCollapse ? 'calc(100vw - 50px)' : 'calc(100vw - 250px)' }">
+      <div
+        class="bottom"
+        :style="{
+          width: userMenu.isCollapse
+            ? 'calc(100vw - 50px)'
+            : 'calc(100vw - 250px)'
+        }"
+      >
         <Pagination
           :total="process.processNames.pages"
           @change-page="handlePages"
           @update-size="handleSizeChange"
           :totalRows="process.processNames.total"
+          :currentPage="currentPage"
         />
       </div>
     </div>
-    
-    <el-dialog title="导入文件" v-model="dialogVisible" width="30%">
-      <!-- 文件上传 -->
-      <el-upload
-        class="upload-demo"
-        drag
-        :auto-upload="false"
-        :file-list="fileList"
-        :on-change="handleFileChange"
-      >
-        <i class="el-icon-upload"></i>
-        <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-      </el-upload>
+    <div class="capacity">
+      <el-dialog title="导入文件" v-model="dialogVisible" width="30%">
+        <!-- 文件上传 -->
+        <el-upload
+          class="upload-demo"
+          drag
+          :auto-upload="false"
+          :file-list="fileList"
+          :on-change="handleFileChange"
+        >
+          <i class="el-icon-upload"></i>
+          <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+        </el-upload>
 
-      <!-- 底部操作按钮 -->
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="overUpload" class="confirm normal"
-          >覆盖导入</el-button
-        >
-        <el-button @click="addUpload" class="normal">追加导入</el-button>
-        <el-button @click="downloadModel" class="normal"
-          >下载模板</el-button
-        >
-      </span>
-    </el-dialog>
+        <!-- 底部操作按钮 -->
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="overUpload" class="confirm normal"
+            >覆盖导入</el-button
+          >
+          <el-button @click="addUpload" class="normal">追加导入</el-button>
+          <el-button @click="downloadModel" class="normal">下载模板</el-button>
+        </span>
+      </el-dialog>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, watch, onBeforeMount } from 'vue'
+import {
+  ref,
+  onBeforeMount,
+  reactive,
+  onMounted,
+  computed,
+  onBeforeUnmount
+} from 'vue'
+import { renderSortIcon } from '@/utils/sortIcon'
 import CommonPlan from '../../../components/CommonPlan.vue'
 import processManage from '../../../store/modules/metaData/processManage'
-import { useRoute, useRouter } from 'vue-router'
 import Pagination from '@/components/Pagination.vue'
 import { ElMessageBox } from 'element-plus'
 import useUserStore from '../../../store/modules/user'
-import { getToken } from '../../../utils/auth'
-import useUserMenu from "@/store/modules/menu"
+import useUserMenu from '@/store/modules/menu'
 const userMenu = useUserMenu()
-
 const process = processManage()
-const route = useRoute() //用于获取和访问当前路由的信息
-const router = useRouter() //用于执行路由导航的操作
+
 let currentPage = ref(1)
-let currentSize = ref(20)
+let currentSize = ref(100)
+let currentViewId = ref(null) //当前视图id
+let currentViewName = ref('') //当前视图名字
+const plan = ref({}) //当前方案各个列的true和false
+const tableContainer = ref(null) //点击其他视图或者点击下一页时自动滑动到顶部
+const commonPlan = ref(null)
+const commonPlanHeight = ref(0)
+const tableId = ref(60)
+const localCurrentOption = ref([]) //子组件中传过来的currentOption
+const currentOrder = ref({}) //当前排序的字段
+let column = reactive([]) //所有列名
+let viewColumn = reactive([]) //当前视图的所拥有的列名
+
+// 获取到子组件中currentOption的值
+function getCurrentOption(currentOption) {
+  localCurrentOption.value = currentOption
+}
+
+// 字段的排序
+function onSortChange(sortDetails) {
+  // prop 即为当前排序的字段
+  // order 即为排序的方式
+  // 1. 升序 order = 'ascending'
+  // 2. 降序 order = 'descending'
+  // 3. 取消排序 order = null
+  //子组件传过来currentOption,还有根据prop对应column中的voColName,提取出colId
+  if (viewColumn.length != 0) {
+    const id = viewColumn.find((item) => item.voColName == sortDetails.prop).id //视图列id
+    currentOrder.value.id = id
+  }
+  const colId = column.find((item) => item.voColName == sortDetails.prop).id //全部列id
+  currentOrder.value.valueOperator = sortDetails.order
+  currentOrder.value.colId = colId
+  let param = {
+    tableId: tableId.value,
+    viewId: currentViewId.value,
+    cols: [currentOrder.value]
+  }
+
+  // 判断有没有筛选条件，传的参数不一样
+  if (localCurrentOption.value) {
+    param.cols.push(...localCurrentOption.value)
+  }
+
+  // console.log(localCurrentOption.value, 'localCurrentOption.value')
+  process
+    .getMetaData(param, currentPage.value, currentSize.value)
+    .then((res) => {
+      if (res.code == 201) {
+        ElMessageBox.alert(res.message, '提示', {
+          confirmButtonText: '好的'
+        })
+      } else {
+        const scrollContainer = tableContainer.value.querySelector(
+          '.el-scrollbar__wrap'
+        )
+        if (scrollContainer) {
+          scrollContainer.scrollTop = 0 // 滚动到顶部
+        }
+        console.log('获取成品計劃数据成功')
+      }
+    })
+    .catch((error) => {})
+}
+
+// 动态计算表格高度
+const tableMaxHeight = computed(() => {
+  return `calc(100vh - ${190 + commonPlanHeight.value}px)`
+})
+
+onMounted(() => {
+  const observer = new ResizeObserver((entries) => {
+    for (let entry of entries) {
+      commonPlanHeight.value = entry.target.offsetHeight
+    }
+  })
+
+  if (commonPlan.value) {
+    observer.observe(commonPlan.value)
+  }
+
+  onBeforeUnmount(() => {
+    if (commonPlan.value) {
+      observer.unobserve(commonPlan.value)
+    }
+  })
+})
+
+// 给剩余的列拼上false
+function transformColumns(column, viewColumn) {
+  // 从 column1 创建初始对象，所有值设为 false
+  const result = column.reduce((acc, item) => {
+    acc[item.voColName] = false
+    return acc
+  }, {})
+
+  // 更新 result 对象，将 scheme1 中存在的字段设置为 true
+  viewColumn.forEach((col) => {
+    if (col.voColName in result) {
+      result[col.voColName] = true
+    }
+  })
+  return result
+}
+
+// 查看视图
+function lookView(viewId, viewName) {
+  currentViewId.value = viewId
+  currentViewName.value = viewName
+  if (currentViewId.value != -1) {
+    currentPage.value = 1
+  }
+
+  process
+    .getMetaData(
+      {
+        viewId: currentViewId.value,
+        tableId: tableId.value
+      },
+      currentPage.value,
+      currentSize.value
+    )
+    .then((res) => {
+      if (res.code == 201) {
+        ElMessageBox.alert(res.message, '提示', {
+          confirmButtonText: '好的'
+        })
+      }
+      viewColumn = process.processNames.viewColumn
+      // console.log(viewColumn,'viewColumn')
+      if (viewId == '-1') {
+        plan.value = column.reduce((acc, item) => {
+          acc[item.voColName] = true
+          return acc
+        }, {})
+      } else {
+        plan.value = transformColumns(column, viewColumn)
+      }
+      const scrollContainer = tableContainer.value.querySelector(
+        '.el-scrollbar__wrap'
+      )
+      if (scrollContainer) {
+        scrollContainer.scrollTop = 0 // 滚动到顶部
+      }
+    })
+    .catch((error) => {})
+
+  // console.log(viewId,viewName,'111')
+}
+// 搜索视图
+function searchView(param) {
+  process
+    .getMetaData(param, currentPage.value, currentSize.value)
+    .then((res) => {
+      if (res.code == 201) {
+        ElMessageBox.alert(res.message, '提示', {
+          confirmButtonText: '好的'
+        })
+      }
+      const scrollContainer = tableContainer.value.querySelector(
+        '.el-scrollbar__wrap'
+      )
+      if (scrollContainer) {
+        scrollContainer.scrollTop = 0 // 滚动到顶部
+      }
+      console.log('获取分页表格数据成功')
+    })
+    .catch((error) => {})
+}
 
 const dialogVisible = ref(false)
 const fileToUpload = ref(null)
@@ -116,9 +330,9 @@ async function addUpload() {
   if (!fileToUpload.value) {
     // console.log('没有选择文件')
     ElMessageBox.alert('请上传文件后导入', '提示', {
-        type: 'info',
-        confirmButtonText: '好的'
-      })
+      type: 'info',
+      confirmButtonText: '好的'
+    })
     dialogVisible.value = false
     return
   }
@@ -141,7 +355,7 @@ async function addUpload() {
       })
     }
     importType.value = 1
-    refresh()
+    refreshContent()
   })
 
   // 重置文件
@@ -167,12 +381,10 @@ function overUpload() {
     })
 }
 function downloadModel() {
-  process.proceeNameTemplate().then(res => {
+  process.proceeNameTemplate().then((res) => {
     dialogVisible.value = false
   })
-  
 }
-
 
 let addAble = true //限制每次只能新增一行
 
@@ -191,19 +403,41 @@ const selectedRows = ref([]) // 存储选中的行数据
 onBeforeMount(() => {
   refresh()
 })
+
 function handleSizeChange(newSize) {
   currentSize.value = newSize
-  // console.log(currentSize.value,'currentSize')
+  let cols = []
+  // 当 currentOrder.value 有键时，添加 currentOrder.value
+  if (Object.keys(currentOrder.value).length !== 0) {
+    cols.push(currentOrder.value)
+  }
+
+  // 当 localCurrentOption.value 存在时，添加 localCurrentOption.value
+  if (localCurrentOption.value) {
+    cols.push(...localCurrentOption.value)
+  }
+  const param = {
+    tableId: tableId.value,
+    viewId: currentViewId.value,
+    cols: cols
+  }
   process
-    .getProcessNamePoolsPages(currentPage.value, currentSize.value)
+    .getMetaData(param, currentPage.value, currentSize.value)
     .then((res) => {
-      console.log('获取分页表格数据成功')
+      if (res.code == 201) {
+        ElMessageBox.alert(res.message, '提示', {
+          confirmButtonText: '好的'
+        })
+      }
+      console.log('获取成品計劃数据成功')
     })
     .catch((error) => {})
 }
+
 function changeRow(row) {
   row.editable = true
 }
+
 function modifyRow() {
   // selectedRows.value[0].editable = true
 
@@ -217,12 +451,33 @@ function modifyRow() {
     })
   }
 }
-const tableContainer = ref(null)
+
 function handlePages(page) {
   currentPage.value = page
+  let cols = []
+  // 当 currentOrder.value 有键时，添加 currentOrder.value
+  if (Object.keys(currentOrder.value).length !== 0) {
+    cols.push(currentOrder.value)
+  }
+
+  // 当 localCurrentOption.value 存在时，添加 localCurrentOption.value
+  if (localCurrentOption.value) {
+    cols.push(...localCurrentOption.value)
+  }
+  const param = {
+    tableId: tableId.value,
+    viewId: currentViewId.value,
+    cols: cols
+  }
+
   process
-    .getProcessNamePoolsPages(page, currentSize.value)
+    .getMetaData(param, currentPage.value, currentSize.value)
     .then((res) => {
+      if (res.code == 201) {
+        ElMessageBox.alert(res.message, '提示', {
+          confirmButtonText: '好的'
+        })
+      }
       const scrollContainer = tableContainer.value.querySelector(
         '.el-scrollbar__wrap'
       )
@@ -232,37 +487,6 @@ function handlePages(page) {
       console.log('获取分页表格数据成功')
     })
     .catch((error) => {})
-}
-
-function moveUp() {
-  const selected = selectedRows.value // Assuming you have stored the selected rows in this.selectedRows
-  if (selected.length !== 1) {
-    ElMessageBox.alert('请选中一行移动', '提示', {
-      confirmButtonText: '好的'
-    })
-    return
-  }
-  const index = process.processNames.data.indexOf(selected[0])
-  if (index > 0) {
-    const temp = process.processNames.data[index - 1]
-    process.processNames.data[index - 1] = process.processNames.data[index]
-    process.processNames.data[index] = temp
-  }
-}
-function moveDown() {
-  const selected = selectedRows.value // Assuming you have stored the selected rows in this.selectedRows
-  if (selected.length !== 1) {
-    ElMessageBox.alert('请选中一行移动', '提示', {
-      confirmButtonText: '好的'
-    })
-    return
-  }
-  const index = process.processNames.data.indexOf(selected[0])
-  if (index < process.processNames.data.length - 1) {
-    const temp = process.processNames.data[index + 1]
-    process.processNames.data[index + 1] = process.processNames.data[index]
-    process.processNames.data[index] = temp
-  }
 }
 
 function addRow() {
@@ -304,7 +528,7 @@ function saveRow(row) {
       .then((res) => {
         addAble = true
         console.log('工序添加成功')
-        refresh()
+        refreshContent()
       })
       .catch((error) => {
         console.log(error)
@@ -345,9 +569,10 @@ function deleteSelectedRows() {
               type: 'success',
               message: '删除成功'
             })
-            refresh()
+            refreshContent()
           })
           .catch((error) => {
+            refreshContent()
             console.log(error)
             console.log('批量删除工序名失败')
           })
@@ -361,6 +586,21 @@ function deleteSelectedRows() {
   }
 }
 function downloadData() {
+  let cols = []
+  // 当 currentOrder.value 有键时，添加 currentOrder.value
+  if (Object.keys(currentOrder.value).length !== 0) {
+    cols.push(currentOrder.value)
+  }
+
+  // 当 localCurrentOption.value 存在时，添加 localCurrentOption.value
+  if (localCurrentOption.value) {
+    cols.push(...localCurrentOption.value)
+  }
+  const param = {
+    tableId: tableId.value,
+    viewId: currentViewId.value,
+    cols: cols
+  }
   ElMessageBox.confirm('请选择你要导出的数据', '提示', {
     distinguishCancelAndClose: true,
     confirmButtonText: '当前页',
@@ -369,29 +609,36 @@ function downloadData() {
   })
     .then(() => {
       process
-        .downloadProceeName({
+        .downloadMetaData({
           type: 3,
           page: currentPage.value,
-          size: currentSize.value
+          size: currentSize.value,
+          ...param
         })
         .then((res) => {
-          ElMessage({
-            type: 'success',
-            message: '导出当前页成功'
-          })
+          if (res.code == 200) {
+            ElMessage({
+              type: 'success',
+              message: '导出当前页成功'
+            })
+          }
+          // console.log(res,'res')
         })
     })
     .catch((action) => {
       if (action === 'cancel') {
         process
-          .downloadProceeName({
-            type: 4
+          .downloadMetaData({
+            type: 4,
+            ...param
           })
           .then((res) => {
-            ElMessage({
-              type: 'success',
-              message: '导出全部页成功'
-            })
+            if (res.code == 200) {
+              ElMessage({
+                type: 'success',
+                message: '导出全部页成功'
+              })
+            }
           })
       }
     })
@@ -402,26 +649,87 @@ function handleChange(selection) {
   selectedRows.value = selection
 }
 const myTable = ref(null)
+
 function refresh() {
   currentSize.value = useUserStore().pageSize
-  addAble = true
-  process
-    .getProcessNamePoolsPages(currentPage.value, currentSize.value)
-    .then((res) => {
-      console.log('查询所有工序名称', res)
-      if (res.code == 200) {
-        ElMessage({
-          type: 'success',
-          message: '刷新成功'
-        })
+  // 获取所有视图
+  process.getViews(tableId.value).then((res) => {
+    currentViewId.value = process.processNames.defaultViewId
+    currentViewName.value = process.processNames.defaultViewName
+    // 获取所有的列
+    process.getCols(tableId.value).then((res) => {
+      // 获取到列名和视图列后再赋值给column和viewColumn
+      column = process.processNames.column
+      viewColumn = process.processNames.viewColumn
+      // 如果是“全部”就给plan赋值
+      if (currentViewId.value == -1) {
+        plan.value = column.reduce((acc, item) => {
+          acc[item.voColName] = true
+          return acc
+        }, {})
+        console.log(plan.value, 'plan11')
       } else {
+        plan.value = transformColumns(column, viewColumn)
+      }
+      // 获取拥有的数据和所拥有的列
+      process
+        .getMetaData(
+          { viewId: currentViewId.value, tableId: tableId.value },
+          currentPage.value,
+          currentSize.value
+        )
+        .then((res) => {
+          if (res.code == 201) {
+            ElMessageBox.alert(res.message, '提示', {
+              confirmButtonText: '好的'
+            })
+          }
+          console.log('查询产品计划列表')
+        })
+        .catch((error) => {})
+    })
+  })
+}
+
+// 只刷新内容
+function refreshContent() {
+  addAble = true
+  currentSize.value = useUserStore().pageSize
+  // 刷新列
+  let cols = []
+  // 当 currentOrder.value 有键时，添加 currentOrder.value
+  if (Object.keys(currentOrder.value).length !== 0) {
+    cols.push(currentOrder.value)
+  }
+
+  // 当 localCurrentOption.value 存在时，添加 localCurrentOption.value
+  if (localCurrentOption.value) {
+    cols.push(...localCurrentOption.value)
+  }
+  const param = {
+    tableId: tableId.value,
+    viewId: currentViewId.value,
+    cols: cols
+  }
+  process
+    .getMetaData(param, currentPage.value, currentSize.value)
+    .then((res) => {
+      if (res.code == 201) {
         ElMessageBox.alert(res.message, '提示', {
-          confirmButtonText: '好'
+          confirmButtonText: '好的'
         })
       }
-      myTable.value.clearSelection()
     })
-  // console.log('查询所有工序名称')
+    .catch((error) => {})
+  myTable.value.clearSelection()
+}
+
+function fresh() {
+  refreshContent()
+  ElMessage({
+    type: 'success',
+    message: '刷新成功'
+  })
 }
 </script>
 <style>
@@ -429,12 +737,10 @@ function refresh() {
   padding: 0;
   /* padding: .5rem 0; */
 }
-.el-dialog__body {
+.capacity .el-dialog__body {
   padding: 1.875rem 1.25rem 1.25rem 1.25rem;
 }
-.el-dialog {
-  /* align-items: center;
-  justify-content: center; */
+.capacity .el-dialog {
   margin: 0 auto;
   margin-top: 25vh;
 }
@@ -450,7 +756,7 @@ function refresh() {
 .plan {
   flex-direction: row-reverse;
   margin: 0;
-  margin-top:24px;
+  margin-top: 24px;
 }
 .head {
   height: 48px;
@@ -491,7 +797,6 @@ button:hover {
   /* background-color: blue; */
   /* width: 100%; */
   flex: 1;
-  margin-top: 1.25rem;
 }
 .el-table {
   border: 0.0625rem solid #9db9d6;
@@ -504,7 +809,7 @@ button:hover {
   flex-direction: row-reverse;
 }
 .bottom {
-    position: fixed;
-    bottom: 0;
+  position: fixed;
+  bottom: 0;
 }
 </style>

@@ -957,6 +957,7 @@ function refresh() {
   // 获取所有视图
   dailyDataUpload.getViews(tableId.value).then(res => {
     currentViewId.value = dailyDataUpload.dailyDataUpload.defaultViewId
+    currentViewName.value = dailyDataUpload.dailyDataUpload.defaultViewName
     // 获取所有的列
     dailyDataUpload.getCols(tableId.value).then(res => {
       // 获取到列名和视图列后再赋值给column和viewColumn
