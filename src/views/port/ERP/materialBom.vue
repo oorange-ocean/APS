@@ -326,8 +326,8 @@
         </el-table-column>
         <el-table-column
           prop="process"
-          label="工序"
-          width="80"
+          label="工序名称"
+          width="120"
           :sort-orders="['ascending', 'descending']"
           sortable="custom"
           v-if="plan.process"
@@ -600,6 +600,7 @@ function lookView(viewId, viewName) {
 }
 // 搜索视图
 function searchView(param) {
+  currentPage.value = 1
   ImmediateInventory.getPageFiltrate(
     param,
     currentPage.value,
@@ -621,7 +622,6 @@ function searchView(param) {
     })
     .catch((error) => {})
 }
-
 
 function downloadData() {
   let cols = []
@@ -785,7 +785,6 @@ function downloadModel() {
   })
 }
 
-
 const selectProcessName = ref([])
 const selectProductFamily = ref([])
 // const selectPackagingMethod = ref([])
@@ -906,9 +905,17 @@ function saveRow(row) {
       .then((res) => {
         console.log('产能修改成功')
         refreshContent()
+        ElMessage({
+          type: 'success',
+          message: '修改成功'
+        })
       })
       .catch((error) => {
         refreshContent()
+        ElMessage({
+          type: 'error',
+          message: '修改失败'
+        })
         console.log(row.id)
         console.log('产能修改失败')
       })
@@ -940,6 +947,10 @@ function saveRow(row) {
       .then((res) => {
         addAble = true
         if (res.code == 200) {
+          ElMessage({
+          type: 'success',
+          message: '添加成功'
+        })
           console.log('产能添加成功')
         } else {
           ElMessageBox.alert('数据不能为空', '添加数据失败', {
@@ -949,6 +960,10 @@ function saveRow(row) {
         refreshContent()
       })
       .catch((error) => {
+        ElMessage({
+          type: 'error',
+          message: '添加失败'
+        })
         console.log(error)
         console.log('产能添加失败')
         refreshContent()
@@ -1002,7 +1017,6 @@ function handlePages(page) {
     .catch((error) => {})
 }
 
-
 function deleteSelectedRows() {
   // 在这里处理删除选中行的逻辑，可以从 selectedRows 中获取选中行的数据
   // 批量删除
@@ -1033,6 +1047,10 @@ function deleteSelectedRows() {
           })
           .catch((error) => {
             refreshContent()
+            ElMessage({
+              type: 'error',
+              message: '删除失败'
+            })
             console.log(error)
             console.log('批量删除产能失败')
           })

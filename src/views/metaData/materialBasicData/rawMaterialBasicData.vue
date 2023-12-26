@@ -57,7 +57,7 @@
           :sort-orders="['ascending', 'descending']"
           v-if="plan.materialCode"
         >
-        <template v-slot:header="{ column }">
+          <template v-slot:header="{ column }">
             <div>
               {{ column.label }}
               <span v-html="renderSortIcon(column)"></span>
@@ -83,7 +83,7 @@
           :sort-orders="['ascending', 'descending']"
           v-if="plan.materialName"
         >
-        <template v-slot:header="{ column }">
+          <template v-slot:header="{ column }">
             <div>
               {{ column.label }}
               <span v-html="renderSortIcon(column)"></span>
@@ -98,7 +98,7 @@
           :sort-orders="['ascending', 'descending']"
           v-if="plan.materialProperty"
         >
-        <template v-slot:header="{ column }">
+          <template v-slot:header="{ column }">
             <div>
               {{ column.label }}
               <span v-html="renderSortIcon(column)"></span>
@@ -124,7 +124,7 @@
           :sort-orders="['ascending', 'descending']"
           v-if="plan.materialGroup"
         >
-        <template v-slot:header="{ column }">
+          <template v-slot:header="{ column }">
             <div>
               {{ column.label }}
               <span v-html="renderSortIcon(column)"></span>
@@ -150,7 +150,7 @@
           :sort-orders="['ascending', 'descending']"
           v-if="plan.procurementLeadTime"
         >
-        <template v-slot:header="{ column }">
+          <template v-slot:header="{ column }">
             <div>
               {{ column.label }}
               <span v-html="renderSortIcon(column)"></span>
@@ -176,7 +176,7 @@
           :sort-orders="['ascending', 'descending']"
           v-if="plan.moq"
         >
-        <template v-slot:header="{ column }">
+          <template v-slot:header="{ column }">
             <div>
               {{ column.label }}
               <span v-html="renderSortIcon(column)"></span>
@@ -199,7 +199,7 @@
           :sort-orders="['ascending', 'descending']"
           v-if="plan.mpq"
         >
-        <template v-slot:header="{ column }">
+          <template v-slot:header="{ column }">
             <div>
               {{ column.label }}
               <span v-html="renderSortIcon(column)"></span>
@@ -222,7 +222,7 @@
           :sort-orders="['ascending', 'descending']"
           v-if="plan.safetyStock"
         >
-        <template v-slot:header="{ column }">
+          <template v-slot:header="{ column }">
             <div>
               {{ column.label }}
               <span v-html="renderSortIcon(column)"></span>
@@ -411,9 +411,7 @@ function transformColumns(column, viewColumn) {
 function lookView(viewId, viewName) {
   currentViewId.value = viewId
   currentViewName.value = viewName
-  if (currentViewId.value != -1) {
-    currentPage.value = 1
-  }
+  currentPage.value = 1
 
   rawBasicData
     .getMetaData(
@@ -453,6 +451,7 @@ function lookView(viewId, viewName) {
 }
 // 搜索视图
 function searchView(param) {
+  currentPage.value = 1
   rawBasicData
     .getMetaData(param, currentPage.value, currentSize.value)
     .then((res) => {
@@ -471,7 +470,6 @@ function searchView(param) {
     })
     .catch((error) => {})
 }
-
 
 function downloadData() {
   let cols = []
@@ -504,10 +502,10 @@ function downloadData() {
           ...param
         })
         .then((res) => {
-            ElMessage({
-              type: 'success',
-              message: '导出当前页成功'
-            })
+          ElMessage({
+            type: 'success',
+            message: '导出当前页成功'
+          })
           // console.log(res,'res')
         })
     })
@@ -710,10 +708,18 @@ function saveRow(row) {
         safetyStock: row.safetyStock
       })
       .then((res) => {
-        refresh()
+        ElMessage({
+          type: 'success',
+          message: '修改成功'
+        })
+        refreshContent()
       })
       .catch((error) => {
-        refresh()
+        ElMessage({
+          type: 'error',
+          message: '修改失败'
+        })
+        refreshContent()
       })
     // console.log('修改工序名')
     row.editable = false
@@ -735,17 +741,24 @@ function saveRow(row) {
       .then((res) => {
         addAble = true
         if (res.code == 200) {
+          ElMessage({
+            type: 'success',
+            message: '添加成功'
+          })
         } else {
           ElMessageBox.alert('数据不能为空', '添加数据失败', {
             confirmButtonText: '好'
           })
         }
-        refresh()
+        refreshContent()
       })
       .catch((error) => {
+        ElMessage({
+          type: 'success',
+          message: '添加失败'
+        })
         console.log(error)
-
-        refresh()
+        refreshContent()
       })
 
     // 序号自动加1
@@ -823,6 +836,10 @@ function deleteSelectedRows() {
             refreshContent()
           })
           .catch((error) => {
+            ElMessage({
+              type: 'error',
+              message: '删除成功'
+            })
             refreshContent()
             console.log(error)
             console.log('批量删除产能失败')

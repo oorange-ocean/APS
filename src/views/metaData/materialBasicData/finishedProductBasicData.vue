@@ -192,6 +192,41 @@
           </template>
         </el-table-column>
         <el-table-column
+          prop="packagingMethod"
+          label="包装方式"
+          width="120"
+          sortable="custom"
+          :sort-orders="['ascending', 'descending']"
+          v-if="plan.packagingMethod"
+        >
+          <template v-slot:header="{ column }">
+            <div>
+              {{ column.label }}
+              <span v-html="renderSortIcon(column)"></span>
+            </div>
+          </template>
+          <template #default="{ row }">
+            <template v-if="row.editable">
+              <el-select
+                v-model="row.packagingMethod"
+                class="m-2"
+                placeholder="Select"
+                @click="handlePackage"
+              >
+                <el-option
+                  v-for="item in process.packages"
+                  :key="item"
+                  :label="item"
+                  :value="item"
+                />
+              </el-select>
+            </template>
+            <template v-else>
+              {{ row.packagingMethod }}
+            </template>
+          </template>
+        </el-table-column>
+        <el-table-column
           prop="maxAssemblyPersonnel"
           label="组装人数MAX"
           min-width="120"
@@ -475,10 +510,12 @@ import { renderSortIcon } from '@/utils/sortIcon'
 import CommonPlan from '@/components/CommonPlan.vue'
 import Pagination from '@/components/Pagination.vue'
 import useUserStore from '@/store/modules/user'
+import processManage from '@/store/modules/metaData/processManage'
 import useFinishedProduct from '@/store/modules/metaData/materialBasicData/finishedProduct'
 import useUserMenu from '@/store/modules/menu'
 const userMenu = useUserMenu()
 const finishedProduct = useFinishedProduct()
+const process = processManage()
 
 let currentPage = ref(1)
 let currentSize = ref(100)
@@ -590,9 +627,7 @@ function transformColumns(column, viewColumn) {
 function lookView(viewId, viewName) {
   currentViewId.value = viewId
   currentViewName.value = viewName
-  if (currentViewId.value != -1) {
-    currentPage.value = 1
-  }
+  currentPage.value = 1
 
   finishedProduct
     .getMetaData(
@@ -632,6 +667,7 @@ function lookView(viewId, viewName) {
 }
 // 搜索视图
 function searchView(param) {
+  currentPage.value = 1
   finishedProduct
     .getMetaData(param, currentPage.value, currentSize.value)
     .then((res) => {
@@ -853,6 +889,14 @@ function modifyRow() {
     })
   }
 }
+function handlePackage() {
+  process
+    .getAllPackagingMethod()
+    .then((res) => {
+      console.log('点开了包装方式的下拉框')
+    })
+    .catch((error) => {})
+}
 
 const myTable = ref(null)
 function addRow() {
@@ -895,9 +939,17 @@ function saveRow(row) {
         safetyStock: row.safetyStock
       })
       .then((res) => {
+        ElMessage({
+              type: 'success',
+              message: '修改成功'
+            })
         refreshContent()
       })
       .catch((error) => {
+        ElMessage({
+              type: 'error',
+              message: '修改失败'
+            })
         refreshContent()
       })
     // console.log('修改工序名')
@@ -927,6 +979,10 @@ function saveRow(row) {
       .then((res) => {
         addAble = true
         if (res.code == 200) {
+          ElMessage({
+              type: 'success',
+              message: '添加成功'
+            })
         } else {
           ElMessageBox.alert('数据不能为空', '添加数据失败', {
             confirmButtonText: '好'
@@ -935,6 +991,10 @@ function saveRow(row) {
         refreshContent()
       })
       .catch((error) => {
+        ElMessage({
+              type: 'error',
+              message: '添加失败'
+            })
         console.log(error)
 
         refreshContent()
@@ -1007,7 +1067,6 @@ function deleteSelectedRows() {
         finishedProduct
           .removeFinishedProduct(list)
           .then((res) => {
-            console.log('删除产能成功')
             ElMessage({
               type: 'success',
               message: '删除成功'
@@ -1016,8 +1075,10 @@ function deleteSelectedRows() {
           })
           .catch((error) => {
             refreshContent()
-            console.log(error)
-            console.log('批量删除产能失败')
+            ElMessage({
+              type: 'error',
+              message: '删除失败'
+            })
           })
       })
       .catch(() => {

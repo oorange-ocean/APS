@@ -99,7 +99,19 @@
         </el-table-column>
         <el-table-column prop="minPersonnel" label="人员Min" width="120">
         </el-table-column>
-        <el-table-column prop="employeeName" label="员工姓名" width="120">
+        <el-table-column
+          prop="employeeName"
+          label="员工姓名"
+          width="120"
+          sortable
+          :sort-orders="['ascending', 'descending',null]"
+        >
+          <template v-slot:header="{ column }">
+            <div>
+              {{ column.label }}
+              <span v-html="renderSortIcon(column)"></span>
+            </div>
+          </template>
         </el-table-column>
       </el-table>
     </div>
@@ -113,6 +125,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { renderSortIcon } from '@/utils/sortIcon'
 import CommonPlan from '../../../components/CommonPlan.vue'
 import processManage from '../../../store/modules/metaData/processManage'
 import useUserMenu from '../../../store/modules/menu'
@@ -124,46 +137,38 @@ const router = useRouter()
 const userMenu = useUserMenu()
 
 const formatNumber = (value) => {
-    if (value) {
-      // 创建一个新的Intl.NumberFormat实例
-      const formatter = new Intl.NumberFormat('en-US', {
-        minimumFractionDigits: 0,  // 数字最少位数
-      });
-      // 返回格式化的数字
-      return formatter.format(value);
-    }
-};
+  if (value) {
+    // 创建一个新的Intl.NumberFormat实例
+    const formatter = new Intl.NumberFormat('en-US', {
+      minimumFractionDigits: 0 // 数字最少位数
+    })
+    // 返回格式化的数字
+    return formatter.format(value)
+  }
+}
 function getRowClassName({ row, column, rowIndex, columnIndex }) {
   // console.log(row, 'row');
-  if (column.property === 'employeeName') { 
+  if (column.property === 'employeeName') {
     if (row.employeeName === '员工1') {
-      return 'name1';
+      return 'name1'
     } else if (row.employeeName === '员工2') {
-      return 'name2';
-    }
-    else if (row.employeeName === '员工3') {
-      return 'name3';
-    }
-    else if (row.employeeName === '员工4') {
-      return 'name4';
-    }
-    else if (row.employeeName === '员工5') {
-      return 'name5';
-    }
-    else if (row.employeeName === '员工6') {
-      return 'name6';
-    }
-    else if (row.employeeName === '员工7') {
-      return 'name7';
-    }
-    else if (row.employeeName === '员工8') {
-      return 'name8';
-    }
-    else if (row.employeeName === '员工9') {
-      return 'name9';
-    }
-    else if (row.employeeName === '员工10') {
-      return 'name10';
+      return 'name2'
+    } else if (row.employeeName === '员工3') {
+      return 'name3'
+    } else if (row.employeeName === '员工4') {
+      return 'name4'
+    } else if (row.employeeName === '员工5') {
+      return 'name5'
+    } else if (row.employeeName === '员工6') {
+      return 'name6'
+    } else if (row.employeeName === '员工7') {
+      return 'name7'
+    } else if (row.employeeName === '员工8') {
+      return 'name8'
+    } else if (row.employeeName === '员工9') {
+      return 'name9'
+    } else if (row.employeeName === '员工10') {
+      return 'name10'
     }
   }
 }
@@ -343,14 +348,14 @@ button > span {
   flex-direction: row-reverse;
 }
 ::v-deep .name1 {
-  background-color: #FFC0CB; /* 某种颜色 */
+  background-color: #ffc0cb; /* 某种颜色 */
 }
 
 ::v-deep .name2 {
-  background-color: #ADD8E6; /* 另一种颜色 */
+  background-color: #add8e6; /* 另一种颜色 */
 }
 ::v-deep .name3 {
-  background-color: #FFA500; /* 某种颜色 */
+  background-color: #ffa500; /* 某种颜色 */
 }
 
 ::v-deep .name4 {

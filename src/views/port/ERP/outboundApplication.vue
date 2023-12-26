@@ -341,6 +341,7 @@ function lookView(viewId, viewName) {
 }
 // 搜索视图
 function searchView(param) {
+  currentPage.value = 1
   ImmediateInventory.getPageFiltrate(
     param,
     currentPage.value,
@@ -601,9 +602,17 @@ function saveRow(row) {
       .then((res) => {
         console.log('产能修改成功')
         refreshContent()
+        ElMessage({
+          type: 'success',
+          message: '修改成功'
+        })
       })
       .catch((error) => {
         refreshContent()
+        ElMessage({
+          type: 'error',
+          message: '修改失败'
+        })
         console.log(row.id)
         console.log('产能修改失败')
       })
@@ -624,6 +633,10 @@ function saveRow(row) {
       .then((res) => {
         addAble = true
         if (res.code == 200) {
+          ElMessage({
+            type: 'success',
+            message: '添加成功'
+          })
           console.log('产能添加成功')
         } else {
           ElMessageBox.alert('数据不能为空', '添加数据失败', {
@@ -635,6 +648,10 @@ function saveRow(row) {
       .catch((error) => {
         console.log(error)
         console.log('产能添加失败')
+        ElMessage({
+          type: 'error',
+          message: '添加失败'
+        })
         refreshContent()
       })
 
@@ -715,6 +732,10 @@ function deleteSelectedRows() {
             refreshContent()
           })
           .catch((error) => {
+            ElMessage({
+              type: 'error',
+              message: '删除失败'
+            })
             refreshContent()
             console.log(error)
             console.log('批量删除产能失败')
@@ -775,7 +796,8 @@ function refresh() {
   // 获取所有视图
   ImmediateInventory.getViews(tableId.value).then((res) => {
     currentViewId.value = ImmediateInventory.outboundApplication.defaultViewId
-    currentViewName.value = ImmediateInventory.outboundApplication.defaultViewName
+    currentViewName.value =
+      ImmediateInventory.outboundApplication.defaultViewName
     // 获取所有的列
     ImmediateInventory.getCols(tableId.value).then((res) => {
       // 获取到列名和视图列后再赋值给column和viewColumn

@@ -10,6 +10,7 @@
             <span>每页显示
                 <select name="page-size" @input="updateSize" v-model="size">
                     <option value="100">100</option>
+                    <option value="500">500</option>
                     <option value="1000">1000</option>
                     <option value="1500">1500</option>
                 </select>

@@ -254,9 +254,9 @@ function transformColumns(column, viewColumn) {
 function lookView(viewId, viewName) {
   currentViewId.value = viewId
   currentViewName.value = viewName
-  if (currentViewId.value != -1) {
-    currentPage.value = 1
-  }
+  // if (currentViewId.value != -1) {
+  currentPage.value = 1
+  // }
 
   process
     .getMetaData(
@@ -296,6 +296,7 @@ function lookView(viewId, viewName) {
 }
 // 搜索视图
 function searchView(param) {
+  currentPage.value = 1
   process
     .getMetaData(param, currentPage.value, currentSize.value)
     .then((res) => {
@@ -512,9 +513,17 @@ function saveRow(row) {
     process
       .updateProcessName({ id: row.id, processName: row.processName })
       .then((res) => {
+        ElMessage({
+          type: 'success',
+          message: '修改成功'
+        })
         console.log('工序名修改成功')
       })
       .catch((error) => {
+        ElMessage({
+          type: 'error',
+          message: '修改失败'
+        })
         console.log(row.id)
         console.log('工序名修改失败')
       })
@@ -527,10 +536,18 @@ function saveRow(row) {
       .updateProcessName({ processName: row.processName })
       .then((res) => {
         addAble = true
+        ElMessage({
+          type: 'success',
+          message: '添加成功'
+        })
         console.log('工序添加成功')
         refreshContent()
       })
       .catch((error) => {
+        ElMessage({
+          type: 'error',
+          message: '添加失败'
+        })
         console.log(error)
         console.log('工序名添加失败')
       })
@@ -572,6 +589,10 @@ function deleteSelectedRows() {
             refreshContent()
           })
           .catch((error) => {
+            ElMessage({
+              type: 'error',
+              message: '删除失败'
+            })
             refreshContent()
             console.log(error)
             console.log('批量删除工序名失败')

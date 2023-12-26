@@ -30,12 +30,9 @@
                   class="group"
                 >
                   <el-checkbox label="1">即时库存</el-checkbox>
-                  <el-checkbox label="2">委外用料清单</el-checkbox>
-                  <el-checkbox label="3">生产用料清单列表</el-checkbox>
-                  <el-checkbox label="4">委外订单列表</el-checkbox>
-                  <el-checkbox label="5">生产订单列表</el-checkbox>
-                  <el-checkbox label="6">采购申请单列表</el-checkbox>
-                  <el-checkbox label="7">采购订单列表</el-checkbox>
+                  <el-checkbox label="2">用料清单</el-checkbox>
+                  <el-checkbox label="4">委外/生产订单列表</el-checkbox>
+                  <el-checkbox label="6">采购列表</el-checkbox>
                   <el-checkbox label="8">收料通知单列表</el-checkbox>
                   <el-checkbox label="9">锁库存列表</el-checkbox>
                   <el-checkbox label="10">物料清单列表</el-checkbox>
@@ -55,18 +52,7 @@
                   @change="handleCheckedMES"
                   class="group"
                 >
-                  <el-checkbox label="20">PCBA烧录</el-checkbox>
-                  <el-checkbox label="21">TFmini-S-PCBA烧录</el-checkbox>
-                  <el-checkbox label="22">PCBA分版</el-checkbox>
-                  <el-checkbox label="23">TFmini-S-PCBA分版</el-checkbox>
-                  <el-checkbox label="24">安装主板</el-checkbox>
-                  <el-checkbox label="25">TFmini-s-安装主板</el-checkbox>
-                  <el-checkbox label="26">贴SN</el-checkbox>
-                  <el-checkbox label="27">TFmini-s-贴SN</el-checkbox>
-                  <el-checkbox label="28">校验测试</el-checkbox>
-                  <el-checkbox label="29">TFmini-S-校验测试</el-checkbox>
-                  <el-checkbox label="30">包装校验</el-checkbox>
-                  <el-checkbox label="31">TFmini-S-包装校验</el-checkbox>
+                  <el-checkbox label="33">MES 未完工</el-checkbox>
                   <!-- 其他复选框 -->
                 </el-checkbox-group>
               </el-collapse-item>
@@ -209,54 +195,38 @@ watch(checkedLabels, (newLabels) => {
 const checkedERP = ref([
   '1',
   '2',
-  '3',
   '4',
-  '5',
   '6',
-  '7',
   '8',
   '9',
   '10',
   '11'
 ])
-const checkedMES = ref([
-  '20',
-  '21',
-  '22',
-  '23',
-  '24',
-  '25',
-  '26',
-  '27',
-  '28',
-  '29',
-  '30',
-  '31'
-])
+const checkedMES = ref(['33'])
 const isAllERP = ref(true)
 const isAllMES = ref(true)
 const indeterminateERP = computed(() => {
-  return checkedERP.value.length > 0 && checkedERP.value.length < 11
+  return checkedERP.value.length > 0 && checkedERP.value.length < 8
 })
 const indeterminateMES = computed(() => {
-  return checkedMES.value.length > 0 && checkedMES.value.length < 12
+  return checkedMES.value.length > 0 && checkedMES.value.length < 1
 })
 function handleCheckAllERP(val) {
   checkedERP.value = val
-    ? ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11']
+    ? ['1', '2', '4', '6', '8', '9', '10', '11']
     : []
 }
 function handleCheckedERP(value) {
-  isAllERP.value = value.length === 11
+  isAllERP.value = value.length === 8
 }
 
 function handleCheckAllMES(val) {
   checkedMES.value = val
-    ? ['20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31']
+    ? ['33']
     : []
 }
 function handleCheckedMES(value) {
-  isAllMES.value = value.length === 12
+  isAllMES.value = value.length === 1
 }
 
 const isCollapsed = ref(false)

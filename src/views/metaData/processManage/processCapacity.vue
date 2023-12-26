@@ -153,7 +153,7 @@
         </el-table-column>
         <el-table-column
           prop="concurrencyCount"
-          label="并行数据"
+          label="并行数量"
           width="150"
           sortable="custom"
           :sort-orders="['ascending', 'descending']"
@@ -488,9 +488,9 @@ function transformColumns(column, viewColumn) {
 function lookView(viewId, viewName) {
   currentViewId.value = viewId
   currentViewName.value = viewName
-  if (currentViewId.value != -1) {
+  // if (currentViewId.value != -1) {
     currentPage.value = 1
-  }
+  // }
 
   process
     .getMetaData(
@@ -530,6 +530,7 @@ function lookView(viewId, viewName) {
 }
 // 搜索视图
 function searchView(param) {
+  currentPage.value = 1
   process
     .getMetaData(param, currentPage.value, currentSize.value)
     .then((res) => {
@@ -878,10 +879,19 @@ function saveRow(row) {
         concurrencyCount: row.concurrencyCount
       })
       .then((res) => {
+        ElMessage({
+          type: 'success',
+          message: '修改成功'
+        })
+        refreshContent()
         console.log('产能修改成功')
       })
       .catch((error) => {
-        refresh()
+        refreshContent()
+        ElMessage({
+          type: 'error',
+          message: '修改失败'
+        })
         console.log(row.id)
         console.log('产能修改失败')
       })
@@ -906,18 +916,26 @@ function saveRow(row) {
       .then((res) => {
         addAble = true
         if (res.code == 200) {
+          ElMessage({
+            type: 'success',
+            message: '添加成功'
+          })
           console.log('产能添加成功')
         } else {
           ElMessageBox.alert('数据不能为空', '添加数据失败', {
             confirmButtonText: '好'
           })
         }
-        refresh()
+        refreshContent()
       })
       .catch((error) => {
+        ElMessage({
+          type: 'error',
+          message: '添加失败'
+        })
         console.log(error)
         console.log('产能添加失败')
-        refresh()
+        refreshContent()
       })
 
     // 序号自动加1
@@ -1001,6 +1019,10 @@ function deleteSelectedRows() {
             refreshContent()
           })
           .catch((error) => {
+            ElMessage({
+              type: 'error',
+              message: '删除失败'
+            })
             refreshContent()
             console.log(error)
             console.log('批量删除产能失败')

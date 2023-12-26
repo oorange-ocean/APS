@@ -162,7 +162,7 @@
         </el-table-column>
         <el-table-column
           prop="standardTime"
-          label="标准工时"
+          label="标准工时(s)"
           width="120"
           sortable="custom"
           :sort-orders="['ascending', 'descending']"
@@ -404,9 +404,9 @@ function transformColumns(column, viewColumn) {
 function lookView(viewId, viewName) {
   currentViewId.value = viewId
   currentViewName.value = viewName
-  if (currentViewId.value != -1) {
+  // if (currentViewId.value != -1) {
     currentPage.value = 1
-  }
+  // }
 
   process
     .getMetaData(
@@ -446,6 +446,7 @@ function lookView(viewId, viewName) {
 }
 // 搜索视图
 function searchView(param) {
+  currentPage.value = 1
   process
     .getMetaData(param, currentPage.value, currentSize.value)
     .then((res) => {
@@ -623,6 +624,10 @@ function deleteSelectedRows() {
           })
           .catch((error) => {
             refreshContent()
+            ElMessage({
+              type: 'error',
+              message: '删除失败'
+            })
             console.log(error)
             console.log('批量删除基础工艺方案失败')
           })

@@ -360,8 +360,15 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, reactive, computed, onBeforeUnmount } from 'vue'
-import {renderSortIcon} from '@/utils/sortIcon'
+import {
+  ref,
+  onMounted,
+  onUnmounted,
+  reactive,
+  computed,
+  onBeforeUnmount
+} from 'vue'
+import { renderSortIcon } from '@/utils/sortIcon'
 import CommonPlan from '@/components/CommonPlan.vue'
 import useImmediateInventory from '../../../store/modules/port/ERP/immediateInventory'
 import Pagination from '@/components/Pagination.vue'
@@ -372,21 +379,21 @@ const ImmediateInventory = useImmediateInventory()
 
 let currentPage = ref(1)
 let currentSize = ref(100)
-let currentViewId = ref(null)   //当前视图id
+let currentViewId = ref(null) //当前视图id
 let currentViewName = ref('') //当前视图名字
-const plan = ref({})    //当前方案各个列的true和false
-const tableContainer = ref(null)    //点击其他视图或者点击下一页时自动滑动到顶部
-const commonPlan = ref(null);
-const commonPlanHeight = ref(0);
+const plan = ref({}) //当前方案各个列的true和false
+const tableContainer = ref(null) //点击其他视图或者点击下一页时自动滑动到顶部
+const commonPlan = ref(null)
+const commonPlanHeight = ref(0)
 const tableId = ref(2)
-const localCurrentOption = ref([])    //子组件中传过来的currentOption
-const currentOrder = ref({})    //当前排序的字段
-let column = reactive([])       //所有列名
-let viewColumn = reactive([])   //当前视图的所拥有的列名
+const localCurrentOption = ref([]) //子组件中传过来的currentOption
+const currentOrder = ref({}) //当前排序的字段
+let column = reactive([]) //所有列名
+let viewColumn = reactive([]) //当前视图的所拥有的列名
 
 // 获取到子组件中currentOption的值
 function getCurrentOption(currentOption) {
-  localCurrentOption.value = currentOption;
+  localCurrentOption.value = currentOption
 }
 
 // 字段的排序
@@ -398,28 +405,29 @@ function onSortChange(sortDetails) {
   // 3. 取消排序 order = null
   //子组件传过来currentOption,还有根据prop对应column中的voColName,提取出colId
   if (viewColumn.length != 0) {
-    const id = viewColumn.find(item => item.voColName == sortDetails.prop).id   //视图列id
+    const id = viewColumn.find((item) => item.voColName == sortDetails.prop).id //视图列id
     currentOrder.value.id = id
   }
-  const colId = column.find(item => item.voColName == sortDetails.prop).id     //全部列id
+  const colId = column.find((item) => item.voColName == sortDetails.prop).id //全部列id
   currentOrder.value.valueOperator = sortDetails.order
   currentOrder.value.colId = colId
-  let param= {
-      tableId:tableId.value,
-      viewId: currentViewId.value,
-      cols: [
-        currentOrder.value,
-      ]
-    };
+  let param = {
+    tableId: tableId.value,
+    viewId: currentViewId.value,
+    cols: [currentOrder.value]
+  }
 
   // 判断有没有筛选条件，传的参数不一样
   if (localCurrentOption.value) {
     param.cols.push(...localCurrentOption.value)
   }
-  
+
   // console.log(localCurrentOption.value, 'localCurrentOption.value')
-  ImmediateInventory
-    .getPageFiltrate(param, currentPage.value, currentSize.value)
+  ImmediateInventory.getPageFiltrate(
+    param,
+    currentPage.value,
+    currentSize.value
+  )
     .then((res) => {
       if (res.code == 201) {
         ElMessageBox.alert(res.message, '提示', {
@@ -434,60 +442,63 @@ function onSortChange(sortDetails) {
         }
         console.log('获取成品計劃数据成功')
       }
-      
     })
     .catch((error) => {})
 }
 
 // 动态计算表格高度
 const tableMaxHeight = computed(() => {
-  return `calc(100vh - ${190 + commonPlanHeight.value}px)`;
-});
+  return `calc(100vh - ${190 + commonPlanHeight.value}px)`
+})
 
 onMounted(() => {
-  const observer = new ResizeObserver(entries => {
+  const observer = new ResizeObserver((entries) => {
     for (let entry of entries) {
-      commonPlanHeight.value = entry.target.offsetHeight;
+      commonPlanHeight.value = entry.target.offsetHeight
     }
-  });
+  })
 
   if (commonPlan.value) {
-    observer.observe(commonPlan.value);
+    observer.observe(commonPlan.value)
   }
 
   onBeforeUnmount(() => {
     if (commonPlan.value) {
-      observer.unobserve(commonPlan.value);
+      observer.unobserve(commonPlan.value)
     }
-  });
-});
+  })
+})
 
 // 给剩余的列拼上false
 function transformColumns(column, viewColumn) {
   // 从 column1 创建初始对象，所有值设为 false
   const result = column.reduce((acc, item) => {
-    acc[item.voColName] = false;
-    return acc;
-  }, {});
+    acc[item.voColName] = false
+    return acc
+  }, {})
 
   // 更新 result 对象，将 scheme1 中存在的字段设置为 true
-  viewColumn.forEach(col => {
+  viewColumn.forEach((col) => {
     if (col.voColName in result) {
-      result[col.voColName] = true;
+      result[col.voColName] = true
     }
-  });
-  return result;
+  })
+  return result
 }
 
 // 查看视图
-function lookView(viewId,viewName) {
+function lookView(viewId, viewName) {
   currentViewId.value = viewId
   currentViewName.value = viewName
   currentPage.value = 1
-  ImmediateInventory
-    .getPageFiltrate({
-      tableId:tableId.value,viewId: currentViewId.value
-    }, currentPage.value, currentSize.value)
+  ImmediateInventory.getPageFiltrate(
+    {
+      tableId: tableId.value,
+      viewId: currentViewId.value
+    },
+    currentPage.value,
+    currentSize.value
+  )
     .then((res) => {
       if (res.code == 201) {
         ElMessageBox.alert(res.message, '提示', {
@@ -496,11 +507,11 @@ function lookView(viewId,viewName) {
       }
       viewColumn = ImmediateInventory.productionMaterial.viewColumn
       // console.log(viewColumn,'viewColumn')
-      if (viewId == "-1") {
-          plan.value = column.reduce((acc, item) => {
-            acc[item.voColName] = true;
-            return acc;
-          }, {});
+      if (viewId == '-1') {
+        plan.value = column.reduce((acc, item) => {
+          acc[item.voColName] = true
+          return acc
+        }, {})
       } else {
         plan.value = transformColumns(column, viewColumn)
       }
@@ -511,14 +522,18 @@ function lookView(viewId,viewName) {
         scrollContainer.scrollTop = 0 // 滚动到顶部
       }
     })
-    .catch((error) => { })
-  
+    .catch((error) => {})
+
   // console.log(viewId,viewName,'111')
 }
 // 搜索视图
 function searchView(param) {
-  ImmediateInventory
-    .getPageFiltrate(param,currentPage.value, currentSize.value)
+  currentPage.value = 1
+  ImmediateInventory.getPageFiltrate(
+    param,
+    currentPage.value,
+    currentSize.value
+  )
     .then((res) => {
       if (res.code == 201) {
         ElMessageBox.alert(res.message, '提示', {
@@ -549,18 +564,18 @@ const formatNumber = (value) => {
 }
 
 function downloadData() {
-  let cols = [];
+  let cols = []
   // 当 currentOrder.value 有键时，添加 currentOrder.value
   if (Object.keys(currentOrder.value).length !== 0) {
-    cols.push(currentOrder.value);
+    cols.push(currentOrder.value)
   }
 
   // 当 localCurrentOption.value 存在时，添加 localCurrentOption.value
   if (localCurrentOption.value) {
-    cols.push(...localCurrentOption.value);
+    cols.push(...localCurrentOption.value)
   }
   const param = {
-    tableId:tableId.value,
+    tableId: tableId.value,
     viewId: currentViewId.value,
     cols: cols
   }
@@ -571,66 +586,64 @@ function downloadData() {
     type: 'warning'
   })
     .then(() => {
-      ImmediateInventory
-        .downloadInterfaceDate({
-          type: 3,
-          page: currentPage.value,
-          size: currentSize.value,
-          ...param
-        })
-        .then((res) => {
-          if (res.code == 200) {
-            ElMessage({
-              type: 'success',
-              message: '导出当前页成功'
-            })
-          }else if(res.code == 201){
-            ElMessage({
-              type: 'error',
-              message: res.message
-            })
-          }
-          
-          // console.log(res,'res')
-        })
+      ImmediateInventory.downloadInterfaceDate({
+        type: 3,
+        page: currentPage.value,
+        size: currentSize.value,
+        ...param
+      }).then((res) => {
+        if (res.code == 200) {
+          ElMessage({
+            type: 'success',
+            message: '导出当前页成功'
+          })
+        } else if (res.code == 201) {
+          ElMessage({
+            type: 'error',
+            message: res.message
+          })
+        }
+
+        // console.log(res,'res')
+      })
     })
     .catch((action) => {
       if (action === 'cancel') {
-        ImmediateInventory
-          .downloadInterfaceDate({
-            type: 4,
-            ...param
+        ImmediateInventory.downloadInterfaceDate({
+          type: 4,
+          ...param
+        }).then((res) => {
+          ElMessage({
+            type: 'success',
+            message: '导出全部页成功'
           })
-          .then((res) => {
-            ElMessage({
-              type: 'success',
-              message: '导出全部页成功'
-            })
-          })
+        })
       }
     })
 }
 
 function handleSizeChange(newSize) {
   currentSize.value = newSize
-  let cols = [];
+  let cols = []
   // 当 currentOrder.value 有键时，添加 currentOrder.value
   if (Object.keys(currentOrder.value).length !== 0) {
-    cols.push(currentOrder.value);
+    cols.push(currentOrder.value)
   }
 
   // 当 localCurrentOption.value 存在时，添加 localCurrentOption.value
   if (localCurrentOption.value) {
-    cols.push(...localCurrentOption.value);
+    cols.push(...localCurrentOption.value)
   }
   const param = {
-    tableId:tableId.value,
+    tableId: tableId.value,
     viewId: currentViewId.value,
     cols: cols
   }
-  ImmediateInventory
-    .getPageFiltrate(param
-      , currentPage.value, currentSize.value)
+  ImmediateInventory.getPageFiltrate(
+    param,
+    currentPage.value,
+    currentSize.value
+  )
     .then((res) => {
       if (res.code == 201) {
         ElMessageBox.alert(res.message, '提示', {
@@ -758,9 +771,17 @@ function saveRow(row) {
       .then((res) => {
         console.log('产能修改成功')
         refreshContent()
+        ElMessage({
+          type: 'success',
+          message: '修改成功'
+        })
       })
       .catch((error) => {
         refreshContent()
+        ElMessage({
+          type: 'error',
+          message: '修改失败'
+        })
         console.log(row.id)
         console.log('产能修改失败')
       })
@@ -790,6 +811,10 @@ function saveRow(row) {
       .then((res) => {
         addAble = true
         if (res.code == 200) {
+          ElMessage({
+            type: 'success',
+            message: '添加成功'
+          })
           console.log('产能添加成功')
         } else {
           ElMessageBox.alert('数据不能为空', '添加数据失败', {
@@ -801,6 +826,10 @@ function saveRow(row) {
       .catch((error) => {
         console.log(error)
         console.log('产能添加失败')
+        ElMessage({
+          type: 'error',
+          message: '添加失败'
+        })
         refreshContent()
       })
     row.editable = false // 保存后将行设置为不可编辑状态
@@ -808,25 +837,27 @@ function saveRow(row) {
 }
 function handlePages(page) {
   currentPage.value = page
-  let cols = [];
+  let cols = []
   // 当 currentOrder.value 有键时，添加 currentOrder.value
   if (Object.keys(currentOrder.value).length !== 0) {
-    cols.push(currentOrder.value);
+    cols.push(currentOrder.value)
   }
 
   // 当 localCurrentOption.value 存在时，添加 localCurrentOption.value
   if (localCurrentOption.value) {
-    cols.push(...localCurrentOption.value);
+    cols.push(...localCurrentOption.value)
   }
   const param = {
-    tableId:tableId.value,
+    tableId: tableId.value,
     viewId: currentViewId.value,
     cols: cols
   }
-  
-  ImmediateInventory
-    .getPageFiltrate(param,
-      currentPage.value, currentSize.value)
+
+  ImmediateInventory.getPageFiltrate(
+    param,
+    currentPage.value,
+    currentSize.value
+  )
     .then((res) => {
       if (res.code == 201) {
         ElMessageBox.alert(res.message, '提示', {
@@ -870,12 +901,16 @@ function deleteSelectedRows() {
               type: 'success',
               message: '删除成功'
             })
-            refreshContent();
+            refreshContent()
           })
           .catch((error) => {
+            ElMessage({
+              type: 'error',
+              message: '删除失败'
+            })
             console.log(error)
             console.log('批量删除产能失败')
-            refreshContent();
+            refreshContent()
           })
       })
       .catch(() => {
@@ -893,72 +928,77 @@ function handleChange(selection) {
 
 // 只刷新查到的内容
 function refreshContent() {
-  addAble = true;
+  addAble = true
   currentSize.value = useUserStore().pageSize
   // 刷新列
-  let cols = [];
+  let cols = []
   // 当 currentOrder.value 有键时，添加 currentOrder.value
   if (Object.keys(currentOrder.value).length !== 0) {
-    cols.push(currentOrder.value);
+    cols.push(currentOrder.value)
   }
 
   // 当 localCurrentOption.value 存在时，添加 localCurrentOption.value
   if (localCurrentOption.value) {
-    cols.push(...localCurrentOption.value);
+    cols.push(...localCurrentOption.value)
   }
   const param = {
-    tableId:tableId.value,
+    tableId: tableId.value,
     viewId: currentViewId.value,
     cols: cols
   }
-  ImmediateInventory
-      .getPageFiltrate(param,currentPage.value, currentSize.value)
-      .then((res) => {
-        if (res.code == 201) {
-          ElMessageBox.alert(res.message, '提示', {
-            confirmButtonText: '好的'
-          })
-        }
-        
-      })
-    .catch((error) => { })
+  ImmediateInventory.getPageFiltrate(
+    param,
+    currentPage.value,
+    currentSize.value
+  )
+    .then((res) => {
+      if (res.code == 201) {
+        ElMessageBox.alert(res.message, '提示', {
+          confirmButtonText: '好的'
+        })
+      }
+    })
+    .catch((error) => {})
   myTable.value.clearSelection()
 }
 
 function refresh() {
-  addAble = true;
+  addAble = true
   currentSize.value = useUserStore().pageSize
   // 获取所有视图
-  ImmediateInventory.getViews(tableId.value).then(res => {
+  ImmediateInventory.getViews(tableId.value).then((res) => {
     currentViewId.value = ImmediateInventory.productionMaterial.defaultViewId
-    currentViewName.value = ImmediateInventory.productionMaterial.defaultViewName
+    currentViewName.value =
+      ImmediateInventory.productionMaterial.defaultViewName
     // 获取所有的列
-    ImmediateInventory.getCols(tableId.value).then(res => {
+    ImmediateInventory.getCols(tableId.value).then((res) => {
       // 获取到列名和视图列后再赋值给column和viewColumn
       column = ImmediateInventory.productionMaterial.column
       viewColumn = ImmediateInventory.productionMaterial.viewColumn
       // 如果是“全部”就给plan赋值
       if (currentViewId.value == -1) {
         plan.value = column.reduce((acc, item) => {
-          acc[item.voColName] = true;
-          return acc;
-        }, {});
-        console.log(plan.value,'plan11')
+          acc[item.voColName] = true
+          return acc
+        }, {})
+        console.log(plan.value, 'plan11')
       } else {
         plan.value = transformColumns(column, viewColumn)
       }
       // 获取拥有的数据和所拥有的列
-      ImmediateInventory
-      .getPageFiltrate({tableId:tableId.value,viewId: currentViewId.value},currentPage.value, currentSize.value)
-      .then((res) => {
-        if (res.code == 201) {
-          ElMessageBox.alert(res.message, '提示', {
-            confirmButtonText: '好的'
-          })
-        }
-        
-      })
-      .catch((error) => { })
+      ImmediateInventory.getPageFiltrate(
+        { tableId: tableId.value, viewId: currentViewId.value },
+        currentPage.value,
+        currentSize.value
+      )
+        .then((res) => {
+          if (res.code == 201) {
+            ElMessageBox.alert(res.message, '提示', {
+              confirmButtonText: '好的'
+            })
+          }
+        })
+        .catch((error) => {})
     })
   })
 }

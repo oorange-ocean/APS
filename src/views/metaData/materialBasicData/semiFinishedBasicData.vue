@@ -434,9 +434,9 @@ function transformColumns(column, viewColumn) {
 function lookView(viewId, viewName) {
   currentViewId.value = viewId
   currentViewName.value = viewName
-  if (currentViewId.value != -1) {
+  // if (currentViewId.value != -1) {
     currentPage.value = 1
-  }
+  // }
 
   semiFinished
     .getMetaData(
@@ -476,6 +476,7 @@ function lookView(viewId, viewName) {
 }
 // 搜索视图
 function searchView(param) {
+  currentPage.value = 1
   semiFinished
     .getMetaData(param, currentPage.value, currentSize.value)
     .then((res) => {
@@ -494,7 +495,6 @@ function searchView(param) {
     })
     .catch((error) => {})
 }
-
 
 function downloadData() {
   let cols = []
@@ -527,10 +527,10 @@ function downloadData() {
           ...param
         })
         .then((res) => {
-            ElMessage({
-              type: 'success',
-              message: '导出当前页成功'
-            })
+          ElMessage({
+            type: 'success',
+            message: '导出当前页成功'
+          })
           // console.log(res,'res')
         })
     })
@@ -727,9 +727,17 @@ function saveRow(row) {
         safetyStock: row.safetyStock
       })
       .then((res) => {
+        ElMessage({
+          type: 'success',
+          message: '修改成功'
+        })
         refreshContent()
       })
       .catch((error) => {
+        ElMessage({
+          type: 'error',
+          message: '修改失败'
+        })
         refreshContent()
       })
     // console.log('修改工序名')
@@ -753,6 +761,10 @@ function saveRow(row) {
       .then((res) => {
         addAble = true
         if (res.code == 200) {
+          ElMessage({
+            type: 'success',
+            message: '添加成功'
+          })
         } else {
           ElMessageBox.alert('数据不能为空', '添加数据失败', {
             confirmButtonText: '好'
@@ -761,6 +773,10 @@ function saveRow(row) {
         refreshContent()
       })
       .catch((error) => {
+        ElMessage({
+          type: 'error',
+          message: '添加失败'
+        })
         console.log(error)
 
         refreshContent()
@@ -841,6 +857,10 @@ function deleteSelectedRows() {
             refreshContent()
           })
           .catch((error) => {
+            ElMessage({
+              type: 'error',
+              message: '删除失败'
+            })
             refreshContent()
             console.log(error)
             console.log('批量删除产能失败')

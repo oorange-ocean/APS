@@ -28,7 +28,7 @@ export function getFimPriorityFiltrate(param,page,size) {
 // FIM需求
 export function getFimRequestPageFilter(param,page,size) {
     return request({    
-        url: `/fimData/getFimRequestPageFilter/${page}/${size}`,
+        url: `/interface/getPageFiltrate/${page}/${size}`,
         method: 'post',
         data:param
     })

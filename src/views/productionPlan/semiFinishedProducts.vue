@@ -316,6 +316,7 @@ function lookView(viewId, viewName) {
 }
 // 搜索视图
 function searchView(param) {
+  currentPage.value = 1
   production
     .semiFinishedGoodsFiltrate(param, currentPage.value, currentSize.value)
     .then((res) => {

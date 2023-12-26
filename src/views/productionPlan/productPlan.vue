@@ -412,9 +412,9 @@ function transformColumns(column, viewColumn) {
 function lookView(viewId, viewName) {
   currentViewId.value = viewId
   currentViewName.value = viewName
-  if (currentViewId.value != -1) {
+  // if (currentViewId.value != -1) {
     currentPage.value = 1
-  }
+  // }
 
   production
     .getProductionFiltrate(
@@ -453,6 +453,7 @@ function lookView(viewId, viewName) {
 }
 // 搜索视图
 function searchView(param) {
+  currentPage.value = 1
   production
     .getProductionFiltrate(param, currentPage.value, currentSize.value)
     .then((res) => {

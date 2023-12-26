@@ -53,7 +53,7 @@
       </el-table-column>
         <el-table-column
           prop="fparentCode"
-          label="父物料编码"
+          label="父项物料编码"
           width="185"
           sortable="custom"
           :sort-orders="['ascending','descending']"
@@ -68,7 +68,7 @@
       </el-table-column>
         <el-table-column
           prop="fparentName"
-          label="父物料名称"
+          label="父项物料名称"
           width="300"
           sortable="custom"
           :sort-orders="['ascending','descending']"
@@ -83,7 +83,7 @@
       </el-table-column>
         <el-table-column
           prop="fprocess"
-          label="工序"
+          label="工序名称"
           width="100"
           sortable="custom"
           :sort-orders="['ascending','descending']"
@@ -139,7 +139,7 @@
       </el-table-column>
         <el-table-column
           prop="fsubCode"
-          label="子物料编码"
+          label="子项物料编码"
           width="130"
           sortable="custom"
           :sort-orders="['ascending','descending']"
@@ -154,7 +154,7 @@
       </el-table-column>
         <el-table-column
           prop="fsubName"
-          label="子物料名称"
+          label="子项物料名称"
           width="200"
           sortable="custom"
           :sort-orders="['ascending','descending']"
@@ -169,7 +169,7 @@
       </el-table-column>
         <el-table-column
           prop="fsubQty"
-          label="子物料所需数量"
+          label="子项物料所需数量"
           width="150"
           sortable="custom"
           :sort-orders="['ascending','descending']"
@@ -187,7 +187,7 @@
       </el-table-column>
         <el-table-column
           prop="fsubDeliveryTime"
-          label="子物料有货时间"
+          label="子项物料有货时间"
           width="150"
           sortable="custom"
           :sort-orders="['ascending','descending']"
@@ -398,6 +398,7 @@ function lookView(viewId, viewName) {
 }
 // 搜索视图
 function searchView(param) {
+  currentPage.value = 1
   production
     .semiMaterialShortageFiltrate(
       param,
