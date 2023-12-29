@@ -271,7 +271,9 @@ function removeSift(index) {
 const querySearchWithOption = (option) => {
   const querySearch = async (queryString, cb) => {
     // 拼接axios请求
-    const baseUrl = 'https://www.apsceshi.benewake.top/benewake'
+    // const baseUrl = 'https://www.apsceshi.benewake.top/benewake'
+    const baseUrl = 'https://www.aps.benewake.top/benewake'
+    // const baseUrl = 'https://aps.benewake.com/benewake'
     const apiUrl = baseUrl + props.apiUrl
     axios
       .post(

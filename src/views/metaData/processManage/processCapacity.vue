@@ -51,6 +51,12 @@
           class="one"
         />
         <el-table-column
+          prop="processNumber"
+          label="序号"
+          width="90"
+        >
+        </el-table-column>
+        <el-table-column
           prop="belongingProcess"
           label="所属工序"
           width="120"
@@ -107,21 +113,6 @@
           </template>
         </el-table-column>
         <el-table-column
-          prop="processNumber"
-          label="序号"
-          width="110"
-          sortable="custom"
-          :sort-orders="['ascending', 'descending']"
-          v-if="plan.processNumber"
-        >
-          <template v-slot:header="{ column }">
-            <div>
-              {{ column.label }}
-              <span v-html="renderSortIcon(column)"></span>
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column
           prop="processName"
           label="工序名称"
           width="300"
@@ -173,7 +164,7 @@
               />
             </template>
             <template v-else>
-              {{ row.concurrencyCount }}
+              {{ formatNumber(row.concurrencyCount) }}
             </template>
           </template>
         </el-table-column>

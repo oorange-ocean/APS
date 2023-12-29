@@ -194,7 +194,7 @@
             </template>
           </template>
         </el-table-column>
-        <el-table-column
+        <!-- <el-table-column
           prop="capacityPsPuPp"
           label="产能（秒/台/人）"
           width="175"
@@ -219,7 +219,7 @@
               {{ formatNumber(row.capacityPsPuPp) }}
             </template>
           </template>
-        </el-table-column>
+        </el-table-column> -->
         <el-table-column
           prop="remainingQuantity"
           label="剩余数量"
@@ -246,7 +246,7 @@
             </template>
           </template>
         </el-table-column>
-        <el-table-column
+        <!-- <el-table-column
           prop="remainingCapacity"
           label="剩余产能"
           width="180"
@@ -271,7 +271,7 @@
               {{ formatNumber(row.remainingCapacity) }}
             </template>
           </template>
-        </el-table-column>
+        </el-table-column> -->
       </el-table>
       <div
         class="bottom"
@@ -690,9 +690,9 @@ const newRow = {
   materialName: '',
   totalQuantity: '',
   completedQuantity: '',
-  capacityPsPuPp: '',
+  // capacityPsPuPp: '',
   remainingQuantity: '',
-  remainingCapacity: '',
+  // remainingCapacity: '',
   // 其他必要的字段
   chVersion: '',
   editable: true
@@ -768,9 +768,9 @@ function saveRow(row) {
         materialName: row.materialName,
         totalQuantity: row.totalQuantity,
         completedQuantity: row.completedQuantity,
-        capacityPsPuPp: row.capacityPsPuPp,
+        // capacityPsPuPp: row.capacityPsPuPp,
         remainingQuantity: row.remainingQuantity,
-        remainingCapacity: row.remainingCapacity
+        // remainingCapacity: row.remainingCapacity
       })
       .then((res) => {
         console.log('产能修改成功')
@@ -804,9 +804,9 @@ function saveRow(row) {
         materialName: row.materialName,
         totalQuantity: row.totalQuantity,
         completedQuantity: row.completedQuantity,
-        capacityPsPuPp: row.capacityPsPuPp,
+        // capacityPsPuPp: row.capacityPsPuPp,
         remainingQuantity: row.remainingQuantity,
-        remainingCapacity: row.remainingCapacity
+        // remainingCapacity: row.remainingCapacity
       })
       .then((res) => {
         addAble = true

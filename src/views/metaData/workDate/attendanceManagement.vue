@@ -757,10 +757,17 @@ function saveRow(row) {
       })
       .then((res) => {
         refreshContent()
-        ElMessage({
-          type: 'success',
-          message: '修改成功'
-        })
+        if (res.code == 200) {
+          ElMessage({
+            type: 'success',
+            message: '修改成功'
+          })
+        } else {
+          ElMessageBox.alert(res.message, '修改数据失败', {
+            confirmButtonText: '好'
+          })
+        }
+        
         console.log('产能修改成功')
       })
       .catch((error) => {
@@ -801,7 +808,7 @@ function saveRow(row) {
             })
           // console.log('产能添加成功')
         } else {
-          ElMessageBox.alert('数据不能为空', '添加数据失败', {
+          ElMessageBox.alert(res.message, '添加数据失败', {
             confirmButtonText: '好'
           })
         }

@@ -24,8 +24,9 @@ const service = axios.create({
   // baseURL: import.meta.env.VITE_APP_BASE_API,
   // baseURL: "http://wangxuyue.nat300.top/benewake/",
   // baseURL: 'https://aps.benewake.com/benewake',
-  baseURL: 'https://www.apsceshi.benewake.top/benewake/',
-  // 超时
+  baseURL: 'https://www.aps.benewake.top/benewake/',
+  // baseURL: 'https://www.apsceshi.benewake.top/benewake/',
+  // 超时src/permission.js
   timeout: 100000
 })
 
