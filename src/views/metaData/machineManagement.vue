@@ -330,7 +330,6 @@ import {
   ref,
   onBeforeMount,
   onMounted,
-  onUnmounted,
   reactive,
   computed,
   onBeforeUnmount
@@ -1170,6 +1169,9 @@ span {
   margin-top: 10px;
   display: flex;
   flex-direction: row-reverse;
+}
+.el-date-picker {
+  overflow: auto;
 }
 
 .date-row {

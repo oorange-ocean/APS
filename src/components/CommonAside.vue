@@ -1,5 +1,7 @@
 <template>
   <el-menu default-active="2" class="el-menu-vertical-demo">
+
+    <!-- 一级菜单 -->
     <el-menu-item
       :index="item.path"
       v-for="item in noChildren()"
@@ -9,6 +11,7 @@
       <span>{{ item.meta.title }}</span>
     </el-menu-item>
 
+    <!-- 二级菜单 -->
     <el-sub-menu
       :index="item.path"
       v-for="item in hasChildren()"
@@ -27,6 +30,7 @@
       </el-menu-item>
     </el-sub-menu>
 
+    <!-- 三级菜单 -->
     <el-sub-menu :index="item.path" v-for="item in hasCC()" :key="item.path">
       <!-- 一级菜单 -->
       <template #title>
@@ -231,17 +235,16 @@ function logout() {
 // list = router.getRoutes().filter(route => route.meta && route.meta.title)
 list = useUserMenu().menu
 
+// 一级菜单
 const noChildren = () => {
   return list.filter(
-    (item) =>
-      (!item.children || item.children.length === 0) && item.hidden == false
-  )
+    (item) => (!item.children || item.children.length === 0) && item.hidden == false)
 }
-
+// 二级菜单
 const hasChildren = () => {
-  return list.filter((item) => item.children && item.threeChildren != true)
+  return list.filter((item) => item.children && item.threeChildren != true && item.hidden == false)
 }
-
+// 三级菜单
 const hasCC = () => {
   return list.filter((item) => item.children && item.threeChildren == true)
 }

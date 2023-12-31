@@ -8,7 +8,7 @@ function filterRoutes(routes) {
 }
 
 
-
+// 注册所有的路由
 export function generateRoutes() {
   const menuArray = [];
 

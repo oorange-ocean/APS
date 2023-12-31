@@ -1,9 +1,9 @@
 <template>
   <div class="container">
     <div class="head">
-      <button @click="addRow"><span class="first">新增</span></button>
-      <button @click="modifyRow"><span>修改</span></button>
-      <button @click="deleteSelectedRows"><span>删除</span></button>
+      <button @click="addRow" v-if="userMenu.hasAccessToButton(2, 'add')"><span class="first">新增</span></button>
+      <button @click="modifyRow" v-if="userMenu.hasAccessToButton(2, 'edit')"><span>修改</span></button>
+      <button @click="deleteSelectedRows" v-if="userMenu.hasAccessToButton(2, 'delete')"><span>删除</span></button>
       <button @click="fresh"><span>刷新</span></button>
       <button @click="moveData"><span>排序</span></button>
       <button @click="dialogVisible = true"><span>导入</span></button>
@@ -359,6 +359,7 @@ import {
   onBeforeUnmount
 } from 'vue'
 import { renderSortIcon } from '@/utils/sortIcon'
+// import {hasAccessToButton} from '@/store/modules/menu.js'
 import CommonPlan from '@/components/CommonPlan.vue'
 import processManage from '../../../store/modules/metaData/processManage'
 import { useRoute, useRouter } from 'vue-router'
