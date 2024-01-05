@@ -5,10 +5,8 @@ let eventSource; // 在外部声明一个变量
 
 function connectToSSE() {
     // 替换为你的服务器地址
-    // const serverUrl = "https://www.apsceshi.benewake.top/benewake"; // 示例：测试服务器
     const serverUrl = "https://www.aps.benewake.top/benewake"; // 示例：测试服务器
     // const serverUrl = "https://aps.benewake.com/benewake"; // 示例：正式服务器
-    // const serverUrl = "http://ezp3vm.natappfree.cc/benewake"; // 示例：内网穿透
 
     const token = getToken()
     // const eventSource = new EventSource(`${serverUrl}/sse/connect?token=${token}`);

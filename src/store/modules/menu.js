@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import _ from 'lodash'
 import { scrollToTag } from '../../utils/scroll'
+import { getFavorites, updateFavorites } from '@/api/default'
 
 const useUserMenu = defineStore('menu', {
   state: () => ({
@@ -10,6 +11,7 @@ const useUserMenu = defineStore('menu', {
         path: '/default',
         hidden: true,
         component: '/default',
+        isFavorite: false,
         meta: {
           title: '默认界面'
         }
@@ -20,6 +22,7 @@ const useUserMenu = defineStore('menu', {
         hidden: false,
         component: '/schedule',
         alwaysShow: 'true',
+        isFavorite: false,
         meta: {
           title: '排程'
         }
@@ -56,6 +59,7 @@ const useUserMenu = defineStore('menu', {
             name: 'userManage',
             path: '/userManage',
             component: '/system/sysUser/list',
+            isFavorite: false,
             meta: {
               title: '用户管理'
             }
@@ -64,6 +68,7 @@ const useUserMenu = defineStore('menu', {
             name: 'rolesManage',
             path: '/rolesManage',
             component: '/system/sysRole/list',
+            isFavorite: false,
             meta: {
               title: '角色管理'
             }
@@ -72,6 +77,7 @@ const useUserMenu = defineStore('menu', {
             name: 'deptManage',
             path: '/deptManage',
             component: '/permission/deptManage',
+            isFavorite: false,
             meta: {
               title: '部门管理'
             }
@@ -80,6 +86,7 @@ const useUserMenu = defineStore('menu', {
             name: 'viewRolesManage',
             path: '/viewRolesManage',
             component: '/permission/viewRolesManage',
+            isFavorite: false,
             meta: {
               title: '视图列角色管理'
             }
@@ -88,6 +95,7 @@ const useUserMenu = defineStore('menu', {
             name: 'viewInfoManage',
             path: '/viewInfoManage',
             component: '/permission/viewInfoManage',
+            isFavorite: false,
             meta: {
               title: '视图列信息管理'
             }
@@ -442,8 +450,9 @@ const useUserMenu = defineStore('menu', {
     // 按钮权限
     accessMapping: {
       1: ['view'], // 访客用户只能查看
-      2: ['view', 'edit', 'delete', 'add'], // 假设用户类型2是管理员，拥有所有权限
-    },    
+      2: ['view', 'edit', 'delete', 'add'] // 假设用户类型2是管理员，拥有所有权限
+    },
+    favorites: [-1], //收藏的菜单
     isCollapse: false,
     currentMenu: null,
     tabsList: JSON.parse(sessionStorage.getItem('tabs')) || []
@@ -467,6 +476,7 @@ const useUserMenu = defineStore('menu', {
       this.tabsList.splice(res, 1)
       sessionStorage.setItem('tabs', JSON.stringify(this.tabsList))
     },
+    // 菜单权限
     setMenuVisibility(menu, userType) {
       const inaccessibleMenus = this.userTypeInaccessible[userType] || []
 
@@ -482,12 +492,91 @@ const useUserMenu = defineStore('menu', {
         }
       })
     },
-    hasAccessToButton(userType, button){
-      const accessibleButtons = this.accessMapping[userType] || [];
-      return accessibleButtons.includes(button);
+    // 按钮权限
+    hasAccessToButton(userType, button) {
+      const accessibleButtons = this.accessMapping[userType] || []
+      return accessibleButtons.includes(button)
+    },
+    // 常用功能
+    // findFavorites(menu) {
+    //   const favorites = []
+    //   function recurseThroughMenu(items) {
+    //     items.forEach((item) => {
+    //       if (item.isFavorite) {
+    //         favorites.push(item.name)
+    //       }
+    //       if (item.children && item.children.length) {
+    //         recurseThroughMenu(item.children)
+    //       }
+    //     })
+    //   }
+
+    //   recurseThroughMenu(menu)
+    //   return favorites
+    // },
+    // 获取到常用功能后将menu中的Favorite设置为true
+    setFavorites(favorites, menu) {
+      // 遍历并重置每个菜单项的收藏状态
+      function resetFavorites(items) {
+        items.forEach((item) => {
+          item.isFavorite = false // 重置为非收藏状态
+          if (item.children && item.children.length) {
+            resetFavorites(item.children) // 递归重置子菜单项
+          }
+        })
+      }
+
+      // 重置菜单中所有项的收藏状态
+      resetFavorites(menu)
+
+      // 遍历整个菜单，包括嵌套的子菜单
+      function traverseMenu(items) {
+        items.forEach((item) => {
+          // 查找并设置收藏状态
+          const favoriteItem = favorites.find((f) => f.name === item.name)
+          if (favoriteItem) {
+            item.isFavorite = true
+          }
+          // 如果有子菜单，递归遍历子菜单
+          if (item.children && item.children.length) {
+            traverseMenu(item.children)
+          }
+        })
+      }
+
+      // 开始遍历菜单
+      traverseMenu(menu)
+    },
+    // 获取常用功能
+    getFavorites() {
+      return new Promise((resolve, reject) => {
+        getFavorites()
+          .then((res) => {
+            if (res.code == 200) {
+              this.setFavorites(res.data, this.menu)
+              this.favorites = res.data
+            }
+            resolve(res)
+          })
+          .catch((error) => {
+            reject(error)
+          })
+      })
+    },
+    // 更新常用功能
+    updateFavorites(param) {
+      return new Promise((resolve, reject) => {
+        updateFavorites(param)
+          .then((res) => {
+            if (res.code == 200) {
+            }
+            resolve(res)
+          })
+          .catch((error) => {
+            reject(error)
+          })
+      })
     }
   }
-
-  // persist: true
 })
 export default useUserMenu

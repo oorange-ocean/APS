@@ -36,7 +36,6 @@ const useUserStore = defineStore(
       getInfo() {
         return new Promise((resolve, reject) => {
           getInfo().then(res => {
-            console.log(res)
             if (res.data.roles && res.data.roles.length > 0) { // 验证返回的roles是否是一个非空数组
               this.buttons = res.data.buttons
               this.roles = res.data.roles

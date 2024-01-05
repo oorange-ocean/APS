@@ -54,8 +54,10 @@ router.beforeEach((to, from, next) => {
         .then((res) => {
           // 根据roles权限生成可访问的路由表
           useUserMenu().menu.push(...res.data.routers)
+          
           // 根据用户权限加载菜单
           // useUserMenu().setMenuVisibility(useUserMenu().menu,1)
+
           // 注册所有的路由
           generateRoutes()
           next({ ...to, replace: true }) // hack方法 确保addRoutes已完成
@@ -63,7 +65,16 @@ router.beforeEach((to, from, next) => {
         .catch((err) => {
           console.log('permission代码报错', err)
         })
-    } else {
+    }
+    else if (useUserMenu().favorites[0] == -1) {
+      useUserMenu().getFavorites().then((res) => {
+        if (res.code == 200) {
+          next()
+        }
+      })
+      
+    }
+    else {
       if (to.path == '/login') { 
         next('/default')
       } else if (to.path == '/schedule' && useUserStore().isSchedule == false) {

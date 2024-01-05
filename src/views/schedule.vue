@@ -133,7 +133,7 @@
                   <div class="mini_lock">
                     <div class="delay">
                       <span>需求计划延迟期</span>
-                      <input type="number" value="3" />
+                      <input type="number" v-model="form.delay_request" />
                       <span>寻优次数</span>
                       <input type="number" v-model="form.number_cycles" />
                       <span>生产计划周期</span>
@@ -174,6 +174,7 @@ const checkedLabels = ref([])
 const form = ref({
   // model: [],
   target: '1',
+  delay_request: 3,
   number_cycles: 2,
   scheduled_days_num: 240,
   in_advance_po: 7,
@@ -192,16 +193,7 @@ watch(checkedLabels, (newLabels) => {
   // ... update other properties based on newLabels
 })
 
-const checkedERP = ref([
-  '1',
-  '2',
-  '4',
-  '6',
-  '8',
-  '9',
-  '10',
-  '11'
-])
+const checkedERP = ref(['1', '2', '4', '6', '8', '9', '10', '11'])
 const checkedMES = ref(['33'])
 const isAllERP = ref(true)
 const isAllMES = ref(true)
@@ -212,18 +204,14 @@ const indeterminateMES = computed(() => {
   return checkedMES.value.length > 0 && checkedMES.value.length < 1
 })
 function handleCheckAllERP(val) {
-  checkedERP.value = val
-    ? ['1', '2', '4', '6', '8', '9', '10', '11']
-    : []
+  checkedERP.value = val ? ['1', '2', '4', '6', '8', '9', '10', '11'] : []
 }
 function handleCheckedERP(value) {
   isAllERP.value = value.length === 8
 }
 
 function handleCheckAllMES(val) {
-  checkedMES.value = val
-    ? ['33']
-    : []
+  checkedMES.value = val ? ['33'] : []
 }
 function handleCheckedMES(value) {
   isAllMES.value = value.length === 1

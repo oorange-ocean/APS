@@ -117,7 +117,7 @@
         <el-table-column
           prop="fcompletedQuantity"
           label="完成数量"
-          width="150"
+          width="400"
           v-if="plan.fcompletedQuantity"
           sortable="custom"
           :sort-orders="['ascending', 'descending']"

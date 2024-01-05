@@ -1,14 +1,34 @@
 <template>
   <el-menu default-active="2" class="el-menu-vertical-demo">
-
     <!-- 一级菜单 -->
     <el-menu-item
       :index="item.path"
       v-for="item in noChildren()"
       :key="item.path"
       @click="clickMenu(item)"
+      class="menuItem"
     >
       <span>{{ item.meta.title }}</span>
+      <el-tooltip
+        class="box-item"
+        effect="light"
+        :content="item.isFavorite ? '取消常用功能' : '设为常用功能'"
+        placement="right"
+      >
+        <el-icon
+          :class="{ star: true, 'star-visible': item.isFavorite }"
+          @click.stop="toggleFavorite(item)"
+        >
+          <template v-if="item.isFavorite">
+            <StarFilled />
+            <!-- 填充的星星图标 -->
+          </template>
+          <template v-else>
+            <Star />
+            <!-- 空心星星图标 -->
+          </template>
+        </el-icon>
+      </el-tooltip>
     </el-menu-item>
 
     <!-- 二级菜单 -->
@@ -25,8 +45,30 @@
         v-for="(subItem, subIndex) in item.children"
         :key="subIndex"
         @click="clickMenu(subItem)"
+        class="menuItem"
       >
         <span>{{ subItem.meta.title }}</span>
+        <!-- 添加常用功能的收藏图标 -->
+        <el-tooltip
+          class="box-item"
+          effect="light"
+          :content="subItem.isFavorite ? '取消常用功能' : '设为常用功能'"
+          placement="right"
+        >
+          <el-icon
+            :class="{ star: true, 'star-visible': subItem.isFavorite }"
+            @click.stop="toggleFavorite(subItem)"
+          >
+            <template v-if="subItem.isFavorite">
+              <StarFilled />
+              <!-- 填充的星星图标 -->
+            </template>
+            <template v-else>
+              <Star />
+              <!-- 空心星星图标 -->
+            </template>
+          </el-icon>
+        </el-tooltip>
       </el-menu-item>
     </el-sub-menu>
 
@@ -55,8 +97,29 @@
             :index="grandChild.path"
             :key="'menu-item-' + grandChild.path"
             @click="clickMenu(grandChild)"
+            class="menuItem"
           >
             <span>{{ grandChild.meta.title }}</span>
+            <el-tooltip
+              class="box-item"
+              effect="light"
+              :content="item.isFavorite ? '取消常用功能' : '设为常用功能'"
+              placement="right"
+            >
+              <el-icon
+                :class="{ star: true, 'star-visible': grandChild.isFavorite }"
+                @click.stop="toggleFavorite(grandChild)"
+              >
+                <template v-if="grandChild.isFavorite">
+                  <StarFilled />
+                  <!-- 填充的星星图标 -->
+                </template>
+                <template v-else>
+                  <Star />
+                  <!-- 空心星星图标 -->
+                </template>
+              </el-icon>
+            </el-tooltip>
           </el-menu-item>
         </el-sub-menu>
 
@@ -66,8 +129,28 @@
           :index="child.path"
           :key="'menu-item-alone-' + child.path"
           @click="clickMenu(child)"
+          class="menuItem"
         >
           <span>{{ child.meta.title }}</span>
+          <el-tooltip
+          class="box-item"
+          effect="light"
+          :content="item.isFavorite ? '取消常用功能' : '设为常用功能'"
+          placement="right"
+        >
+          <el-icon 
+          :class="{'star': true, 'star-visible': child.isFavorite}"
+          @click.stop="toggleFavorite(child)">
+            <template v-if="child.isFavorite">
+              <StarFilled />
+              <!-- 填充的星星图标 -->
+            </template>
+            <template v-else>
+              <Star />
+              <!-- 空心星星图标 -->
+            </template>
+          </el-icon>
+        </el-tooltip>
         </el-menu-item>
       </template>
     </el-sub-menu>
@@ -83,7 +166,8 @@
 
     <el-dropdown>
       <el-button type="primary">
-        用户：{{ userStore.name }}
+        <!-- 用户：{{ userStore.name }} -->
+        <span>用户:  {{userStore.name}}</span>
         <!-- <el-icon class="el-icon--right"><arrow-down /></el-icon> -->
       </el-button>
       <template #dropdown>
@@ -144,15 +228,32 @@ import { removeToken } from '../utils/auth'
 let list = []
 const userMenu = useUserMenu()
 const userStore = useUserStore()
-
 const showMenu = ref(false)
-
 const dialogVisible = ref(false)
 const passwordForm = ref({
   oldPassword: '',
   newPassword: '',
   confirmPassword: ''
 })
+
+function toggleFavorite(subItem) {
+  if (!subItem.isFavorite) {
+    userMenu.favorites.push({
+      name: subItem.name,
+      label: subItem.meta.title,
+      path: subItem.path
+    })
+  } else {
+    // 如果当前项已被收藏，从收藏列表中找到对应的对象并移除
+    const index = userMenu.favorites.findIndex(favorite => favorite.name === subItem.name);
+    if (index > -1) {
+      userMenu.favorites.splice(index, 1);
+    }
+  }
+  //切换收藏状态
+  subItem.isFavorite = !subItem.isFavorite
+  userMenu.updateFavorites(userMenu.favorites)
+}
 
 const handleClose = () => {
   passwordForm.value.oldPassword = ''
@@ -238,11 +339,16 @@ list = useUserMenu().menu
 // 一级菜单
 const noChildren = () => {
   return list.filter(
-    (item) => (!item.children || item.children.length === 0) && item.hidden == false)
+    (item) =>
+      (!item.children || item.children.length === 0) && item.hidden == false
+  )
 }
 // 二级菜单
 const hasChildren = () => {
-  return list.filter((item) => item.children && item.threeChildren != true && item.hidden == false)
+  return list.filter(
+    (item) =>
+      item.children && item.threeChildren != true && item.hidden == false
+  )
 }
 // 三级菜单
 const hasCC = () => {
@@ -297,6 +403,9 @@ const clickMenu = (item) => {
 .el-menu-vertical-demo:not(.el-menu--collapse) {
   background-color: rgba(0, 0, 0, 0);
 }
+span {
+  font-size: 12px;
+}
 h3 {
   text-align: center;
 }
@@ -314,6 +423,21 @@ h3 {
 .el-menu-item:hover {
   background-color: #0053b5;
   color: #fff;
+}
+.menuItem {
+  justify-content: space-between;
+}
+.menuItem .star {
+  visibility: hidden;
+}
+
+.menuItem:hover .star,
+.menuItem .star-visible {
+  visibility: visible;
+}
+/* 被收藏时的星星样式 */
+.star-visible {
+  color: #ffd700; /* 或者您喜欢的颜色 */
 }
 .bottom > span {
   cursor: pointer;

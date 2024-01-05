@@ -291,7 +291,7 @@ const querySearchWithOption = (option) => {
         }
       )
       .then((res) => {
-        console.log(res.data.data, 'searchResult')
+        // console.log(res.data.data, 'searchResult')
         searchResult.value = res.data.data.map((item) => ({ value: item }))
         cb(searchResult.value)
         console.log(searchResult.value, 'searchResult')
@@ -466,13 +466,12 @@ const handleClose = async (view, event) => {
     await removeView([view.viewId])
     // emit('getViews', tableId.value)
     await getViews(tableId.value).then(res => {
-      console.log(res,'res')
       if (res.code == 200) {
         currentViews.value = res.data.viewTableVos
         defaultViewId.value = res.data.defaultViewId
         defaultViewName.value = res.data.defaultViewName
-        console.log(res.data.viewTableVos,'res.data.viewTableVos')
-        console.log(currentViews.value, 'views')
+        // console.log(res.data.viewTableVos,'res.data.viewTableVos')
+        // console.log(currentViews.value, 'views')
       }
       ElMessageBox.alert('删除方案成功', '提示', {
         confirmButtonText: '好的',
@@ -546,7 +545,7 @@ onMounted(() => {
   currentViewName.value = props.currentViewName
   // 获取视图列表
   getViews(tableId.value).then(res => {
-    console.log(res,'res')
+    // console.log(res,'res')
     if (res.code == 200) {
       currentViews.value = res.data.viewTableVos
       defaultViewId.value = res.data.defaultViewId
@@ -651,13 +650,10 @@ function addPlan() {
           })
         }
         getViews(tableId.value).then(res => {
-          console.log(res, 'res')
           if (res.code == 200) {
             currentViews.value = res.data.viewTableVos
             defaultViewId.value = res.data.defaultViewId
             defaultViewName.value = res.data.defaultViewName
-            console.log(res.data.viewTableVos, 'res.data.viewTableVos')
-            console.log(currentViews.value, 'views')
           }
         })
         
@@ -694,13 +690,10 @@ function updatePlan() {
   saveView(data.value).then((res) => {
     // emit('getViews', tableId.value)
     getViews(tableId.value).then(res => {
-      // console.log(res,'res')
       if (res.code == 200) {
         currentViews.value = res.data.viewTableVos
         defaultViewId.value = res.data.defaultViewId
         defaultViewName.value = res.data.defaultViewName
-        // console.log(res.data.viewTableVos,'res.data.viewTableVos')
-        // console.log(currentViews.value, 'views')
       }
     })
     emit('lookView', currentViewId.value, currentViewName.value)
