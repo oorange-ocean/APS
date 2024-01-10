@@ -4,7 +4,7 @@
       class="card"
       v-loading="Scheduling.loading"
       element-loading-text="正在运行中，可能需要十五秒左右，请耐心等待···"
-    >
+      >
       <el-card class="one update" :style="cardStyle1">
         <template #header>
           <div class="card-header">
@@ -154,8 +154,8 @@
               </el-form-item>
             </el-form>
             <div class="two_button">
-              <button class="schedule" @click="handleOne">一键排程</button>
               <button class="start" @click="startSchedule">开始排程</button>
+              <button class="schedule" @click="handleOne">一键排程</button>
               <!-- <button class="update_data" @click="handleUpdate">数据更新</button> -->
             </div>
           </div>
@@ -578,10 +578,8 @@ h3 {
   margin-left: 20px;
 }
 .other {
-  /* width: 300px; */
-  width: 95%;
+  width: 15vw;
   background-color: #fff;
-  /* background-color: red; */
   display: flex;
   flex-direction: row;
 }
@@ -648,9 +646,10 @@ h3 {
 }
 .two_button {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
+  margin-top: 58px;
   /* flex-direction: row-reverse; */
-  flex-direction: column-reverse;
+  /* flex-direction: column-reverse; */
   /* margin-left: 480px; */
 }
 
@@ -666,7 +665,7 @@ h3 {
   /* margin-top: 10px; */
 }
 .schedule {
-  margin-top: 20px;
+  /* margin-top: 20px; */
   background-color: #c4a01d;
 }
 .update_data {

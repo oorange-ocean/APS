@@ -51,7 +51,8 @@ export function removeFimRequest(param) {
 }
 // 导出FIM需求
 export function downloadFimRequest(param){
-    return download('/fimData/download', param, 'FIM需求表',{
+    // return download('/fimData/download', param, 'FIM需求表',{
+    return download('/interface/downloadInterfaceDate', param, 'FIM需求表',{
         headers: {
             token: getToken()
         }

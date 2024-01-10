@@ -16,7 +16,7 @@
           :viewColumn="useFimRequest.fimRequest.viewColumn"
           :currentViewId="currentViewId"
           :currentViewName="currentViewName"
-          :apiUrl="'/fimData/fimRequestSearchLike'"
+          :apiUrl="'/interface/searchLike'"
           :currentTableId="35"
           :currentOrder="currentOrder"
           @lookView="lookView"

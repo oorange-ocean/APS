@@ -6,7 +6,7 @@
         <el-row :gutter="20">
           <!-- 添加间距 -->
           <el-col
-            :span="12"
+            :span="8"
             v-for="item in userMenu.favorites"
             :key="item.label"
             style="margin-top: 10px;"
