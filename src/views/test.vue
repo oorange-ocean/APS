@@ -319,19 +319,22 @@ function updateX() {
 
   //结束日期
   selectedEndDateIndex = uniqueDates.indexOf(pickTime.value[1])
-  console.log(pickTime.value[1], uniqueDates)
+  // 开始日期，使用Array的indexOf方法来查找此日期在uniqueDates数组中的索引
+  selectedDateIndex = uniqueDates.indexOf(pickTime.value[0])
+  if (selectedEndDateIndex === -1 || selectedDateIndex === -1) {
+    // console.error('选择的日期不在可用的日期列表中!')
+    ElMessageBox.alert('选择的开始日期或结束日期没有数据，请重新选择', '提示', {
+      confirmButtonText: '好的'
+    })
+  }
+  // 如果日期不在数组中，indexOf会返回-1
   if (selectedEndDateIndex === -1) {
-    console.error('选择的结束日期不在可用的日期列表中!')
     selectedEndDateIndex = uniqueDates.length - 1 // 如果找不到，就默认为最后一个日期
   }
-
-  // 使用Array的indexOf方法来查找此日期在uniqueDates数组中的索引,开始日期
-  selectedDateIndex = uniqueDates.indexOf(pickTime.value[0])
-  // 如果日期不在数组中，indexOf会返回-1，所以你可能还想做一些错误检查
   if (selectedDateIndex === -1) {
-    console.error('选择的日期不在可用的日期列表中!')
     selectedDateIndex = null
   }
+
   // 强制更新结束日期
   option.xAxis.max = (selectedEndDateIndex + 1) * 12 * 60 // +1 以包括结束日期
 }

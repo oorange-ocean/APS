@@ -205,8 +205,7 @@ import {
   computed,
   watch,
   onMounted,
-  watchEffect,
-  defineEmits
+  watchEffect
 } from 'vue'
 import { saveView, removeView,getViews } from '@/api/commonPlan'
 import axios from 'axios'
