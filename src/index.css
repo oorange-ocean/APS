@@ -33,3 +33,11 @@
 .el-table .caret-wrapper {
   display: none !important;
 }
+
+/* 去除鼠标悬浮效果 */
+.el-table tbody tr:hover > td {
+  background-color: unset !important;
+}
+.el-table .el-table__body tr.row-highlight {
+  background-color: rgb(18, 203, 244) !important; 
+}

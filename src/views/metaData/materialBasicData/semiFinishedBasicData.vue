@@ -27,6 +27,7 @@
       <el-table
         ref="myTable"
         :data="semiFinished.semiMaterial.data"
+        :row-class-name="tableRowClassName"
         border
         :cell-style="{ borderColor: '#9db9d6', textAlign: 'center' }"
         :header-cell-style="{
@@ -338,6 +339,16 @@ const currentOrder = ref({}) //当前排序的字段
 let column = reactive([]) //所有列名
 let viewColumn = reactive([]) //当前视图的所拥有的列名
 
+// 修改表格选中行的样式
+// 这个方法返回一个类名，基于行是否被选中
+function tableRowClassName({ row }) {
+  // 检查当前行是否在selectedRows中
+  const isRowSelected = selectedRows.value.some(
+    (selectedRow) => selectedRow.id === row.id
+  )
+  return isRowSelected ? 'row-highlight' : ''
+}
+
 // 获取到子组件中currentOption的值
 function getCurrentOption(currentOption) {
   localCurrentOption.value = currentOption
@@ -405,13 +416,21 @@ onMounted(() => {
   if (commonPlan.value) {
     observer.observe(commonPlan.value)
   }
+  window.addEventListener('keydown', handleEsc)
 
   onBeforeUnmount(() => {
     if (commonPlan.value) {
       observer.unobserve(commonPlan.value)
     }
+    window.removeEventListener('keydown', handleEsc)
   })
 })
+// 处理 Esc 键按下的事件
+const handleEsc = (event) => {
+  if (event.keyCode === 27) {
+    refreshContent()
+  }
+}
 
 // 给剩余的列拼上false
 function transformColumns(column, viewColumn) {
@@ -435,7 +454,7 @@ function lookView(viewId, viewName) {
   currentViewId.value = viewId
   currentViewName.value = viewName
   // if (currentViewId.value != -1) {
-    currentPage.value = 1
+  currentPage.value = 1
   // }
 
   semiFinished
@@ -896,7 +915,7 @@ function refresh() {
           acc[item.voColName] = true
           return acc
         }, {})
-        console.log(plan.value, 'plan11')
+        // console.log(plan.value, 'plan11')
       } else {
         plan.value = transformColumns(column, viewColumn)
       }
@@ -1028,4 +1047,5 @@ span {
   position: fixed;
   bottom: 0;
 }
+
 </style>

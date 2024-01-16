@@ -607,7 +607,17 @@ const selectedRows = ref([]) // 存储选中的行数据
 
 onMounted(() => {
   refresh()
+  window.addEventListener('keydown', handleEsc);
 })
+// 处理 Esc 键按下的事件
+const handleEsc = (event) => {
+  if (event.keyCode === 27) {
+    refreshContent();
+  }
+};
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', handleEsc);
+});
 onUnmounted(() => {
   ImmediateInventory.resetState()
 })
@@ -877,7 +887,7 @@ function refresh() {
           acc[item.voColName] = true
           return acc
         }, {})
-        console.log(plan.value, 'plan11')
+        // console.log(plan.value, 'plan11')
       } else {
         plan.value = transformColumns(column, viewColumn)
       }

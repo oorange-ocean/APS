@@ -225,13 +225,20 @@ onMounted(() => {
   if (commonPlan.value) {
     observer.observe(commonPlan.value)
   }
-
+  window.addEventListener('keydown', handleEsc)
   onBeforeUnmount(() => {
     if (commonPlan.value) {
       observer.unobserve(commonPlan.value)
     }
+    window.removeEventListener('keydown', handleEsc)
   })
 })
+// 处理 Esc 键按下的事件
+const handleEsc = (event) => {
+  if (event.keyCode === 27) {
+    refreshContent()
+  }
+}
 
 // 给剩余的列拼上false
 function transformColumns(column, viewColumn) {
@@ -688,7 +695,7 @@ function refresh() {
           acc[item.voColName] = true
           return acc
         }, {})
-        console.log(plan.value, 'plan11')
+        // console.log(plan.value, 'plan11')
       } else {
         plan.value = transformColumns(column, viewColumn)
       }

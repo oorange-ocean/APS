@@ -506,6 +506,7 @@ const selectedRows = ref([]) // 存储选中的行数据
 onMounted(() => {
   refresh()
 })
+
 // onUnmounted (() => {
 //   ImmediateInventory.resetState()
 // })
@@ -611,7 +612,7 @@ function refresh() {
           acc[item.voColName] = true;
           return acc;
         }, {});
-        console.log(plan.value,'plan11')
+        // console.log(plan.value,'plan11')
       } else {
         plan.value = transformColumns(column, viewColumn)
       }

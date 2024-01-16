@@ -441,6 +441,43 @@ const useUserMenu = defineStore('menu', {
             }
           }
         ]
+      },
+      {
+        name: 'inventoryManagement',
+        path: '/inventoryManagement',
+        hidden: false,
+        meta: {
+          title: '库存管理'
+        },
+        children: [
+          {
+            name: 'finishedInventory',
+            path: '/finishedInventory',
+            hidden: false,
+            component: '/inventoryManagement/finishedInventory',
+            meta: {
+              title: '日别成品库存'
+            }
+          },
+          {
+            name: 'semifinishedInventory',
+            path: '/semifinishedInventory',
+            hidden: false,
+            component: '/inventoryManagement/semifinishedInventory',
+            meta: {
+              title: '日别半成品库存'
+            }
+          },
+          {
+            name: 'rawMaterialInventory',
+            path: '/rawMaterialInventory',
+            hidden: false,
+            component: '/inventoryManagement/rawMaterialInventory',
+            meta: {
+              title: '日别原材料库存'
+            }
+          },
+        ]
       }
     ],
     // 根据用户类型存储不可访问的菜单，菜单权限

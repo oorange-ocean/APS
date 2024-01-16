@@ -27,6 +27,7 @@
       <el-table
         ref="myTable"
         :data="finishedProduct.finishedProduct.data"
+        :row-class-name="tableRowClassName"
         border
         :cell-style="{ borderColor: '#9db9d6', textAlign: 'center' }"
         :header-cell-style="{
@@ -531,6 +532,16 @@ const currentOrder = ref({}) //当前排序的字段
 let column = reactive([]) //所有列名
 let viewColumn = reactive([]) //当前视图的所拥有的列名
 
+// 修改表格选中行的样式
+// 这个方法返回一个类名，基于行是否被选中
+function tableRowClassName({ row }) {
+  // 检查当前行是否在selectedRows中
+  const isRowSelected = selectedRows.value.some(
+    (selectedRow) => selectedRow.id === row.id
+  )
+  return isRowSelected ? 'row-highlight' : ''
+}
+
 // 获取到子组件中currentOption的值
 function getCurrentOption(currentOption) {
   localCurrentOption.value = currentOption
@@ -869,7 +880,17 @@ const selectedRows = ref([]) // 存储选中的行数据
 
 onMounted(() => {
   refresh()
+  window.addEventListener('keydown', handleEsc);
 })
+// 处理 Esc 键按下的事件
+const handleEsc = (event) => {
+  if (event.keyCode === 27) {
+    refreshContent();
+  }
+};
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', handleEsc);
+});
 onUnmounted(() => {
   finishedProduct.resetState()
 })
@@ -1112,7 +1133,7 @@ function refresh() {
           acc[item.voColName] = true
           return acc
         }, {})
-        console.log(plan.value, 'plan11')
+        // console.log(plan.value, 'plan11')
       } else {
         plan.value = transformColumns(column, viewColumn)
       }

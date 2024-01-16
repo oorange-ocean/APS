@@ -52,7 +52,7 @@
         <el-table-column
           prop="orderNumber"
           label="订单编号"
-          width="120"
+          width="180"
           :sort-orders="['ascending', 'descending']"
           sortable="custom"
           v-if="plan.orderNumber"
@@ -75,7 +75,7 @@
         <el-table-column
           prop="materialCode"
           label="物料编码"
-          width="120"
+          width="180"
           :sort-orders="['ascending', 'descending']"
           sortable="custom"
           v-if="plan.materialCode"
@@ -146,6 +146,7 @@
         <el-table-column
           prop="totalQuantity"
           label="总数量"
+          width="120"
           :sort-orders="['ascending', 'descending']"
           sortable="custom"
           v-if="plan.totalQuantity"
@@ -223,7 +224,7 @@
         <el-table-column
           prop="remainingQuantity"
           label="剩余数量"
-          width="180"
+          width="120"
           :sort-orders="['ascending', 'descending']"
           sortable="custom"
           v-if="plan.remainingQuantity"
@@ -710,7 +711,17 @@ onMounted(() => {
     })
     .catch((error) => {})
   refresh()
+  window.addEventListener('keydown', handleEsc);
 })
+// 处理 Esc 键按下的事件
+const handleEsc = (event) => {
+  if (event.keyCode === 27) {
+    refreshContent();
+  }
+};
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', handleEsc);
+});
 const handleSelect = (item, row) => {
   console.log(item, 'item')
   console.log(row, 'row')
@@ -982,7 +993,7 @@ function refresh() {
           acc[item.voColName] = true
           return acc
         }, {})
-        console.log(plan.value, 'plan11')
+        // console.log(plan.value, 'plan11')
       } else {
         plan.value = transformColumns(column, viewColumn)
       }

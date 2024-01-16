@@ -222,6 +222,21 @@ export const dynamicRoutes = [
     component: () => import('@/views/port/FIM/fimPriority'),
     name: 'fimPriority',
   },
+  {
+    path: '/finishedInventory',
+    component: () => import('@/views/inventoryManagement/finishedInventory'),
+    name: 'finishedInventory',
+  },
+  {
+    path: '/semifinishedInventory',
+    component: () => import('@/views/inventoryManagement/semifinishedInventory'),
+    name: 'semifinishedInventory',
+  },
+  {
+    path: '/rawMaterialInventory',
+    component: () => import('@/views/inventoryManagement/rawMaterialInventory'),
+    name: 'rawMaterialInventory',
+  },
 ]
 
 export function generateRoutesFromMenu(menu) {

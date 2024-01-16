@@ -1,9 +1,18 @@
 <template>
   <div class="container">
     <div class="head">
-      <button @click="addRow" v-if="userMenu.hasAccessToButton(2, 'add')"><span class="first">新增</span></button>
-      <button @click="modifyRow" v-if="userMenu.hasAccessToButton(2, 'edit')"><span>修改</span></button>
-      <button @click="deleteSelectedRows" v-if="userMenu.hasAccessToButton(2, 'delete')"><span>删除</span></button>
+      <button @click="addRow" v-if="userMenu.hasAccessToButton(2, 'add')">
+        <span class="first">新增</span>
+      </button>
+      <button @click="modifyRow" v-if="userMenu.hasAccessToButton(2, 'edit')">
+        <span>修改</span>
+      </button>
+      <button
+        @click="deleteSelectedRows"
+        v-if="userMenu.hasAccessToButton(2, 'delete')"
+      >
+        <span>删除</span>
+      </button>
       <button @click="fresh"><span>刷新</span></button>
       <button @click="moveData"><span>排序</span></button>
       <button @click="dialogVisible = true"><span>导入</span></button>
@@ -50,11 +59,7 @@
           width="35"
           class="one"
         />
-        <el-table-column
-          prop="processNumber"
-          label="序号"
-          width="90"
-        >
+        <el-table-column prop="processNumber" label="序号" width="90">
         </el-table-column>
         <el-table-column
           prop="belongingProcess"
@@ -451,13 +456,20 @@ onMounted(() => {
   if (commonPlan.value) {
     observer.observe(commonPlan.value)
   }
-
+  window.addEventListener('keydown', handleEsc)
   onBeforeUnmount(() => {
     if (commonPlan.value) {
       observer.unobserve(commonPlan.value)
     }
+    window.removeEventListener('keydown', handleEsc)
   })
 })
+// 处理 Esc 键按下的事件
+const handleEsc = (event) => {
+  if (event.keyCode === 27) {
+    refreshContent()
+  }
+}
 
 // 给剩余的列拼上false
 function transformColumns(column, viewColumn) {
@@ -481,7 +493,7 @@ function lookView(viewId, viewName) {
   currentViewId.value = viewId
   currentViewName.value = viewName
   // if (currentViewId.value != -1) {
-    currentPage.value = 1
+  currentPage.value = 1
   // }
 
   process
@@ -1050,7 +1062,7 @@ function refresh() {
           acc[item.voColName] = true
           return acc
         }, {})
-        console.log(plan.value, 'plan11')
+        // console.log(plan.value, 'plan11')
       } else {
         plan.value = transformColumns(column, viewColumn)
       }
