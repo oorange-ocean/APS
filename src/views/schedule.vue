@@ -4,7 +4,7 @@
       class="card"
       v-loading="Scheduling.loading"
       element-loading-text="正在运行中，可能需要十五秒左右，请耐心等待···"
-      >
+    >
       <el-card class="one update" :style="cardStyle1">
         <template #header>
           <div class="card-header">
@@ -16,7 +16,7 @@
         </template>
         <transition name="fade" class="body">
           <div v-if="!isCollapsed">
-            <el-collapse v-model="activeNames">
+            <el-collapse>
               <el-collapse-item title="ERP" name="1">
                 <el-checkbox
                   :indeterminate="indeterminateERP"
@@ -114,6 +114,8 @@
                     <el-checkbox label="考虑工序" />
                     <el-checkbox label="并行生产" checked />
                     <el-checkbox label="考虑未完成" checked />
+                    <el-checkbox label="是否提前PO" />
+                    <el-checkbox label="是否提前PR" />
                   </el-checkbox-group>
                   <div class="delay"></div>
                 </div>
@@ -183,13 +185,17 @@ const form = ref({
   consider_the_material: true,
   consider_the_process: false,
   produce_in_parallel: true,
-  consider_history: true
+  consider_history: true,
+  advance_PO: false,
+  advance_PR: false
 })
 watch(checkedLabels, (newLabels) => {
   form.value.produce_in_parallel = newLabels.includes('并行生产')
   form.value.consider_the_process = newLabels.includes('考虑工序')
   form.value.consider_the_material = newLabels.includes('考虑物料')
   form.value.consider_history = newLabels.includes('考虑未完成')
+  form.value.advance_PO = newLabels.includes('是否提前PO')
+  form.value.advance_PR = newLabels.includes('是否提前PR')
   // ... update other properties based on newLabels
 })
 
@@ -356,7 +362,7 @@ function handleCheck() {
 }
 
 function startSchedule() {
-  // console.log(form.value,'@@@')
+  // console.log(form.value, '@@@')
   Scheduling.startScheduling(form.value)
     .then((res) => {
       if (res.code == 200) {

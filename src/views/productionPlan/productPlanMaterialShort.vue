@@ -229,6 +229,7 @@ const localCurrentOption = ref([]) //子组件中传过来的currentOption
 const currentOrder = ref({}) //当前排序的字段
 const myTable = ref(null)
 
+
 // 获取到子组件中currentOption的值
 function getCurrentOption(currentOption) {
   localCurrentOption.value = currentOption

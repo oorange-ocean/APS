@@ -38,13 +38,13 @@
         :max-height="tableMaxHeight"
         @sort-change="onSortChange"
       >
-        <el-table-column
+        <!-- <el-table-column
           type="selection"
           :reserve-selection="true"
           label=""
           width="35"
           class="one"
-        />
+        /> -->
         <el-table-column
           prop="productionId"
           label="生产ID"

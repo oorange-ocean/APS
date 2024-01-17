@@ -25,7 +25,7 @@
   color: #000 !important;
 }
 .el-scrollbar{
-  --el-scrollbar-opacity:0.5 !important;
+  --el-scrollbar-opacity:0.2 !important;
   /* --el-scrollbar-hover-opacity:1 !important; */
   --el-scrollbar-bg-color:#666 !important;
   /* --el-scrollbar-hover-bg-color:#444 !important; */

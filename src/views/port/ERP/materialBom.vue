@@ -27,6 +27,7 @@
       <el-table
         ref="myTable"
         :data="ImmediateInventory.materialBom.data"
+        :row-class-name="tableRowClassName"
         border
         :cell-style="{ borderColor: '#9db9d6', textAlign: 'center' }"
         :header-cell-style="{
@@ -462,6 +463,16 @@ const localCurrentOption = ref([]) //子组件中传过来的currentOption
 const currentOrder = ref({}) //当前排序的字段
 let column = reactive([]) //所有列名
 let viewColumn = reactive([]) //当前视图的所拥有的列名
+
+// 修改表格选中行的样式
+// 这个方法返回一个类名，基于行是否被选中
+function tableRowClassName({ row }) {
+  // 检查当前行是否在selectedRows中
+  const isRowSelected = selectedRows.value.some(
+    (selectedRow) => selectedRow.id === row.id
+  )
+  return isRowSelected ? 'row-highlight' : ''
+}
 
 // 获取到子组件中currentOption的值
 function getCurrentOption(currentOption) {
