@@ -5,7 +5,8 @@ import {
   removeSemiFinished,
   downloadSemiFinished,
   imporSemiFinished,
-  semiFinishedTemplate
+  semiFinishedTemplate,
+  downloadInventoryFile
 } from '@/api/metaData/materialBasicData/semiFinished'
 import { getMetaData, downloadMetaData } from '@/api/metaData/metaDataFilter'
 import { getCols, getViews } from '@/api/commonPlan'
@@ -156,6 +157,18 @@ const semiFinished = defineStore('semiFinished', {
     semiFinishedTemplate(param) {
       return new Promise((resolve, reject) => {
         semiFinishedTemplate(param)
+          .then((res) => {
+            resolve(res)
+          })
+          .catch((error) => {
+            reject(error)
+          })
+      })
+      },
+    // 导出日别半成品库存
+    downloadInventoryFile() {
+      return new Promise((resolve, reject) => {
+        downloadInventoryFile()
           .then((res) => {
             resolve(res)
           })

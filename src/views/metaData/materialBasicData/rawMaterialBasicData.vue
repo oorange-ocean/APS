@@ -7,6 +7,7 @@
       <button @click="fresh"><span>刷新</span></button>
       <button @click="dialogVisible = true"><span>导入</span></button>
       <button @click="downloadData"><span>导出</span></button>
+      <button @click="downloadDataInventory"><span>导出原材料库存</span></button>
     </div>
     <div class="main" ref="tableContainer">
       <div class="common" ref="commonPlan">
@@ -545,6 +546,16 @@ function downloadData() {
           })
       }
     })
+}
+// 导出原材料库存
+function downloadDataInventory() {
+  rawBasicData.downloadInventoryFile({
+
+  }).then(res => {
+    
+  }).catch(error => {
+    console.log(error, 'error')
+  })
 }
 
 const dialogVisible = ref(false)

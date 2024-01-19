@@ -175,6 +175,7 @@ export function download(url, params, baseFilename, config) {
   })
 
   // 生成带日期的文件名
+  let filename;
   const date = new Date()
   const formattedDate =
     date.getFullYear() +
@@ -183,7 +184,15 @@ export function download(url, params, baseFilename, config) {
     ('0' + date.getHours()).slice(-2) +
     ('0' + date.getMinutes()).slice(-2) +
     ('0' + date.getSeconds()).slice(-2)
-  const filename = baseFilename + '_' + formattedDate + '.xlsx'
+  if (
+    baseFilename == '日别成品库存' ||
+    baseFilename == '日别半成品库存' ||
+    baseFilename == '日别原材料库存'
+  ) {
+    filename = baseFilename + '_' + formattedDate + '.csv'
+  } else {
+    filename = baseFilename + '_' + formattedDate + '.xlsx'
+  }
 
   return service
     .post(url, params, {
@@ -229,8 +238,8 @@ export async function uploadFile(uploadData, uploadUrl) {
     token: getToken() // 获取 token
   }
 
-    const response = await service.post(uploadUrl, formData, { headers })
-    return response
+  const response = await service.post(uploadUrl, formData, { headers })
+  return response
 }
 
 export default service

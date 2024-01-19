@@ -5,7 +5,8 @@ import {
   removeFinishedProduct,
   downloadFinishedProduct,
   imporFinishedProduct,
-  finishedProductTemplate
+  finishedProductTemplate,
+  downloadInventoryFile
 } from '@/api/metaData/materialBasicData/finishedProduct'
 import { getMetaData, downloadMetaData } from '@/api/metaData/metaDataFilter'
 import { getCols, getViews } from '@/api/commonPlan'
@@ -156,6 +157,18 @@ const finishedProduct = defineStore('finishedProduct', {
     finishedProductTemplate(param) {
       return new Promise((resolve, reject) => {
         finishedProductTemplate(param)
+          .then((res) => {
+            resolve(res)
+          })
+          .catch((error) => {
+            reject(error)
+          })
+      })
+    },
+    // 导出日别成品库存
+    downloadInventoryFile() {
+      return new Promise((resolve, reject) => {
+        downloadInventoryFile()
           .then((res) => {
             resolve(res)
           })

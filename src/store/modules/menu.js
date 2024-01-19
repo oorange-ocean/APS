@@ -50,7 +50,7 @@ const useUserMenu = defineStore('menu', {
       {
         name: 'permission',
         path: '/test1',
-        hidden: false,
+        hidden: true,
         meta: {
           title: '用户及权限管理'
         },
@@ -445,7 +445,7 @@ const useUserMenu = defineStore('menu', {
       {
         name: 'inventoryManagement',
         path: '/inventoryManagement',
-        hidden: false,
+        hidden: true,
         meta: {
           title: '库存管理'
         },

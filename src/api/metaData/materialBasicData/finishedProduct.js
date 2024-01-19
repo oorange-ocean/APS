@@ -47,3 +47,13 @@ export function finishedProductTemplate(param) {
         }
       });
 }
+
+//导出日别成品库存
+export function downloadInventoryFile() {
+    // 使用封装的 download 方法
+    return download('/scResult/downloadInventoryFile?filenum=2', {}, '日别成品库存',{
+        headers: {
+            token: getToken()
+        }
+    });
+}

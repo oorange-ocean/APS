@@ -5,7 +5,8 @@ import {
   removeRawMaterial,
   downloadRawMaterial,
   imporRawMaterial,
-  rawMaterialTemplate
+  rawMaterialTemplate,
+  downloadInventoryFile
 } from '@/api/metaData/materialBasicData/rawBasicData'
 import { getMetaData, downloadMetaData } from '@/api/metaData/metaDataFilter'
 import { getCols, getViews } from '@/api/commonPlan'
@@ -156,6 +157,18 @@ const rawMaterialBasic = defineStore('rawMaterialBasic', {
     rawMaterialTemplate(param) {
       return new Promise((resolve, reject) => {
         rawMaterialTemplate(param)
+          .then((res) => {
+            resolve(res)
+          })
+          .catch((error) => {
+            reject(error)
+          })
+      })
+    },
+    // 导出日别原材料库存
+    downloadInventoryFile() {
+      return new Promise((resolve, reject) => {
+        downloadInventoryFile()
           .then((res) => {
             resolve(res)
           })
