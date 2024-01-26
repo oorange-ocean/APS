@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import {findAll,addRole,updateRole,removeRole,removeMoreRole} from '@/api/roles'
+import {findAll,addRole,updateRole,removeRole,removeMoreRole} from '@/api/permission/roles'
 
 const rolesManage = defineStore(
     'rolesManage',

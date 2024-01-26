@@ -70,7 +70,7 @@
   
   <script setup>
   import { ref } from 'vue'
-  import useUsersManage from '@/store/modules/usersManage'
+  import useUsersManage from '@/store/modules/permission/usersManage'
   import CommonPlan from '../../../components/CommonPlan.vue'
   const UsersManage = useUsersManage()
   // console.log(usepermission.users)

@@ -18,16 +18,19 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUpdated, watch } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import useGtt from '@/store/modules/gtt'
 import * as echarts from 'echarts'
 
 const gtt = useGtt()
 const value = ref('')
-let yAxisHeight = ref(0)
+const data = ref([])
+
+let rawData = []
+let uniqueDates = []
+const yAxisHeight = ref(0)
 let pickTime = ref([])
 let filteredData = ref([])
-const data = ref([])
 let myChart // 在外部定义一个变量来存储图表实例
 let selectedDateIndex = null
 let selectedEndDateIndex = null
@@ -77,14 +80,10 @@ function convertDates(dateArray) {
 }
 // 挑选日期后更新甘特图
 watch(pickTime, (newVal, oldVal) => {
-  //   console.log('pickTime 已更新',newVal);  // 这只是一个示例，你可以替换为任何你需要执行的逻辑
-  // 你可以在这里调用其他函数或执行其他操作
+  //   console.log('pickTime 已更新',newVal);
   filteredData.value = filterRawData(newVal[0], newVal[1])
   updateGanttChart(filteredData.value)
-  // console.log(pickTime.value[0])
 })
-
-// console.log(Object.keys(gtt.product[0]))
 
 const types = [
   { name: '包装', color: '#0053b5' },
@@ -92,59 +91,46 @@ const types = [
   { name: '组装', color: '#9db9d6' }
 ]
 
-const rawData = []
-
-// for (let productKey in gtt.product) {
-//     const processEntries = Object.values(gtt.product[productKey]); // 获取对象的所有值，这些值应该是关于工序的数组
-//     const processkey = Object.keys(gtt.product[productKey]); // 获取对象的所有键值，也就是所有的产品名
-
-//     for(let i = 0; i < processkey.length; i++) {
-//         const productName = processkey[i];
-//         const processes = processEntries[i].map(item => {
-//             return {
-//                 name: item.processName,
-//                 quantity: item.quantity,
-//                 taskDate: item.taskDate,
-//                 start: item.startTime,
-//                 end: item.endTime
-//             };
-//         });
-
-//         rawData.push({
-//             product: productName, // 使用productName作为产品名称
-//             processes: processes
-//         });
-//     }
-// }
-
-gtt.product.forEach((productEntry) => {
-  // Each productEntry contains materialName and apsAllPlanNumInProcesses
-  const productName = productEntry.materialName
-  const processes = productEntry.apsAllPlanNumInProcesses.map(
-    (processEntry) => {
-      return {
-        name: processEntry.processName,
-        quantity: processEntry.quantity,
-        taskDate: processEntry.taskDate,
-        start: processEntry.startTime,
-        end: processEntry.endTime
-      }
-    }
-  )
-
-  rawData.push({
-    product: productName,
-    processes: processes
-  })
-})
-
-const uniqueDates = [
-  ...new Set(rawData.flatMap((item) => item.processes.map((p) => p.taskDate)))
-].sort()
 const hoursPerDay = 12 // 从8点到20点共有12个小时
 const minutesPerHour = 60
-const maxMinutes = uniqueDates.length * hoursPerDay * minutesPerHour
-yAxisHeight = types.length * rawData.length * 40 // 这里30是每个y轴标签的预估高度
+let maxMinutes //= uniqueDates.length * hoursPerDay * minutesPerHour
+//默认显示六天的数据
+let sixDaysPercentage  //= (2 / uniqueDates.length) * 100
+// initRawData()
+
+function initRawData() {
+  rawData = []
+  gtt.product.forEach((productEntry) => {
+    // Each productEntry contains materialName and apsAllPlanNumInProcesses
+    const productName = productEntry.materialName
+    const processes = productEntry.apsAllPlanNumInProcesses.map(
+      (processEntry) => {
+        return {
+          name: processEntry.processName,
+          quantity: processEntry.quantity,
+          taskDate: processEntry.taskDate,
+          start: processEntry.startTime,
+          end: processEntry.endTime
+        }
+      }
+    )
+
+    rawData.push({
+      product: productName,
+      processes: processes
+    })
+    // console.log(rawData)
+  })
+  uniqueDates = [
+    ...new Set(rawData.flatMap((item) => item.processes.map((p) => p.taskDate)))
+  ].sort()
+  yAxisHeight.value = types.length * rawData.length * 40 // 这里30是每个y轴标签的预估高度
+  maxMinutes = uniqueDates.length * hoursPerDay * minutesPerHour
+  sixDaysPercentage = (2 / uniqueDates.length) * 100
+  console.log(yAxisHeight.value)
+}
+
+// yAxisHeight.value = types.length * rawData.length * 40 // 这里30是每个y轴标签的预估高度
 // 将时间 "hh:mm" 转换为分钟数。
 function timeToMinutesFromDate(taskDate, time) {
   const [hours, minutes] = time.split(':').map(Number)
@@ -154,7 +140,6 @@ function timeToMinutesFromDate(taskDate, time) {
 }
 
 //如果给的日期时间是断开的话，x轴会出现断层，如果你挑的那一天刚好没有，默认是第一天或最后一天
-// console.log(uniqueDates,'@@@')
 
 function filterRawData(startDate, endDate) {
   const start = new Date(startDate)
@@ -172,7 +157,6 @@ function filterRawData(startDate, endDate) {
     }))
     .filter((product) => product.processes.length > 0) // 只返回有流程的产品
 }
-
 function initGanttChart() {
   rawData.forEach((productData, idx) => {
     types.forEach((type, typeIdx) => {
@@ -196,120 +180,120 @@ function initGanttChart() {
   })
 }
 
-//默认显示六天的数据
-const sixDaysPercentage = (2 / uniqueDates.length) * 100
 //是否是一天的数据
 let isSameDay = false
-
-const option = {
-  tooltip: {
-    //鼠标悬浮时显示的内容
-    formatter: function (params) {
-      return (
-        params.marker +
-        params.name +
-        ': ' +
-        (params.value[2] - params.value[0]) +
-        '分钟'
-      )
-    }
-  },
-  title: {
-    text: '测试甘特图',
-    left: 'center'
-  },
-  dataZoom: [
-    {
-      type: 'slider',
-      xAxisIndex: [0], // 只对第一个x轴进行缩放和滑动
-      orient: 'horizontal',
-      filterMode: 'filter',
-      // filterMode: 'weakFilter',
-      showDataShadow: false,
-      bottom: 20,
-      // height:20,
-      // zoomLock: true,  // 锁定滑块的缩放比例
-      start: 0, // 初始显示数据的起始位置，0表示从第一个数据开始
-      // end:100,
-      end: sixDaysPercentage, // 初始显示数据的结束位置，100表示显示到最后一个数据
-      moveOnMouseMove: false, // 禁止通过鼠标移动来平移
-      zoomOnMouseWheel: false // 禁止通过鼠标滚轮来缩放
-    },
-    {
-      type: 'inside',
-      xAxisIndex: [0], // 只对第一个x轴进行缩放
-      filterMode: 'filter',
-      zoomOnMouseWheel: false // 禁止通过鼠标滚轮来缩放
-    }
-  ],
-  grid: {
-    left: '15%',
-    height: yAxisHeight - 130 // 给滑动条留点空间
-    // bottom: 10
-  },
-  xAxis: {
-    type: 'value',
-    // min: 0,
-    min: function () {
-      // 如果选择了日期，从该日期开始，否则从0开始
-      return selectedDateIndex !== null ? selectedDateIndex * 12 * 60 : 0
-    },
-    max: uniqueDates.length * 12 * 60, // 考虑每天的12个小时
-    // max:(selectedEndDateIndex + 1) * 12 * 60,
-    interval: 12 * 60, // 每12小时一个日期刻度，表示一个完整的日期
-    axisLabel: {
-      formatter: function (val) {
-        const dayIndex = Math.floor(val / (12 * 60))
-
-        // 检查是否超出了日期数组的长度，如果是，则返回下一天的日期
-        if (dayIndex === uniqueDates.length) {
-          const lastDate = new Date(uniqueDates[uniqueDates.length - 1])
-          const nextDate = new Date(lastDate)
-          nextDate.setDate(lastDate.getDate() + 1)
-
-          // 根据你的日期格式进行格式化
-          const year = nextDate.getFullYear()
-          const month = nextDate.getMonth() + 1 // 0-based
-          const day = nextDate.getDate()
-          return `${year}-${month < 10 ? '0' + month : month}-${
-            day < 10 ? '0' + day : day
-          }`
-        }
-
-        return uniqueDates[dayIndex]
+let option = null
+function setOption() {
+  option = {
+    tooltip: {
+      //鼠标悬浮时显示的内容
+      formatter: function (params) {
+        return (
+          params.marker +
+          params.name +
+          ': ' +
+          (params.value[2] - params.value[0]) +
+          '分钟'
+        )
       }
     },
-    splitLine: {
-      // 在每个日期之间添加分割线
-      show: true
-    }
-  },
-  yAxis: {
-    data: rawData.flatMap(() => types.map((type) => type.name)),
-    axisTick: {
-      interval: (index) => index % types.length === 0
+    title: {
+      text: '测试甘特图',
+      left: 'center'
     },
-    axisLabel: {
-      fontSize: 10,
-      interval: (index) => index % types.length === 0,
-      formatter: (value, index) => {
-        if (index % types.length === 0) {
-          return rawData[Math.floor(index / types.length)].product
-        }
-        return ''
+    dataZoom: [
+      {
+        type: 'slider',
+        xAxisIndex: [0], // 只对第一个x轴进行缩放和滑动
+        orient: 'horizontal',
+        filterMode: 'filter',
+        // filterMode: 'weakFilter',
+        showDataShadow: false,
+        bottom: 20,
+        // height:20,
+        // zoomLock: true,  // 锁定滑块的缩放比例
+        start: 0, // 初始显示数据的起始位置，0表示从第一个数据开始
+        // end:100,
+        end: sixDaysPercentage, // 初始显示数据的结束位置，100表示显示到最后一个数据
+        moveOnMouseMove: false, // 禁止通过鼠标移动来平移
+        zoomOnMouseWheel: false // 禁止通过鼠标滚轮来缩放
+      },
+      {
+        type: 'inside',
+        xAxisIndex: [0], // 只对第一个x轴进行缩放
+        filterMode: 'filter',
+        zoomOnMouseWheel: false // 禁止通过鼠标滚轮来缩放
       }
-    }
-  },
-  series: [
-    {
-      type: 'custom',
-      renderItem: renderItem,
-      // xAxisIndex: 1,  // 使用隐藏的x轴
-      itemStyle: { opacity: 0.8 },
-      encode: { x: [0, 2], y: 1 },
-      data: data.value
-    }
-  ]
+    ],
+    grid: {
+      left: '15%',
+      height: yAxisHeight.value - 130 // 给滑动条留点空间
+      // bottom: 10
+    },
+    xAxis: {
+      type: 'value',
+      // min: 0,
+      min: function () {
+        // 如果选择了日期，从该日期开始，否则从0开始
+        return selectedDateIndex !== null ? selectedDateIndex * 12 * 60 : 0
+      },
+      max: uniqueDates.length * 12 * 60, // 考虑每天的12个小时
+      // max:(selectedEndDateIndex + 1) * 12 * 60,
+      interval: 12 * 60, // 每12小时一个日期刻度，表示一个完整的日期
+      axisLabel: {
+        formatter: function (val) {
+          const dayIndex = Math.floor(val / (12 * 60))
+
+          // 检查是否超出了日期数组的长度，如果是，则返回下一天的日期
+          if (dayIndex === uniqueDates.length) {
+            const lastDate = new Date(uniqueDates[uniqueDates.length - 1])
+            const nextDate = new Date(lastDate)
+            nextDate.setDate(lastDate.getDate() + 1)
+
+            // 根据你的日期格式进行格式化
+            const year = nextDate.getFullYear()
+            const month = nextDate.getMonth() + 1 // 0-based
+            const day = nextDate.getDate()
+            return `${year}-${month < 10 ? '0' + month : month}-${
+              day < 10 ? '0' + day : day
+            }`
+          }
+
+          return uniqueDates[dayIndex]
+        }
+      },
+      splitLine: {
+        // 在每个日期之间添加分割线
+        show: true
+      }
+    },
+    yAxis: {
+      data: rawData.flatMap(() => types.map((type) => type.name)),
+      axisTick: {
+        interval: (index) => index % types.length === 0
+      },
+      axisLabel: {
+        fontSize: 10,
+        interval: (index) => index % types.length === 0,
+        formatter: (value, index) => {
+          if (index % types.length === 0) {
+            return rawData[Math.floor(index / types.length)].product
+          }
+          return ''
+        }
+      }
+    },
+    series: [
+      {
+        type: 'custom',
+        renderItem: renderItem,
+        // xAxisIndex: 1,  // 使用隐藏的x轴
+        itemStyle: { opacity: 0.8 },
+        encode: { x: [0, 2], y: 1 },
+        data: data.value
+      }
+    ]
+  }
 }
 
 //挑选完日期后，更新x轴的开始时间和结束时间
@@ -380,6 +364,7 @@ for (let i = 0; i <= 24; i += 4) {
 
 // 初始化图表
 function initGantt() {
+  console.log('initGantt', yAxisHeight.value)
   const dom = document.getElementById('container')
   myChart = echarts.init(dom)
 }
@@ -393,7 +378,6 @@ function getTextWidth(text, fontSize) {
 }
 //渲染函数
 function renderItem(params, api) {
-  // console.log(api.value(0),'apiapi');
   const categoryIndex = api.value(1)
   const start = api.coord([api.value(0), categoryIndex])
   const end = api.coord([api.value(2), categoryIndex])
@@ -524,18 +508,22 @@ function sliderDistance() {
 }
 
 onMounted(() => {
-  // 初始化甘特图
-  initGantt()
-  // 初始化data数据
-  initGanttChart()
-
-  //滑块滑动逻辑
-  sliderDistance()
-
-  if (option && typeof option === 'object') {
-    myChart.setOption(option)
-  }
+  gtt
+    .getGttData()
+    .then((res) => {
+      initRawData()
+      setTimeout(() => {
+        initGantt()
+        setOption()
+        initGanttChart()
+        //滑块滑动逻辑
+        sliderDistance()
+        myChart.setOption(option)
+      }, 200)
+    })
+    .catch((error) => {})
 })
+
 </script>
 
 <style>

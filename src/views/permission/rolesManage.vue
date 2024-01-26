@@ -71,9 +71,8 @@
 import { ref, watch } from 'vue'
 // 引入生命周期函数时，在之前基础上加上on
 import { onBeforeMount, onMounted, onBeforeUpdate, onUpdated, onBeforeUnmount, onUnmounted } from 'vue'
-import useRolesManage from '@/store/modules/rolesManage'
+import useRolesManage from '@/store/modules/permission/rolesManage'
 import { useRoute, useRouter } from 'vue-router';
-import { roleTypes } from 'element-plus';
 
 const RolesManage = useRolesManage()
 const route = useRoute();     //用于获取和访问当前路由的信息

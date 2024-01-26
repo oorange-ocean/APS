@@ -69,7 +69,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import useUsersManage from '@/store/modules/usersManage'
+import useUsersManage from '@/store/modules/permission/usersManage'
 const UsersManage = useUsersManage()
 // console.log(usepermission.users)
 const newRow = {

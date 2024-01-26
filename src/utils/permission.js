@@ -1,4 +1,4 @@
-import { dynamicRoutes } from '../router';
+import { dynamicRoutes } from '@/router/index';
 import router from '@/router'; // 导入你的路由配置
 
 // 过滤路由或其他逻辑
