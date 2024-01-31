@@ -39,7 +39,7 @@ userStore.name = localStorage.getItem('name') || '';
 const route = useRoute();
 
 const ganttChartStyle = computed(() => {
-  if (route.name === 'testGtt' || route.name ==='viewBasePlan' || route.name === 'moveData') {
+  if (route.name === 'testGtt' || route.name ==='viewBasePlan' || route.name === 'moveData' || route.name === 'gtt1') {
     return {
       height: 'calc(100vh - 60px)',
       overflowY: 'auto'
