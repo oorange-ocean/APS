@@ -1,4 +1,4 @@
-# Vue 3 + Vite
+# 高级生产与排程系统
 
 ### 技术栈：VUE3 + Element-Plus + Vite + Echarts + Vue-router + Pinia + SSE
 ### 项目介绍：
@@ -13,6 +13,17 @@
   5. 为每个表格的数据添加上移、下移的按钮功能，提高了系统的灵活性和容错性，提升用户体验
   6. 设计用户权限模块，实现用户、角色、部门三个关系的绑定，实现不同角色的按钮权限不同、看到的菜单不同，不同部门同一张表格看到的内容不同
 
-## Recommended IDE Setup
-
-- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+### 首页：
+![image](https://github.com/Super-12138/APS/assets/73973689/afb329a7-d954-4615-bd9d-23e577d6c29d)
+### 排程界面：
+![image](https://github.com/Super-12138/APS/assets/73973689/c7a2f8ce-fb3b-442a-93eb-e62bb862c6a9)
+### 产品甘特图：
+![image](https://github.com/Super-12138/APS/assets/73973689/6cfc34d4-4b2c-4ed1-8cad-9fe2d95ebe3f)
+### 做了很多展示数据的模块，这里以成品生产计划为例：该模块除了基本的展示数据功能还有筛选和新增方案的功能，都封装成了模块
+![image](https://github.com/Super-12138/APS/assets/73973689/d5045dfb-ca1a-4453-8084-59e66b8c5d14)
+新增方案（不同的方案可以展示不同的列）：
+![image](https://github.com/Super-12138/APS/assets/73973689/ac6cb139-7666-4de1-8f16-6db2b7b3e1ee)
+### 导入文件
+![image](https://github.com/Super-12138/APS/assets/73973689/91fbe475-975a-4824-be2b-da89131af8c8)
+### 导出文件
+![image](https://github.com/Super-12138/APS/assets/73973689/ad45f33b-5354-4d48-87f3-3364ff074e98)
