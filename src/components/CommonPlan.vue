@@ -218,6 +218,16 @@ function removeSift(index) {
 }
 // 自动补全方法
 const querySearchWithOption = (option) => {
+    if (option?.chColName === "版本号") {
+        //手动返回数据,不调用接口,分别是"版本1"到"版本5",版本5改为"最大版本"
+        const data = Array.from({ length: 5 }, (v, k) => k + 1).map((item) => ({ value: `版本${item}` }))
+        data[4].value = '最大版本'
+        return (queryString, cb) => {
+            cb(data)
+        }
+
+
+    }
     const querySearch = async (queryString, cb) => {
         // 拼接axios请求
         // const baseUrl = 'https://www.apsceshi.benewake.top/benewake'
@@ -329,7 +339,6 @@ function searchView() {
         cols: currentOption.value
     }
     emit('searchView', data)
-    console.log(currentOption.value, 'currentOption213')
 }
 // 传列名的英文和中文给currentOption
 function handleColsName(option, item) {
@@ -471,7 +480,6 @@ watch(
                 currentOption.value = props.viewColumn.filter(
                     (item) => item.valueOperator != null
                 )
-                // console.log(currentOption.value, 'currentOption')
             }
         }
     }
@@ -560,8 +568,6 @@ function savePlan() {
             type: 'success'
         })
     })
-    // console.log(data.value, '保存方案')
-    // console.log(currentOption.value,'筛选条件')
 }
 // 打开新增方案时的一些初始化
 function openAddScheme() {

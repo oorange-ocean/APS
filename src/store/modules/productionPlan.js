@@ -8,12 +8,47 @@ import {
 } from '@/api/productionPlan'
 import { getCols, getViews } from '@/api/commonPlan'
 
+function getVersionMap(records) {
+    let versionMap = {}
+    //首先对version进行去重,然后根据映射关系进行转换,数字由低到高分别对应"版本一" 到 "版本五"
+    //例如150，151，152，154，153,对应版本一，版本二，版本三，版本五，版本四
+    let versions = records.map((item) => item.version)
+    versions = [...new Set(versions)]
+    versions.sort((a, b) => a - b)
+    let versionName = ['版本1', '版本2', '版本3', '版本4', '最大版本']
+    versions.forEach((item, index) => {
+        versionMap[item] = versionName[index]
+    })
+    return versionMap
+}
+// 根据中文版本号和 versionNumToName 获取对应的数字版本号
+function getVersionNum(versionNumToName, versionName) {
+    console.log('versionNumToName', versionNumToName, 'versionName', versionName)
+    let versionNum = ''
+    for (let key in versionNumToName) {
+        if (versionNumToName[key] === versionName) {
+            versionNum = key
+        }
+    }
+    return versionNum
+}
+
+// 根据数字版本号和 versionNumToName 获取对应的中文版本号
+function getVersionName(records, versionNumToName) {
+    records.forEach(item => {
+        item.version = versionNumToName[item.version]
+    })
+    return records
+}
+
 const productionPlan = defineStore('productionPlan', {
     state: () => ({
         tables: {
             40: 'productPlan'
         },
         searchResult: [],
+        //版本号很版本简称的对应
+        versionNumToName: {},
         productPlan: {
             data: [],
             pages: 1,
@@ -25,7 +60,9 @@ const productionPlan = defineStore('productionPlan', {
             // 视图的列名（包含了筛选条件）
             viewColumn: [],
             defaultViewId: null,
-            defaultViewName: ''
+            defaultViewName: '',
+            //版本号的对应
+            versionMap: {}
         },
 
         semiFinishedProducts: {
@@ -121,19 +158,14 @@ const productionPlan = defineStore('productionPlan', {
             return new Promise((resolve, reject) => {
                 getProductionFiltrate(param, page, size)
                     .then((res) => {
-                        if (param.cols) {
-                            this.productPlan.data = res.records
-                            this.productPlan.pages = res.pages
-                            this.productPlan.total = res.total
+                        if (!param.cols) {
+                            this.versionNumToName = getVersionMap(res.records)
                         }
-                        else if (res.code == 200) {
-                            this.productPlan.data = res.data.list
-                            this.productPlan.pages = res.data.pages
-                            this.productPlan.total = res.data.total
-                            if (!param.cols) {
-                                this.productPlan.viewColumn = res.data.columnTables
-                            }
-                        }
+                        //将版本号转换为1-5简称
+                        this.productPlan.data = getVersionName(res.records, this.versionNumToName)
+                        this.productPlan.pages = res.pages
+                        this.productPlan.total = res.total
+                        //如果param.cols不存在,则说明是全部请求,将versionMap存储到versionNumToName
                         resolve(res)
                     })
                     .catch((error) => {
@@ -213,3 +245,5 @@ const productionPlan = defineStore('productionPlan', {
 })
 
 export default productionPlan
+//导出getVersion函数
+export { getVersionNum }
