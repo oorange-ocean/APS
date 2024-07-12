@@ -3,6 +3,7 @@ import { download } from '@/utils/request'
 import { getToken } from '@/utils/auth'
 import { getVersionNum } from '../store/modules/productionPlan'
 import productionPlan from '@/store/modules/productionPlan'
+import { size } from 'lodash'
 
 
 
@@ -75,6 +76,7 @@ export function semiMaterialShortageFiltrate(param, pages, size) {
 }
 // 导出生产计划和FIM优先级
 export function downloadTable(param) {
+    const production = productionPlan()
     let fileName = ''
     if (param.tableId == 48) {
         fileName = 'FIM优先级'
@@ -87,6 +89,19 @@ export function downloadTable(param) {
     } else if (param.tableId == 46) {
         fileName = '半成品缺料分析'
     }
+    //修改param的格式
+    param = {
+        filterCriteriaList: param.cols?.map(col => ({
+            colName: chColNameTOSearchName[col.chColName],
+            condition: col.valueOperator,
+            value: col.chColName === '版本号' ? getVersionNum(production.versionNumToName, col.colValue) : col.colValue
+        })),
+        //如果type ===4, 则说明是导出全部页面，page传1， size传int类型最大值
+
+        page: param.type === 4 ? 1 : param.page,
+        size: param.type === 4 ? 2147483647 : param.size
+    }
+
     // 使用封装的 download 方法
     return download('/scResult/download', param, fileName, {
         headers: {
