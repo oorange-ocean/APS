@@ -13,9 +13,9 @@ function connectToSSE() {
 
     eventSource = new EventSourcePolyfill(`${serverUrl}/sse/connect`, {
         headers: {
-          'token':token
+            'token': token
         }
-      });
+    });
 
     eventSource.onopen = function () {
         console.log("SSE连接已建立");
@@ -23,7 +23,7 @@ function connectToSSE() {
 
     eventSource.onmessage = function (event) {
         const data = JSON.parse(event.data);
-        
+
         if (data != '1') {
             ElNotification({
                 title: '排程提醒',
@@ -33,7 +33,7 @@ function connectToSSE() {
             })
             console.log(data)
         }
-        
+
     };
 
     eventSource.onerror = function (error) {
@@ -48,4 +48,4 @@ function closeConnect() {
         console.log('SSE链接未被初始化');
     }
 }
-export { connectToSSE,closeConnect }; 
+export { connectToSSE, closeConnect }; 
