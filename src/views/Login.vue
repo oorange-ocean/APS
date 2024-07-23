@@ -38,7 +38,7 @@
 import { h, reactive, ref, watch, onMounted } from 'vue'
 import { login } from '../api/login'
 import Cookies from 'js-cookie'
-import { setToken } from '@/utils/auth'
+import { getToken } from '@/utils/auth'
 import useUserStore from '@/store/modules/user'
 import { useRoute, useRouter } from 'vue-router'
 import useUserMenu from '../store/modules/menu'
@@ -90,7 +90,6 @@ onMounted(() => {
         feishuLogin(code).then((res) => {
             console.log("后端返回结果", res)
             userStore.feishuLogin(res.data)
-
             const query = route.query
             const otherQueryParams = Object.keys(query).reduce((acc, cur) => {
                 if (cur !== 'redirect') {
@@ -108,7 +107,8 @@ onMounted(() => {
     }
     const { isFeishu } = detectBrowserInfo();
     console.log('isFeishu', isFeishu);
-    if (isFeishu) {
+    const token = getToken()
+    if (isFeishu && !code && !token) {
         window.location.href =
             `https://open.feishu.cn/open-apis/authen/v1/authorize?app_id=cli_a5f3c323317e500b&amp;redirect_uri=${baseUrl}/login`;
     }
