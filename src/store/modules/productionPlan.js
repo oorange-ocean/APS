@@ -47,9 +47,8 @@ const productionPlan = defineStore('productionPlan', {
             40: 'productPlan'
         },
         searchResult: [],
-        //版本号和版本简称的对应
+        //版本号很版本简称的对应
         versionNumToName: {},
-
         productPlan: {
             data: [],
             pages: 1,
