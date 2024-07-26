@@ -60,6 +60,7 @@
                         <el-autocomplete v-model="option.colValue" :fetch-suggestions="querySearchWithOption(option)"
                             placeholder="请输入" @keyup.enter="searchView" clearable></el-autocomplete>
 
+
                         <!-- 删除筛选条件 -->
                         <el-icon class="closeIcon" @click="removeSift(index)">
                             <CloseBold />
@@ -947,7 +948,7 @@ function cancel() {
     .filter {
         display: grid;
         width: 100%;
-        grid-template-columns: 1.2fr 1fr 1fr 0.3fr;
+        grid-template-columns: 1.25fr 0.95fr 1.4fr 0.3fr;
         align-items: center;
         gap: 5px;
     }
