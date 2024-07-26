@@ -150,7 +150,7 @@
                         </div>
                     </template>
                 </el-table-column>
-                <el-table-column prop="version" label="版本号" width="100" v-if="plan.chVersion" sortable="custom"
+                <el-table-column prop="chVersion" label="版本号" width="100" v-if="plan.chVersion" sortable="custom"
                     :sort-orders="['ascending', 'descending']">
                     <template v-slot:header="{ column }">
                         <div>
@@ -317,6 +317,7 @@ function lookView(viewId, viewName) {
                 })
             }
             viewColumn = production.productPlan.viewColumn
+            // console.log(viewColumn,'viewColumn')
             if (viewId == '-1') {
                 plan.value = column.reduce((acc, item) => {
                     acc[item.voColName] = true
@@ -334,6 +335,7 @@ function lookView(viewId, viewName) {
         })
         .catch((error) => { })
 
+    // console.log(viewId,viewName,'111')
 }
 // 搜索视图
 function searchView(param) {
@@ -352,7 +354,7 @@ function searchView(param) {
             if (scrollContainer) {
                 scrollContainer.scrollTop = 0 // 滚动到顶部
             }
-            // console.log('获取分页表格数据成功')
+            console.log('获取分页表格数据成功')
         })
         .catch((error) => { })
 }
@@ -435,6 +437,7 @@ function downloadData() {
                             message: '导出当前页成功'
                         })
                     }
+                    // console.log(res,'res')
                 })
         })
         .catch((action) => {
@@ -505,6 +508,7 @@ function refresh() {
                     acc[item.voColName] = true
                     return acc
                 }, {})
+                // console.log(plan.value, 'plan11')
             } else {
                 plan.value = transformColumns(column, viewColumn)
             }
@@ -564,7 +568,7 @@ function handlePages(page) {
             if (scrollContainer) {
                 scrollContainer.scrollTop = 0 // 滚动到顶部
             }
-            // console.log('获取分页表格数据成功')
+            console.log('获取分页表格数据成功')
         })
         .catch((error) => { })
 }

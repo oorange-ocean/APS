@@ -1,7 +1,6 @@
 import request from '@/utils/request'
 import { download } from '@/utils/request'
 import { getToken } from '@/utils/auth'
-import { getVersionNum } from '../store/modules/productionPlan'
 import productionPlan from '@/store/modules/productionPlan'
 
 
@@ -25,28 +24,11 @@ const chColNameTOSearchName = {
 
 }
 export function getProductionFiltrate(param, pages, size) {
-    let filterCriteriaList = []
-    let requestData = {}
-    const production = productionPlan()
-
-    filterCriteriaList = param.cols?.map(col => ({
-        colName: chColNameTOSearchName[col.chColName],
-        condition: col.valueOperator,
-        //如果中文名字是版本号,那么还需要用getVersion函数进行处理
-        // value: col.colValue
-        value: col.chColName === '版本号' ? getVersionNum(production.versionNumToName, col.colValue) : col.colValue
-    }));
-
-    requestData = {
-        filterCriteriaList: filterCriteriaList,
-        page: pages,
-        size: size
-    };
     return request({
-        url: `/scResult/getProductionPlan`,
+        url: `/scResult/getProductionFiltrate/${pages}/${size}`,
         method: 'post',
-        data: requestData
-    });
+        data: param
+    })
 }
 
 export function semiFinishedGoodsFiltrate(param, pages, size) {
