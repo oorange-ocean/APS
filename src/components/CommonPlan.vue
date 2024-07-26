@@ -51,9 +51,8 @@
                                 :value="item.chColName" @click="handleColsName(option, item)" />
                         </el-select>
                         <el-select v-model="option.valueOperator" clearable>
-                            <!-- currentTableId是40的话，遍历valueOperatorsSymbol,否则遍历valueOperators -->
-                            <el-option v-for="item in currentTableId == 40 ? valueOperatorsSymbol : valueOperators"
-                                :key="item.value" :label="item.label" :value="item.value" />
+                            <el-option v-for="item in valueOperators" :key="item.value" :label="item.label"
+                                :value="item.value" />
                         </el-select>
                         <!-- <el-input v-model="option.colValue" @keyup.enter="searchView" clearable/> -->
 
@@ -322,50 +321,6 @@ const valueOperators = [
         label: '不为空'
     }
 ]
-//valueOperators的符号版本，（将value改为符号，例如ge改为>=,同时label保持不变）
-const valueOperatorsSymbol = [
-    {
-        value: 'like',
-        label: '包含'
-    },
-    {
-        value: 'notlike',
-        label: '不包含'
-    },
-    {
-        value: '>',
-        label: '大于'
-    },
-    {
-        value: '>=',
-        label: '大于等于'
-    },
-    {
-        value: '=',
-        label: '等于'
-    },
-    {
-        value: '!=',
-        label: '不等于'
-    },
-    {
-        value: '<',
-        label: '小于'
-    },
-    {
-        value: '<=',
-        label: '小于等于'
-    },
-    {
-        value: 'null',
-        label: '为空'
-    },
-    {
-        value: 'notnull',
-        label: '不为空'
-    }
-]
-
 // 新增筛选条件
 function addOption() {
     currentOption.value.push({
@@ -559,7 +514,6 @@ onMounted(() => {
             currentViewName.value = res.data.defaultViewName
         }
     })
-    console.log("props", props)
 })
 // 为了获取默认页所有的列
 watchEffect(() => {
