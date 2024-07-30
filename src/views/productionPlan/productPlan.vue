@@ -20,44 +20,9 @@
                     textAlign: 'center',
                     fontWeight: '500'
                 }" row-key="id" :max-height="tableMaxHeight" @sort-change="onSortChange">
-                <el-table-column prop="ftaskId" label="任务号" width="100" sortable="custom"
-                    :sort-orders="['ascending', 'descending']" v-if="plan.ftaskId">
-                    <template v-slot:header="{ column }">
-                        <div>
-                            {{ column.label }}
-                            <span v-html="renderSortIcon(column)"></span>
-                        </div>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="ftaskSourceId" label="任务来源" width="150" v-if="plan.ftaskSourceId"
-                    sortable="custom" :sort-orders="['ascending', 'descending']">
-                    <template v-slot:header="{ column }">
-                        <div>
-                            {{ column.label }}
-                            <span v-html="renderSortIcon(column)"></span>
-                        </div>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="fmaterialCode" label="物料编号" width="185" v-if="plan.fmaterialCode"
-                    sortable="custom" :sort-orders="['ascending', 'descending']">
-                    <template v-slot:header="{ column }">
-                        <div>
-                            {{ column.label }}
-                            <span v-html="renderSortIcon(column)"></span>
-                        </div>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="fmaterialName" label="物料名称" width="290" v-if="plan.fmaterialName"
-                    sortable="custom" :sort-orders="['ascending', 'descending']">
-                    <template v-slot:header="{ column }">
-                        <div>
-                            {{ column.label }}
-                            <span v-html="renderSortIcon(column)"></span>
-                        </div>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="ftotalQuantity" label="总数量" width="100" v-if="plan.ftotalQuantity"
-                    sortable="custom" :sort-orders="['ascending', 'descending']">
+                <el-table-column v-for="column in dynamicColumns" :key="column.prop" :prop="column.prop"
+                    :label="column.label" :width="column.width" :sortable="column.sortable"
+                    :sort-orders="column.sortOrders">
                     <template v-slot:header="{ column }">
                         <div>
                             {{ column.label }}
@@ -65,98 +30,12 @@
                         </div>
                     </template>
                     <template v-slot:default="scope">
-                        {{ formatNumber(scope.row.ftotalQuantity) }}
-                    </template>
-                </el-table-column>
-                <el-table-column prop="fcompletedQuantity" label="完成数量" width="400" v-if="plan.fcompletedQuantity"
-                    sortable="custom" :sort-orders="['ascending', 'descending']">
-                    <template v-slot:header="{ column }">
-                        <div>
-                            {{ column.label }}
-                            <span v-html="renderSortIcon(column)"></span>
-                        </div>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="factualStartTime" label="实际开始时间" width="180" v-if="plan.factualStartTime"
-                    sortable="custom" :sort-orders="['ascending', 'descending']">
-                    <template v-slot:header="{ column }">
-                        <div>
-                            {{ column.label }}
-                            <span v-html="renderSortIcon(column)"></span>
-                        </div>
-                    </template>
-                </el-table-column>
-
-                <el-table-column prop="factualCompletionTime" label="实际完成时间" width="180"
-                    v-if="plan.factualCompletionTime" sortable="custom" :sort-orders="['ascending', 'descending']">
-                    <template v-slot:header="{ column }">
-                        <div>
-                            {{ column.label }}
-                            <span v-html="renderSortIcon(column)"></span>
-                        </div>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="frequiredDeliveryTime" label="需入库时间" width="120"
-                    v-if="plan.frequiredDeliveryTime" sortable="custom" :sort-orders="['ascending', 'descending']">
-                    <template v-slot:header="{ column }">
-                        <div>
-                            {{ column.label }}
-                            <span v-html="renderSortIcon(column)"></span>
-                        </div>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="fonTimeCompletion" label="是否按时完成" width="140" v-if="plan.fonTimeCompletion"
-                    sortable="custom" :sort-orders="['ascending', 'descending']">
-                    <template v-slot:header="{ column }">
-                        <div>
-                            {{ column.label }}
-                            <span v-html="renderSortIcon(column)"></span>
-                        </div>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="fdelayDays" label="延期天数" width="110" v-if="plan.fdelayDays" sortable="custom"
-                    :sort-orders="['ascending', 'descending']">
-                    <template v-slot:header="{ column }">
-                        <div>
-                            {{ column.label }}
-                            <span v-html="renderSortIcon(column)"></span>
-                        </div>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="fpriority" label="优先级" width="200" v-if="plan.fpriority" sortable="custom"
-                    :sort-orders="['ascending', 'descending']">
-                    <template v-slot:header="{ column }">
-                        <div>
-                            {{ column.label }}
-                            <span v-html="renderSortIcon(column)"></span>
-                        </div>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="funfinishedReason" label="未完成原因" width="400" v-if="plan.funfinishedReason"
-                    sortable="custom" :sort-orders="['ascending', 'descending']">
-                    <template v-slot:header="{ column }">
-                        <div>
-                            {{ column.label }}
-                            <span v-html="renderSortIcon(column)"></span>
-                        </div>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="frelatedOrders" label="所包含订单" width="1505" v-if="plan.frelatedOrders"
-                    sortable="custom" :sort-orders="['ascending', 'descending']">
-                    <template v-slot:header="{ column }">
-                        <div>
-                            {{ column.label }}
-                            <span v-html="renderSortIcon(column)"></span>
-                        </div>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="chVersion" label="版本号" width="100" v-if="plan.chVersion" sortable="custom"
-                    :sort-orders="['ascending', 'descending']">
-                    <template v-slot:header="{ column }">
-                        <div>
-                            {{ column.label }}
-                            <span v-html="renderSortIcon(column)"></span>
-                        </div>
+                        <span v-if="column.formatter">
+                            {{ column.formatter(scope.row[column.prop]) }}
+                        </span>
+                        <span v-else>
+                            {{ scope.row[column.prop] }}
+                        </span>
                     </template>
                 </el-table-column>
             </el-table>
@@ -184,6 +63,7 @@ import productionPlan from '../../store/modules/productionPlan'
 import useUserStore from '@/store/modules/user'
 import useUserMenu from '@/store/modules/menu'
 import CommonPlan from '@/components/CommonPlan.vue'
+import { columnConfig } from './productPlanColumnConfig' // Import the column configuration
 const userMenu = useUserMenu()
 const production = productionPlan()
 const myTable = ref(null)
@@ -201,6 +81,31 @@ const localCurrentOption = ref([]) //子组件中传过来的currentOption
 const currentOrder = ref({}) //当前排序的字段
 let column = reactive([]) //所有列名
 let viewColumn = reactive([]) //当前视图的所拥有的列名
+// 更新 dynamicColumns 计算属性
+const dynamicColumns = computed(() => {
+    if (currentViewId.value === '-1') {
+        // 当 viewId 为 -1 时，使用所有列
+        return columnConfig.map(colConfig => ({
+            ...colConfig,
+            formatter: colConfig.prop === 'ftotalQuantity' ? formatNumber : undefined
+        }))
+    } else if (!production.productPlan.viewColumn) {
+        return []
+    }
+
+    return production.productPlan.viewColumn
+        .map(viewCol => {
+            const colConfig = columnConfig.find(c => c.prop === viewCol.voColName)
+            if (colConfig) {
+                return {
+                    ...colConfig,
+                    formatter: colConfig.prop === 'ftotalQuantity' ? formatNumber : undefined
+                }
+            }
+            return null
+        })
+        .filter(Boolean)
+})
 
 // 获取到子组件中currentOption的值
 function getCurrentOption(currentOption) {
@@ -317,12 +222,13 @@ function lookView(viewId, viewName) {
                 })
             }
             viewColumn = production.productPlan.viewColumn
-            // console.log(viewColumn,'viewColumn')
+            // console.log(viewColumn, 'viewColumn')
             if (viewId == '-1') {
-                plan.value = column.reduce((acc, item) => {
-                    acc[item.voColName] = true
-                    return acc
-                }, {})
+                // 当 viewId 为 -1 时，使用所有列
+                production.productPlan.viewColumn = columnConfig.map(col => ({
+                    voColName: col.prop,
+                    // id: col?.id // 假设 columnConfig 中有 id 字段
+                }))
             } else {
                 plan.value = transformColumns(column, viewColumn)
             }

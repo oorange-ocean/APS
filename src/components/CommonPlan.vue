@@ -73,7 +73,7 @@
                     </button>
                 </div>
             </div>
-            <!-- 新建方案的弹窗 -->
+            <!-- 新增方案的弹窗 -->
             <div class="addScheme">
                 <el-dialog title="创建方案" v-model="dialogVisible" width="22%">
                     <p class="black">
@@ -86,25 +86,38 @@
                             @change="handleSelectAll">全选</el-checkbox>
                     </div>
                     <div class="selectContent">
-                        <el-checkbox-group v-model="selectedColumns">
-                            <el-checkbox v-for="columnName in props.columnNames" :key="columnName.id"
-                                :label="columnName">
-                                {{ columnName.chColName }}
-                            </el-checkbox>
-                        </el-checkbox-group>
+                        <draggable v-model="draggableColumns" item-key="id" @end="onDragEnd">
+                            <template #item="{ element, index }">
+                                <div class="draggable-item" :class="{ 'selected': selectedElement === element }"
+                                    @click=" selectElement(element)">
+                                    <el-checkbox v-model="element.checked" @change="updateSelectedColumns">
+                                        {{ element.chColName }}
+                                    </el-checkbox>
+                                </div>
+                            </template>
+                        </draggable>
                     </div>
                     <hr />
                     <div class="isdefault">
                         <el-checkbox v-model="isDefault">下次以此方案进入</el-checkbox>
+                        <!-- <el-button @click="moveItem('up')" :disabled="!canMoveUp" class="move-button">
+                            上移
+                        </el-button>
+                        <el-button @click="moveItem('down')" :disabled="!canMoveDown" class="move-button">
+                            下移
+                        </el-button> -->
                     </div>
 
                     <!-- 底部操作按钮 -->
-                    <span slot="footer" class="dialog-footer">
-                        <el-button @click="addPlan" class="confirm normal">确定</el-button>
-                        <el-button @click="cancel" class="normal">取消</el-button>
-                    </span>
+                    <template #footer>
+                        <span class="dialog-footer">
+                            <el-button @click="addPlan" class="confirm normal">确定</el-button>
+                            <el-button @click="cancel" class="normal">取消</el-button>
+                        </span>
+                    </template>
                 </el-dialog>
             </div>
+
             <!-- 修改方案的弹窗 -->
             <div class="addScheme updateScheme">
                 <el-dialog title="修改方案" v-model="dialogUpdate" width="22%">
@@ -129,7 +142,6 @@
                     <div class="isdefault">
                         <el-checkbox v-model="isDefault">下次以此方案进入</el-checkbox>
                     </div>
-
                     <!-- 底部操作按钮 -->
                     <span slot="footer" class="dialog-footer">
                         <el-button @click="updatePlan" class="confirm normal">确定</el-button>
@@ -152,31 +164,33 @@
 
 <script setup>
 import {
-  ref,
-  computed,
-  watch,
-  onMounted,
-  watchEffect
+    ref,
+    computed,
+    watch,
+    onMounted,
+    watchEffect
 } from 'vue'
-import { saveView, removeView,getViews } from '@/api/commonPlan'
+import draggable from 'vuedraggable'
+import { saveView, removeView, getViews } from '@/api/commonPlan'
 import axios from 'axios'
 import { getToken } from '../utils/auth'
+import { columns } from 'element-plus/es/components/table-v2/src/common.mjs'
 
 // 前面vue传过来的参数
 const props = defineProps({
-  columnNames: Array, //全部列名
-  viewColumn: Array, //当前视图列名。与全部列名的id不一样
-  currentViewId: Number, //当前视图id
-  currentTableId: Number, //当前表格id
-  currentViewName: String,
-  defaultViewId: Number,
-  apiUrl: String,
-  currentOrder:Object
+    columnNames: Array, //全部列名
+    viewColumn: Array, //当前视图列名。与全部列名的id不一样
+    currentViewId: Number, //当前视图id
+    currentTableId: Number, //当前表格id
+    currentViewName: String,
+    defaultViewId: Number,
+    apiUrl: String,
+    currentOrder: Object
 })
 // 传递currentOption.value给父组件
 
 // 定义可发出的事件,触发父组件的事件
-const emit = defineEmits(['lookView', 'searchView','getCurrentOption'])  //查看视图、获取全部视图、搜索按钮
+const emit = defineEmits(['lookView', 'searchView', 'getCurrentOption'])  //查看视图、获取全部视图、搜索按钮
 // 新增方案弹窗
 const dialogVisible = ref(false)
 // 修改方案弹窗
@@ -208,14 +222,53 @@ const currentViews = ref([])
 const defaultViewId = ref(null)
 // 默认视图名
 const defaultViewName = ref('')
+const selectedElement = ref(null)
+// 将 columnNames 转换为可拖拽的格式
+const draggableColumns = ref([])
+
+const onDragEnd = () => {
+    // 拖拽结束后的处理，如果需要的话
+}
+
+const selectRow = (index) => {
+    selectedIndex.value = index
+}
+
+const selectElement = (element) => {
+    selectedElement.value = element
+}
+
+const selectedIndex = computed(() => {
+    return draggableColumns.value.findIndex(el => el === selectedElement.value)
+})
+
+const canMoveUp = computed(() => {
+    return selectedIndex.value > 0
+})
+
+const canMoveDown = computed(() => {
+    return selectedIndex.value !== -1 && selectedIndex.value < draggableColumns.value.length - 1
+})
+
+const moveItem = (direction) => {
+    if (selectedIndex.value === -1) return
+
+    const newIndex = direction === 'up' ? selectedIndex.value - 1 : selectedIndex.value + 1
+
+    if (newIndex >= 0 && newIndex < draggableColumns.value.length) {
+        const item = draggableColumns.value.splice(selectedIndex.value, 1)[0]
+        draggableColumns.value.splice(newIndex, 0, item)
+        selectedIndex.value = newIndex
+    }
+}
 
 // 折叠筛选
 function fold() {
-  isFold.value = !isFold.value
+    isFold.value = !isFold.value
 }
 // 删除筛选条件
 function removeSift(index) {
-  currentOption.value.splice(index, 1) // 移除指定索引的筛选条件
+    currentOption.value.splice(index, 1) // 移除指定索引的筛选条件
 }
 // 自动补全方法
 const querySearchWithOption = (option) => {
@@ -251,74 +304,89 @@ const querySearchWithOption = (option) => {
 }
 
 // 定义一个响应式引用来保存新建方案时选中的列
-const selectedColumns = ref([])
+const selectedColumns = computed(() => {
+    return draggableColumns.value.filter(column => column.checked);
+});
 const isAll = ref(false)
 const indeterminate = computed(() => {
-  return (
-    selectedColumns.value.length > 0 &&
-    selectedColumns.value.length < props.columnNames.length
-  )
+    return (
+        selectedColumns.value.length > 0 &&
+        selectedColumns.value.length < props.columnNames.length
+    )
 })
 // 处理全选按钮的点击
-const handleSelectAll = (isChecked) => {
-  if (isChecked) {
-    selectedColumns.value = [...props.columnNames]
-  } else {
-    selectedColumns.value = []
-  }
+const handleSelectAll = (val) => {
+    draggableColumns.value.forEach(column => column.checked = val)
+    updateSelectedColumns()
 }
 
+//根据选中的列数来更新 isAll 和 indeterminate 的状态
+const updateSelectedColumns = () => {
+    const totalCount = draggableColumns.value.length
+    const checkedCount = selectedColumns.value.length
+
+    if (checkedCount === 0) {
+        isAll.value = false
+        indeterminate.value = false
+    } else if (checkedCount === totalCount) {
+        isAll.value = true
+        indeterminate.value = false
+    } else {
+        isAll.value = false
+        indeterminate.value = true
+    }
+}
 // 写死的中间条件
 const valueOperators = [
-  {
-    value: 'like',
-    label: '包含'
-  },
-  {
-    value: 'notlike',
-    label: '不包含'
-  },
-  {
-    value: 'gt',
-    label: '大于'
-  },
-  {
-    value: 'ge',
-    label: '大于等于'
-  },
-  {
-    value: 'eq',
-    label: '等于'
-  },
-  {
-    value: 'ne',
-    label: '不等于'
-  },
-  {
-    value: 'lt',
-    label: '小于'
-  },
-  {
-    value: 'le',
-    label: '小于等于'
-  },
-  {
-    value: 'null',
-    label: '为空'
-  },
-  {
-    value: 'notnull',
-    label: '不为空'
-  }
+    {
+        value: 'like',
+        label: '包含'
+    },
+    {
+        value: 'notlike',
+        label: '不包含'
+    },
+    {
+        value: 'gt',
+        label: '大于'
+    },
+    {
+        value: 'ge',
+        label: '大于等于'
+    },
+    {
+        value: 'eq',
+        label: '等于'
+    },
+    {
+        value: 'ne',
+        label: '不等于'
+    },
+    {
+        value: 'lt',
+        label: '小于'
+    },
+    {
+        value: 'le',
+        label: '小于等于'
+    },
+    {
+        value: 'null',
+        label: '为空'
+    },
+    {
+        value: 'notnull',
+        label: '不为空'
+    }
 ]
 // 新增筛选条件
 function addOption() {
-  currentOption.value.push({
-    chColName: '',
-    voColName: '',
-    valueOperator: 'like',
-    colValue: ''
-  })
+    currentOption.value.push({
+        chColName: '',
+        voColName: '',
+        valueOperator: 'like',
+        colValue: ''
+    })
 }
 // 搜索按钮
 function searchView() {
@@ -332,114 +400,114 @@ function searchView() {
 }
 // 传列名的英文和中文给currentOption
 function handleColsName(option, item) {
-  option.id = item.id
-  if (currentViewId.value == -1) {
-    option.colId = item.id
-  } else {
-    option.colId = item.colId
-  }
-  option.chColName = item.chColName
-  option.voColName = item.voColName
+    option.id = item.id
+    if (currentViewId.value == -1) {
+        option.colId = item.id
+    } else {
+        option.colId = item.colId
+    }
+    option.chColName = item.chColName
+    option.voColName = item.voColName
 }
 // 点击视图查看视图
 function selectButton(view) {
-  // 清除之前的计时器
-  if (clickTimer.value) {
-    clearTimeout(clickTimer.value)
-    clickTimer.value = null
-    return // 如果是双击的第二下，则不执行单击逻辑
-  }
+    // 清除之前的计时器
+    if (clickTimer.value) {
+        clearTimeout(clickTimer.value)
+        clickTimer.value = null
+        return // 如果是双击的第二下，则不执行单击逻辑
+    }
 
-  // 设置一个计时器，如果用户没有在设定时间内再次点击，则执行单击逻辑
-  clickTimer.value = setTimeout(() => {
-    // console.log('执行单击事件');
-    // 执行单击事件的逻辑
-    currentViewId.value = view.viewId
-    currentViewName.value = view.viewName
-    emit('lookView', currentViewId.value, currentViewName.value)
+    // 设置一个计时器，如果用户没有在设定时间内再次点击，则执行单击逻辑
+    clickTimer.value = setTimeout(() => {
+        // console.log('执行单击事件');
+        // 执行单击事件的逻辑
+        currentViewId.value = view.viewId
+        currentViewName.value = view.viewName
+        emit('lookView', currentViewId.value, currentViewName.value)
 
-    clickTimer.value = null // 重置计时器
-  }, 300) // 300毫秒内如果没有第二次点击，则视为单击
+        clickTimer.value = null // 重置计时器
+    }, 300) // 300毫秒内如果没有第二次点击，则视为单击
 }
 // 双击修改视图
 const handleDoubleClick = (view) => {
-  // 清除计时器，防止单击事件发生
-  clearTimeout(clickTimer.value)
-  clickTimer.value = null
-  // console.log('执行双击事件');
-  if (view.viewId != currentViewId.value) {
-    ElMessageBox.alert('请单击跳转到该方案再修改', '提示', {
-      confirmButtonText: '好的',
-      type: 'info'
+    // 清除计时器，防止单击事件发生
+    clearTimeout(clickTimer.value)
+    clickTimer.value = null
+    // console.log('执行双击事件');
+    if (view.viewId != currentViewId.value) {
+        ElMessageBox.alert('请单击跳转到该方案再修改', '提示', {
+            confirmButtonText: '好的',
+            type: 'info'
+        })
+        return
+    }
+    // 执行双击事件的逻辑
+    //筛选出之前挑选的列
+    if (!indeterminate.value) {
+        isAll.value = true
+    }
+    selectedColumns.value = props.columnNames.filter((columnName) => {
+        return props.viewColumn.some((viewColumnItem) => {
+            return viewColumnItem.voColName === columnName.voColName
+        })
     })
-    return
-  }
-  // 执行双击事件的逻辑
-  //筛选出之前挑选的列
-  if (!indeterminate.value) {
-    isAll.value = true
-  }
-  selectedColumns.value = props.columnNames.filter((columnName) => {
-    return props.viewColumn.some((viewColumnItem) => {
-      return viewColumnItem.voColName === columnName.voColName
-    })
-  })
-  if (currentViewId.value == defaultViewId.value) {
-    isDefault.value = true
-  } else {
-    isDefault.value = false
-  }
+    if (currentViewId.value == defaultViewId.value) {
+        isDefault.value = true
+    } else {
+        isDefault.value = false
+    }
 
-  console.log(selectedColumns.value, '修改方案默认的值')
+    console.log(selectedColumns.value, '修改方案默认的值')
 
-  dialogUpdate.value = true
+    dialogUpdate.value = true
 }
 // 点击“全部”视图
 function showAll() {
-  currentViewId.value = -1
-  currentOption.value = []
-  emit('lookView', currentViewId.value, currentViewName.value)
-  currentColumn.value = props.columnNames
-  // console.log(props.columnNames,'column')
-  // console.log(currentColumn.value,'column1')
+    currentViewId.value = -1
+    currentOption.value = []
+    emit('lookView', currentViewId.value, currentViewName.value)
+    currentColumn.value = props.columnNames
+    // console.log(props.columnNames,'column')
+    // console.log(currentColumn.value,'column1')
 }
 // 删除方案
 const handleClose = async (view, event) => {
-  // 取消事件的冒泡反应
-  event.stopPropagation()
-  ElMessageBox.confirm('确定删除这个方案吗？', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning'
-  }).then(async () => {
-    await removeView([view.viewId])
-    // emit('getViews', tableId.value)
-    await getViews(tableId.value).then(res => {
-      if (res.code == 200) {
-        currentViews.value = res.data.viewTableVos
-        defaultViewId.value = res.data.defaultViewId
-        defaultViewName.value = res.data.defaultViewName
-        // console.log(res.data.viewTableVos,'res.data.viewTableVos')
-        // console.log(currentViews.value, 'views')
-      }
-      ElMessageBox.alert('删除方案成功', '提示', {
-        confirmButtonText: '好的',
-        type: 'success'
-      })
+    // 取消事件的冒泡反应
+    event.stopPropagation()
+    ElMessageBox.confirm('确定删除这个方案吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+    }).then(async () => {
+        await removeView([view.viewId])
+        // emit('getViews', tableId.value)
+        await getViews(tableId.value).then(res => {
+            if (res.code == 200) {
+                currentViews.value = res.data.viewTableVos
+                defaultViewId.value = res.data.defaultViewId
+                defaultViewName.value = res.data.defaultViewName
+                // console.log(res.data.viewTableVos,'res.data.viewTableVos')
+                // console.log(currentViews.value, 'views')
+            }
+            ElMessageBox.alert('删除方案成功', '提示', {
+                confirmButtonText: '好的',
+                type: 'success'
+            })
+        })
+
     })
-    
-  })
 }
 // 监视 views 的变化，长度为0切换到“全部视图”
 watch(
-  // () => props.views,
-  () => currentViews.value,
-  (newViews, oldViews) => {
-    if (newViews.length === 0) {
-      showAll()
-    }
-  },
-  { deep: true }
+    // () => props.views,
+    () => currentViews.value,
+    (newViews, oldViews) => {
+        if (newViews.length === 0) {
+            showAll()
+        }
+    },
+    { deep: true }
 )
 // 用于回显筛选条件
 
@@ -475,43 +543,43 @@ watch(
 )
 // 监控currentOption的值
 watch(() => currentOption.value, (newValue) => {
-  emit('getCurrentOption', newValue);
+    emit('getCurrentOption', newValue);
 }, { immediate: true });
 
 // 监控当前currentViewId,用于显示用户设定的方案
 watch(
-  () => props.currentViewId,
-  (newValue, oldValue) => {
-    currentViewId.value = props.currentViewId
-    currentViewName.value = props.currentViewName
-    emit('lookView', currentViewId.value, currentViewName.value)
-  }
+    () => props.currentViewId,
+    (newValue, oldValue) => {
+        currentViewId.value = props.currentViewId
+        currentViewName.value = props.currentViewName
+        emit('lookView', currentViewId.value, currentViewName.value)
+    }
 )
 onMounted(() => {
-  if (currentViewId.value == -1) {
-    showAll()
-  }
-  currentViewName.value = props.currentViewName
-  // 获取视图列表
-  getViews(tableId.value).then(res => {
-    // console.log(res,'res')
-    if (res.code == 200) {
-      currentViews.value = res.data.viewTableVos
-      defaultViewId.value = res.data.defaultViewId
-      defaultViewName.value = res.data.defaultViewName
-      currentViewName.value = res.data.defaultViewName 
+    if (currentViewId.value == -1) {
+        showAll()
     }
-  })
+    currentViewName.value = props.currentViewName
+    // 获取视图列表
+    getViews(tableId.value).then(res => {
+        // console.log(res,'res')
+        if (res.code == 200) {
+            currentViews.value = res.data.viewTableVos
+            defaultViewId.value = res.data.defaultViewId
+            defaultViewName.value = res.data.defaultViewName
+            currentViewName.value = res.data.defaultViewName
+        }
+    })
 })
 // 为了获取默认页所有的列
 watchEffect(() => {
-  if (
-    props.columnNames &&
-    props.columnNames.length > 0 &&
-    currentViewId.value == -1
-  ) {
-    currentColumn.value = props.columnNames
-  }
+    if (
+        props.columnNames &&
+        props.columnNames.length > 0 &&
+        currentViewId.value == -1
+    ) {
+        currentColumn.value = props.columnNames
+    }
 })
 // 监控搜索结果
 // watch(
@@ -560,145 +628,173 @@ function savePlan() {
 }
 // 打开新增方案时的一些初始化
 function openAddScheme() {
-  isAll.value = false
-  selectedColumns.value = []
-  dialogVisible.value = true
-  isDefault.value = false
+    console.log("columns", props.columnNames)
+    draggableColumns.value = props.columnNames.map(column => {
+        return {
+            id: column.id,
+            chColName: column.chColName,
+            checked: false
+        }
+    })
+    isAll.value = false
+    selectedColumns.value = []
+    dialogVisible.value = true
+    isDefault.value = false
 }
+
 // 新增方案时传递给后端的参数
 function addPlan() {
-  const data = ref({
-    tableId: tableId.value,
-    viewName: viewName.value,
-    isDefault: isDefault.value,
-    // viewId:currentViewId.value,
-    cols: selectedColumns.value.map((col) => ({ colId: col.id })) //colId是普通的列名
-  })
-  console.log(selectedColumns.value, '新增方案')
-  if (viewName.value) {
-    saveView(data.value)
-      .then((res) => {
-        if (res.code == 200) {
-          ElMessageBox.alert('新增方案成功', '提示', {
-            confirmButtonText: '好的',
-            type: 'success'
-          })
-        } else if (res.code == 201) {
-          ElMessageBox.alert(res.message, '提示', {
-            confirmButtonText: '好的',
-            type: 'error'
-          })
-        }
-        getViews(tableId.value).then(res => {
-          if (res.code == 200) {
-            currentViews.value = res.data.viewTableVos
-            defaultViewId.value = res.data.defaultViewId
-            defaultViewName.value = res.data.defaultViewName
-          }
-        })
-        
-      })
-      .catch((error) => {
-        ElMessageBox.alert('新增方案失败，请联系管理员', '提示', {
-          confirmButtonText: '好的',
-          type: 'error'
-        })
-      })
-  } else {
-    ElMessageBox.alert('方案名不能为空', '提示', {
-      confirmButtonText: '好的',
-      type: 'info'
+    const data = ref({
+        tableId: tableId.value,
+        viewName: viewName.value,
+        isDefault: isDefault.value,
+        // viewId:currentViewId.value,
+        cols: selectedColumns.value.map((col) => ({ colId: col.id })) //colId是普通的列名
     })
-    return
-  }
+    console.log(selectedColumns.value, '新增方案')
+    if (viewName.value) {
+        saveView(data.value)
+            .then((res) => {
+                if (res.code == 200) {
+                    ElMessageBox.alert('新增方案成功', '提示', {
+                        confirmButtonText: '好的',
+                        type: 'success'
+                    })
+                } else if (res.code == 201) {
+                    ElMessageBox.alert(res.message, '提示', {
+                        confirmButtonText: '好的',
+                        type: 'error'
+                    })
+                }
+                getViews(tableId.value).then(res => {
+                    if (res.code == 200) {
+                        currentViews.value = res.data.viewTableVos
+                        defaultViewId.value = res.data.defaultViewId
+                        defaultViewName.value = res.data.defaultViewName
+                    }
+                })
 
-  selectedColumns.value = []
-  viewName.value = ''
-  isAll.value = false
-  dialogVisible.value = false
+            })
+            .catch((error) => {
+                ElMessageBox.alert('新增方案失败，请联系管理员', '提示', {
+                    confirmButtonText: '好的',
+                    type: 'error'
+                })
+            })
+    } else {
+        ElMessageBox.alert('方案名不能为空', '提示', {
+            confirmButtonText: '好的',
+            type: 'info'
+        })
+        return
+    }
+
+    selectedColumns.value = []
+    viewName.value = ''
+    isAll.value = false
+    dialogVisible.value = false
 }
 // 修改方案时传递给后端的参数
 function updatePlan() {
-  const data = ref({
-    tableId: tableId.value,
-    viewName: currentViewName.value,
-    isDefault: isDefault.value,
-    viewId: currentViewId.value,
-    cols: selectedColumns.value.map((col) => ({ colId: col.id })) //colId是普通的列名
-  })
-  // console.log(data.value, '修改方案')
-  saveView(data.value).then((res) => {
-    // emit('getViews', tableId.value)
-    getViews(tableId.value).then(res => {
-      if (res.code == 200) {
-        currentViews.value = res.data.viewTableVos
-        defaultViewId.value = res.data.defaultViewId
-        defaultViewName.value = res.data.defaultViewName
-      }
+    const data = ref({
+        tableId: tableId.value,
+        viewName: currentViewName.value,
+        isDefault: isDefault.value,
+        viewId: currentViewId.value,
+        cols: selectedColumns.value.map((col) => ({ colId: col.id })) //colId是普通的列名
     })
-    emit('lookView', currentViewId.value, currentViewName.value)
-    ElMessageBox.alert('修改方案成功', '提示', {
-      confirmButtonText: '好的',
-      type: 'success'
+    // console.log(data.value, '修改方案')
+    saveView(data.value).then((res) => {
+        // emit('getViews', tableId.value)
+        getViews(tableId.value).then(res => {
+            if (res.code == 200) {
+                currentViews.value = res.data.viewTableVos
+                defaultViewId.value = res.data.defaultViewId
+                defaultViewName.value = res.data.defaultViewName
+            }
+        })
+        emit('lookView', currentViewId.value, currentViewName.value)
+        ElMessageBox.alert('修改方案成功', '提示', {
+            confirmButtonText: '好的',
+            type: 'success'
+        })
     })
-  })
-  isDefault.value = false
-  dialogUpdate.value = false
+    isDefault.value = false
+    dialogUpdate.value = false
 }
 // 新增方案时的取消
 function cancel() {
-  selectedColumns.value = []
-  viewName.value = []
-  isAll.value = false
-  isDefault.value = false
-  dialogVisible.value = false
-  dialogUpdate.value = false
+    selectedColumns.value = []
+    viewName.value = []
+    isAll.value = false
+    isDefault.value = false
+    dialogVisible.value = false
+    dialogUpdate.value = false
 }
 </script>
 
 <style>
-.outPlan > .el-row {
-  flex-wrap: nowrap;
+.outPlan>.el-row {
+    flex-wrap: nowrap;
 }
+
 .addScheme .el-dialog {
-  --el-dialog-padding-primary: 0;
-  padding: 1.5rem 1.5rem;
-  border-radius: 0.75rem;
+    --el-dialog-padding-primary: 0;
+    padding: 1.5rem 1.5rem;
+    border-radius: 0.75rem;
 }
+
 .planName .el-button {
-  border-radius: 0rem;
+    border-radius: 0rem;
 }
+
 .planName .el-button:hover {
-  background-color: #0053b5;
-  color: #fff !important;
+    background-color: #0053b5;
+    color: #fff !important;
 }
+
 .planName .selected {
-  background-color: #0053b5;
-  color: #fff !important;
+    background-color: #0053b5;
+    color: #fff !important;
 }
+
 .commonPlan .bottomPlan {
-  display: flex;
-  background-color: #f1f4f6;
-  align-items: center;
+    display: flex;
+    background-color: #f1f4f6;
+    align-items: center;
 }
+
 .commonPlan .bottomPlan button {
-  width: 100%;
-  display: flex;
-  background-color: #f1f4f6;
-  border: none;
-  cursor: pointer;
-  padding: 6px;
-  font-size: 12px;
-  color: #0053b5;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;
+    width: 100%;
+    display: flex;
+    background-color: #f1f4f6;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+    font-size: 12px;
+    color: #0053b5;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
 }
+
 .commonPlan .el-checkbox {
-  color: #000;
+    color: #000;
 }
 </style>
 <style scoped lang="less">
+.draggable-item {
+    // padding: 0px 15px;
+    // background-color: #f9f9f9;
+    // border: 1px solid #ddd;
+    // margin-bottom: 5px;
+    cursor: move;
+}
+
+.draggable-item.selected {
+    background-color: #e3eaff;
+}
+
 .containerPlan {
     display: flex;
     background-color: #f1f4f6;
@@ -851,7 +947,7 @@ function cancel() {
 
     .el-checkbox-group {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr;
         row-gap: 0rem;
         column-gap: 0.3125rem;
     }
