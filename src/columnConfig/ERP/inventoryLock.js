@@ -2,56 +2,43 @@ export const columnConfig = [
     {
         prop: 'materialId',
         label: '物料编码',
-        width: 160,
+        width: 200,
         sortable: 'custom',
         sortOrders: ['ascending', 'descending']
     },
     {
         prop: 'materialName',
         label: '物料名称',
-        width: 300,
-        sortable: 'custom',
-        sortOrders: ['ascending', 'descending']
-    },
-    {
-        prop: 'stockName',
-        label: '仓库名称',
-        width: 150,
-        sortable: 'custom',
-        sortOrders: ['ascending', 'descending']
-    },
-    {
-        prop: 'baseQty',
-        label: '库存量(基本单位)',
-        width: 180,
-        sortable: 'custom',
-        sortOrders: ['ascending', 'descending']
-    },
-    {
-        prop: 'avbQty',
-        label: '可用量(主单位)',
-        width: 180,
-        sortable: 'custom',
-        sortOrders: ['ascending', 'descending']
-    },
-    {
-        prop: 'lot',
-        label: '批号',
-        width: 130,
+        width: 400,
         sortable: 'custom',
         sortOrders: ['ascending', 'descending']
     },
     {
         prop: 'expiryDate',
-        label: '有效期至',
-        width: 180,
+        label: '到期日',
+        width: 200,
+        sortable: 'custom',
+        sortOrders: ['ascending', 'descending']
+    },
+    {
+        prop: 'lockQty',
+        label: '锁库数量',
+        width: 150,
+        sortable: 'custom',
+        sortOrders: ['ascending', 'descending'],
+        format:true
+    },
+    {
+        prop: 'lot',
+        label: '批号',
+        width: 150,
         sortable: 'custom',
         sortOrders: ['ascending', 'descending']
     },
     {
         prop: 'chVersion',
         label: '版本号',
-        width: 120,
+        width: 150,
         sortable: 'custom',
         sortOrders: ['ascending', 'descending']
     }

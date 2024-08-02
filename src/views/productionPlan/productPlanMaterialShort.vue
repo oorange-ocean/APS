@@ -34,8 +34,9 @@
                             {{ column.formatter(scope.row[column.prop]) }}
                         </span>
                         <span v-else>
-                            {{ scope.row[column.prop] }}
-                        </span>
+                            <!-- 如果是数量字段，column.format属性为true需要格式化 -->
+                            <span v-if="column.format">{{ formatNumber(scope.row[column.prop]) }}</span>
+                            <span v-else>{{ scope.row[column.prop] }}</span> </span>
                     </template>
                 </el-table-column>
             </el-table>
@@ -87,12 +88,9 @@ const currentOrder = ref({}) //当前排序的字段
 const myTable = ref(null)
 // 更新 dynamicColumns 计算属性
 const dynamicColumns = computed(() => {
-    if (currentViewId.value == '-1') {
+    if (currentViewId.value === '-1') {
         // 当 viewId 为 -1 时，使用所有列
-        return columnConfig.map(colConfig => ({
-            ...colConfig,
-            formatter: colConfig.prop === 'ftotalQuantity' ? formatNumber : undefined
-        }))
+        return columnConfig
     } else if (!production.productPlanMaterialShort.viewColumn) {
         return []
     }
@@ -101,10 +99,7 @@ const dynamicColumns = computed(() => {
         .map(viewCol => {
             const colConfig = columnConfig.find(c => c.prop === viewCol.voColName)
             if (colConfig) {
-                return {
-                    ...colConfig,
-                    formatter: colConfig.prop === 'ftotalQuantity' ? formatNumber : undefined
-                }
+                return colConfig
             }
             return null
         })

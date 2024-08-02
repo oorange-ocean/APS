@@ -18,7 +18,8 @@ export const columnConfig = [
         label: '数量',
         width: 100,
         sortable: 'custom',
-        sortOrders: ['ascending', 'descending']
+        sortOrders: ['ascending', 'descending'],
+        format:true
     },
     {
         prop: 'fstartTime',

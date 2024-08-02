@@ -86,10 +86,12 @@
                             @change="handleSelectAll">全选</el-checkbox>
                     </div>
                     <div class="selectContent">
-                        <draggable v-model="draggableColumns" item-key="id" @end="onDragEnd">
-                            <template #item="{ element, index }">
+                        <draggable v-model="draggableColumns" item-key="id" @start="onDragStart" @end="onDragEnd"
+                            :animation="200" ghost-class="ghost-class" chosen-class="chosen-class"
+                            drag-class="drag-class">
+                            <template #item="{ element }">
                                 <div class="draggable-item" :class="{ 'selected': selectedElement === element }"
-                                    @click=" selectElement(element)">
+                                    @click="selectElement(element)" draggable="true" @dragstart="handleDragStart">
                                     <el-checkbox v-model="element.checked" @change="updateSelectedColumns">
                                         {{ element.chColName }}
                                     </el-checkbox>
@@ -131,12 +133,18 @@
                             @change="handleSelectAll">全选</el-checkbox>
                     </div>
                     <div class="selectContent">
-                        <el-checkbox-group v-model="selectedColumns">
-                            <el-checkbox v-for="columnName in props.columnNames" :key="columnName.id"
-                                :label="columnName">
-                                {{ columnName.chColName }}
-                            </el-checkbox>
-                        </el-checkbox-group>
+                        <draggable v-model="draggableColumns" item-key="id" @start="onDragStart" @end="onDragEnd"
+                            :animation="200" ghost-class="ghost-class" chosen-class="chosen-class"
+                            drag-class="drag-class">
+                            <template #item="{ element }">
+                                <div class="draggable-item" :class="{ 'selected': selectedElement === element }"
+                                    @click="selectElement(element)" draggable="true" @dragstart="handleDragStart">
+                                    <el-checkbox v-model="element.checked" @change="updateSelectedColumns">
+                                        {{ element.chColName }}
+                                    </el-checkbox>
+                                </div>
+                            </template>
+                        </draggable>
                     </div>
                     <hr />
                     <div class="isdefault">
@@ -226,8 +234,22 @@ const selectedElement = ref(null)
 // 将 columnNames 转换为可拖拽的格式
 const draggableColumns = ref([])
 
-const onDragEnd = () => {
-    // 拖拽结束后的处理，如果需要的话
+const handleDragStart = (event) => {
+    // 创建一个不可见的拖拽图像
+    const img = new Image();
+    img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; // 1x1 透明 GIF
+    event.dataTransfer.setDragImage(img, 0, 0);
+
+    // 可选：设置自定义数据
+    event.dataTransfer.setData('text/plain', event.target.textContent);
+}
+
+const onDragStart = (evt) => {
+    evt.item.classList.add('dragging')
+}
+
+const onDragEnd = (evt) => {
+    evt.item.classList.remove('dragging')
 }
 
 const selectRow = (index) => {
@@ -447,18 +469,35 @@ const handleDoubleClick = (view) => {
     if (!indeterminate.value) {
         isAll.value = true
     }
-    selectedColumns.value = props.columnNames.filter((columnName) => {
-        return props.viewColumn.some((viewColumnItem) => {
-            return viewColumnItem.voColName === columnName.voColName
+    // selectedColumns.value = props.columnNames.filter((columnName) => {
+    //     return props.viewColumn.some((viewColumnItem) => {
+    //         return viewColumnItem.voColName === columnName.voColName
+    //     })
+    // })
+    //改为修改draggableColumns
+    draggableColumns.value = props.columnNames.map(column => {
+        return {
+            id: column.id,
+            chColName: column.chColName,
+            checked: false
+        }
+    })
+    console.log(props.viewColumn, '修改方案的参数')
+    props.viewColumn.forEach((item) => {
+        draggableColumns.value.forEach((column) => {
+            if (item.chColName === column.chColName) {
+                column.checked = true
+            }
         })
     })
+    console.log(draggableColumns.value, '修改方案默认的值')
+
     if (currentViewId.value == defaultViewId.value) {
         isDefault.value = true
     } else {
         isDefault.value = false
     }
 
-    console.log(selectedColumns.value, '修改方案默认的值')
 
     dialogUpdate.value = true
 }
@@ -652,7 +691,8 @@ function addPlan() {
         cols: selectedColumns.value.map((col) => ({ colId: col.id })) //colId是普通的列名
     })
     console.log(selectedColumns.value, '新增方案')
-    if (viewName.value) {
+    //方案的名字不为空，且选中的列不为空
+    if (viewName.value && selectedColumns.value.length > 0) {
         saveView(data.value)
             .then((res) => {
                 if (res.code == 200) {
@@ -682,11 +722,17 @@ function addPlan() {
                 })
             })
     } else {
-        ElMessageBox.alert('方案名不能为空', '提示', {
-            confirmButtonText: '好的',
-            type: 'info'
-        })
-        return
+        if (!viewName.value) {
+            ElMessageBox.alert('方案名不能为空', '提示', {
+                confirmButtonText: '好的',
+                type: 'error'
+            })
+        } else {
+            ElMessageBox.alert('请选择列', '提示', {
+                confirmButtonText: '好的',
+                type: 'error'
+            })
+        }
     }
 
     selectedColumns.value = []
@@ -784,15 +830,36 @@ function cancel() {
 </style>
 <style scoped lang="less">
 .draggable-item {
-    // padding: 0px 15px;
-    // background-color: #f9f9f9;
-    // border: 1px solid #ddd;
-    // margin-bottom: 5px;
-    cursor: move;
+    border-radius: 4px;
+    transition: all 0.3s ease;
 }
 
-.draggable-item.selected {
-    background-color: #e3eaff;
+// .draggable-item:hover {
+//     background-color: #e0e0e0;
+// }
+
+// .selected {
+//     background-color: #e6f7ff;
+// }
+
+.ghost-class {
+    opacity: 0.5;
+    background: #c8ebfb;
+}
+
+.chosen-class {
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.drag-class {
+    background-color: #fff;
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.dragging {
+    cursor: grabbing;
 }
 
 .containerPlan {

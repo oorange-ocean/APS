@@ -17,142 +17,34 @@
                     :currentOrder="currentOrder" @lookView="lookView" @searchView="searchView"
                     @getCurrentOption="getCurrentOption" />
             </div>
-            <el-table ref="myTable" :data="filteredData" :row-class-name="tableRowClassName" border
+            <el-table ref="myTable" :data="filteredData" border :row-class-name="tableRowClassName"
                 :cell-style="{ borderColor: '#9db9d6', textAlign: 'center' }" :header-cell-style="{
                     borderColor: '#9db9d6',
                     background: '#d9e9f8',
                     color: '#000',
                     textAlign: 'center',
                     fontWeight: '500'
-                }" row-key="id" @selection-change="handleChange" @row-dblclick="changeRow" :max-height="tableMaxHeight"
+                }" row-key="id" :max-height="tableMaxHeight" @selection-change="handleChange" @row-dblclick="changeRow"
                 @sort-change="onSortChange">
                 <el-table-column type="selection" :reserve-selection="true" label="" width="35" class="one" />
-                <el-table-column prop="materialCode" label="物料编码" min-width="150" sortable="custom"
-                    :sort-orders="['ascending', 'descending']" v-if="plan.materialCode">
+                <el-table-column v-for="column in dynamicColumns" :key="column.prop" :prop="column.prop"
+                    :label="column.label" :width="column.width" :sortable="column.sortable" :minWidth="column.minWidth"
+                    :sort-orders="column.sortOrders">
                     <template v-slot:header="{ column }">
                         <div>
                             {{ column.label }}
                             <span v-html="renderSortIcon(column)"></span>
                         </div>
                     </template>
-                    <template #default="{ row }">
-                        <template v-if="row.editable">
-                            <el-input v-model="row.materialCode" @keyup.enter="saveRow(row)" />
-                        </template>
-                        <template v-else>
-                            {{ row.materialCode }}
-                        </template>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="materialName" label="物料名称" min-width="200" sortable="custom"
-                    :sort-orders="['ascending', 'descending']" v-if="plan.materialName">
-                    <template v-slot:header="{ column }">
-                        <div>
-                            {{ column.label }}
-                            <span v-html="renderSortIcon(column)"></span>
-                        </div>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="materialProperty" label="物料属性" min-width="90" sortable="custom"
-                    :sort-orders="['ascending', 'descending']" v-if="plan.materialProperty">
-                    <template v-slot:header="{ column }">
-                        <div>
-                            {{ column.label }}
-                            <span v-html="renderSortIcon(column)"></span>
-                        </div>
-                    </template>
-                    <template #default="{ row }">
-                        <template v-if="row.editable">
-                            <el-input v-model="row.materialProperty" @keyup.enter="saveRow(row)" />
-                        </template>
-                        <template v-else>
-                            {{ row.materialProperty }}
-                        </template>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="materialGroup" label="物料分组" min-width="110" sortable="custom"
-                    :sort-orders="['ascending', 'descending']" v-if="plan.materialGroup">
-                    <template v-slot:header="{ column }">
-                        <div>
-                            {{ column.label }}
-                            <span v-html="renderSortIcon(column)"></span>
-                        </div>
-                    </template>
-                    <template #default="{ row }">
-                        <template v-if="row.editable">
-                            <el-input v-model="row.materialGroup" @keyup.enter="saveRow(row)" />
-                        </template>
-                        <template v-else>
-                            {{ row.materialGroup }}
-                        </template>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="procurementLeadTime" label="采购周期" min-width="110" sortable="custom"
-                    :sort-orders="['ascending', 'descending']" v-if="plan.procurementLeadTime">
-                    <template v-slot:header="{ column }">
-                        <div>
-                            {{ column.label }}
-                            <span v-html="renderSortIcon(column)"></span>
-                        </div>
-                    </template>
-                    <template #default="{ row }">
-                        <template v-if="row.editable">
-                            <el-input v-model="row.procurementLeadTime" @keyup.enter="saveRow(row)" />
-                        </template>
-                        <template v-else>
-                            {{ row.procurementLeadTime }}
-                        </template>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="moq" label="MOQ" min-width="100" sortable="custom"
-                    :sort-orders="['ascending', 'descending']" v-if="plan.moq">
-                    <template v-slot:header="{ column }">
-                        <div>
-                            {{ column.label }}
-                            <span v-html="renderSortIcon(column)"></span>
-                        </div>
-                    </template>
-                    <template #default="{ row }">
-                        <template v-if="row.editable">
-                            <el-input v-model="row.moq" @keyup.enter="saveRow(row)" />
-                        </template>
-                        <template v-else>
-                            {{ row.moq }}
-                        </template>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="mpq" label="MPQ" min-width="100" sortable="custom"
-                    :sort-orders="['ascending', 'descending']" v-if="plan.mpq">
-                    <template v-slot:header="{ column }">
-                        <div>
-                            {{ column.label }}
-                            <span v-html="renderSortIcon(column)"></span>
-                        </div>
-                    </template>
-                    <template #default="{ row }">
-                        <template v-if="row.editable">
-                            <el-input v-model="row.mpq" @keyup.enter="saveRow(row)" />
-                        </template>
-                        <template v-else>
-                            {{ row.mpq }}
-                        </template>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="safetyStock" label="安全库存" min-width="100" sortable="custom"
-                    :sort-orders="['ascending', 'descending']" v-if="plan.safetyStock">
-                    <template v-slot:header="{ column }">
-                        <div>
-                            {{ column.label }}
-                            <span v-html="renderSortIcon(column)"></span>
-                        </div>
-                    </template>
-                    <template #default="{ row }">
-                        <template v-if="row.editable">
-                            <el-input v-model="row.safetyStock" @keyup.enter="saveRow(row)" />
-                        </template>
-                        <template v-else>
-                            {{ row.safetyStock }}
-                        </template>
+                    <template v-slot:default="scope">
+                        <span v-if="scope.row.editable">
+                            <el-input v-model="scope.row[column.prop]" @keyup.enter="saveRow(scope.row)" />
+                        </span>
+                        <span v-else>
+                            <!-- 如果是数量字段，column.format属性为true需要格式化 -->
+                            <span v-if="column.format">{{ formatNumber(scope.row[column.prop]) }}</span>
+                            <span v-else>{{ scope.row[column.prop] }}</span>
+                        </span>
                     </template>
                 </el-table-column>
             </el-table>
@@ -202,6 +94,7 @@ import Pagination from '@/components/Pagination.vue'
 import useUserStore from '@/store/modules/user'
 import useRawBasicData from '@/store/modules/metaData/materialBasicData/rawBasicData'
 import useUserMenu from '@/store/modules/menu'
+import { columnConfig } from '@/columnConfig/metaData/materialBasicData/rawMaterialBasicData'
 const userMenu = useUserMenu()
 const rawBasicData = useRawBasicData()
 
@@ -227,6 +120,25 @@ const filteredData = computed(() => {
         }
         return item
     })
+})
+// 更新 dynamicColumns 计算属性
+const dynamicColumns = computed(() => {
+    if (currentViewId.value === '-1') {
+        // 当 viewId 为 -1 时，使用所有列
+        return columnConfig
+    } else if (!rawBasicData.rawMaterialBasic.viewColumn) {
+        return []
+    }
+
+    return rawBasicData.rawMaterialBasic.viewColumn
+        .map(viewCol => {
+            const colConfig = columnConfig.find(c => c.prop === viewCol.voColName)
+            if (colConfig) {
+                return colConfig
+            }
+            return null
+        })
+        .filter(Boolean)
 })
 // 修改表格选中行的样式
 // 这个方法返回一个类名，基于行是否被选中
@@ -362,10 +274,11 @@ function lookView(viewId, viewName) {
             viewColumn = rawBasicData.rawMaterialBasic.viewColumn
             // console.log(viewColumn,'viewColumn')
             if (viewId == '-1') {
-                plan.value = column.reduce((acc, item) => {
-                    acc[item.voColName] = true
-                    return acc
-                }, {})
+                // 当 viewId 为 -1 时，使用所有列
+                rawBasicData.rawMaterialBasic.viewColumn = columnConfig.map(col => ({
+                    voColName: col.prop,
+                    id: col.id // 假设 columnConfig 中有 id 字段
+                }))
             } else {
                 plan.value = transformColumns(column, viewColumn)
             }

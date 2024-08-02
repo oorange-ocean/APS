@@ -46,7 +46,8 @@ export const columnConfig = [
         label: '子项物料所需数量',
         width: 150,
         sortable: 'custom',
-        sortOrders: ['ascending', 'descending']
+        sortOrders: ['ascending', 'descending'],
+        format:true
     },
     {
         prop: 'fsubMaterialDeliveryTime',

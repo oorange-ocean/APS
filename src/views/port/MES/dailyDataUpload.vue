@@ -16,181 +16,43 @@
                     :currentOrder="currentOrder" @lookView="lookView" @searchView="searchView"
                     @getCurrentOption="getCurrentOption" />
             </div>
-            <el-table ref="myTable" :data="dailyDataUpload.dailyDataUpload.data" :row-class-name="tableRowClassName"
-                border :cell-style="{ borderColor: '#9db9d6', textAlign: 'center' }" :header-cell-style="{
+            <el-table ref="myTable" :data="dailyDataUpload.dailyDataUpload.data" border
+                :row-class-name="tableRowClassName" :cell-style="{ borderColor: '#9db9d6', textAlign: 'center' }"
+                :header-cell-style="{
                     borderColor: '#9db9d6',
                     background: '#d9e9f8',
                     color: '#000',
                     textAlign: 'center',
                     fontWeight: '500'
-                }" row-key="id" @selection-change="handleChange" @row-dblclick="changeRow" @sort-change="onSortChange"
-                :max-height="tableMaxHeight">
+                }" row-key="id" :max-height="tableMaxHeight" @selection-change="handleChange" @row-dblclick="changeRow"
+                @sort-change="onSortChange">
                 <el-table-column type="selection" :reserve-selection="true" label="" width="35" class="one" />
-                <el-table-column prop="orderNumber" label="订单编号" width="180" :sort-orders="['ascending', 'descending']"
-                    sortable="custom" v-if="plan.orderNumber">
+                <el-table-column v-for="column in dynamicColumns" :key="column.prop" :prop="column.prop"
+                    :label="column.label" :width="column.width" :sortable="column.sortable"
+                    :sort-orders="column.sortOrders">
                     <template v-slot:header="{ column }">
                         <div>
                             {{ column.label }}
                             <span v-html="renderSortIcon(column)"></span>
                         </div>
                     </template>
-                    <template #default="{ row }">
-                        <template v-if="row.editable">
-                            <el-input v-model="row.orderNumber" @keyup.enter="saveRow(row)" />
-                        </template>
-                        <template v-else>
-                            {{ row.orderNumber }}
-                        </template>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="materialCode" label="物料编码" width="180" :sort-orders="['ascending', 'descending']"
-                    sortable="custom" v-if="plan.materialCode">
-                    <template v-slot:header="{ column }">
-                        <div>
-                            {{ column.label }}
-                            <span v-html="renderSortIcon(column)"></span>
-                        </div>
-                    </template>
-                    <template #default="{ row }">
-                        <template v-if="row.editable">
-                            <el-input v-model="row.materialCode" @keyup.enter="saveRow(row)" />
-                        </template>
-                        <template v-else>
-                            {{ row.materialCode }}
-                        </template>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="materialName" label="物料名称" width="280" :sort-orders="['ascending', 'descending']"
-                    sortable="custom" v-if="plan.materialName">
-                    <template v-slot:header="{ column }">
-                        <div>
-                            {{ column.label }}
-                            <span v-html="renderSortIcon(column)"></span>
-                        </div>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="processName" label="工序名称" width="250" :sort-orders="['ascending', 'descending']"
-                    sortable="custom" v-if="plan.processName">
-                    <template v-slot:header="{ column }">
-                        <div>
-                            {{ column.label }}
-                            <span v-html="renderSortIcon(column)"></span>
-                        </div>
-                    </template>
-                    <template #default="{ row }">
-                        <template v-if="row.editable">
-                            <el-autocomplete v-model="row.processName" :fetch-suggestions="querySearch" clearable
+                    <template v-slot:default="scope">
+                        <span v-if="scope.row.editable">
+                            <!-- 根据inputType来决定是el-input还是el-autocomplete -->
+                            <el-input v-if="column.inputType === 'el-input'" v-model="scope.row[column.prop]"
+                                @keyup.enter="saveRow(scope.row)" />
+                            <el-autocomplete v-else-if="column.inputType === 'el-autocomplete'"
+                                v-model="scope.row[column.prop]" :fetch-suggestions="querySearch" clearable
                                 class="inline-input w-50" placeholder="Please Input"
-                                @select="(item) => handleSelect(item, row)" />
-                        </template>
-                        <template v-else>
-                            {{ row.processName }}
-                        </template>
+                                @select="(item) => handleSelect(item, scope.row)" />
+                        </span>
+                        <span v-else>
+                            <!-- 如果是数量字段，column.format属性为true需要格式化 -->
+                            <span v-if="column.format">{{ formatNumber(scope.row[column.prop]) }}</span>
+                            <span v-else>{{ scope.row[column.prop] }}</span>
+                        </span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="totalQuantity" label="总数量" width="120" :sort-orders="['ascending', 'descending']"
-                    sortable="custom" v-if="plan.totalQuantity">
-                    <template v-slot:header="{ column }">
-                        <div>
-                            {{ column.label }}
-                            <span v-html="renderSortIcon(column)"></span>
-                        </div>
-                    </template>
-                    <template #default="{ row }">
-                        <template v-if="row.editable">
-                            <el-input v-model="row.totalQuantity" @keyup.enter="saveRow(row)" />
-                        </template>
-                        <template v-else>
-                            {{ formatNumber(row.totalQuantity) }}
-                        </template>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="completedQuantity" label="完成数量" width="120"
-                    :sort-orders="['ascending', 'descending']" sortable="custom" v-if="plan.completedQuantity">
-                    <template v-slot:header="{ column }">
-                        <div>
-                            {{ column.label }}
-                            <span v-html="renderSortIcon(column)"></span>
-                        </div>
-                    </template>
-                    <template #default="{ row }">
-                        <template v-if="row.editable">
-                            <el-input v-model="row.completedQuantity" @keyup.enter="saveRow(row)" />
-                        </template>
-                        <template v-else>
-                            {{ formatNumber(row.completedQuantity) }}
-                        </template>
-                    </template>
-                </el-table-column>
-                <!-- <el-table-column
-          prop="capacityPsPuPp"
-          label="产能（秒/台/人）"
-          width="175"
-          :sort-orders="['ascending', 'descending']"
-          sortable="custom"
-          v-if="plan.capacityPsPuPp"
-        >
-          <template v-slot:header="{ column }">
-            <div>
-              {{ column.label }}
-              <span v-html="renderSortIcon(column)"></span>
-            </div>
-          </template>
-          <template #default="{ row }">
-            <template v-if="row.editable">
-              <el-input
-                v-model="row.capacityPsPuPp"
-                @keyup.enter="saveRow(row)"
-              />
-            </template>
-            <template v-else>
-              {{ formatNumber(row.capacityPsPuPp) }}
-            </template>
-          </template>
-        </el-table-column> -->
-                <el-table-column prop="remainingQuantity" label="剩余数量" width="120"
-                    :sort-orders="['ascending', 'descending']" sortable="custom" v-if="plan.remainingQuantity">
-                    <template v-slot:header="{ column }">
-                        <div>
-                            {{ column.label }}
-                            <span v-html="renderSortIcon(column)"></span>
-                        </div>
-                    </template>
-                    <template #default="{ row }">
-                        <template v-if="row.editable">
-                            <el-input v-model="row.remainingQuantity" @keyup.enter="saveRow(row)" />
-                        </template>
-                        <template v-else>
-                            {{ formatNumber(row.remainingQuantity) }}
-                        </template>
-                    </template>
-                </el-table-column>
-                <!-- <el-table-column
-          prop="remainingCapacity"
-          label="剩余产能"
-          width="180"
-          :sort-orders="['ascending', 'descending']"
-          sortable="custom"
-          v-if="plan.remainingCapacity"
-        >
-          <template v-slot:header="{ column }">
-            <div>
-              {{ column.label }}
-              <span v-html="renderSortIcon(column)"></span>
-            </div>
-          </template>
-          <template #default="{ row }">
-            <template v-if="row.editable">
-              <el-input
-                v-model="row.remainingCapacity"
-                @keyup.enter="saveRow(row)"
-              />
-            </template>
-            <template v-else>
-              {{ formatNumber(row.remainingCapacity) }}
-            </template>
-          </template>
-        </el-table-column> -->
             </el-table>
             <div class="bottom" :style="{
                 width: userMenu.isCollapse
@@ -230,6 +92,7 @@ import Pagination from '@/components/Pagination.vue'
 import useUserStore from '@/store/modules/user'
 import useProcess from '@/store/modules/metaData/processManage'
 import useUserMenu from '@/store/modules/menu'
+import { columnConfig } from '@/columnConfig/MES/dailyDataUpload'
 const userMenu = useUserMenu()
 const dailyDataUpload = useDailyDataUpload()
 const process = useProcess()
@@ -247,7 +110,25 @@ const localCurrentOption = ref([]) //子组件中传过来的currentOption
 const currentOrder = ref({}) //当前排序的字段
 let column = reactive([]) //所有列名
 let viewColumn = reactive([]) //当前视图的所拥有的列名
+// 更新 dynamicColumns 计算属性
+const dynamicColumns = computed(() => {
+    if (currentViewId.value === '-1') {
+        // 当 viewId 为 -1 时，使用所有列
+        return columnConfig
+    } else if (!dailyDataUpload.dailyDataUpload.viewColumn) {
+        return []
+    }
 
+    return dailyDataUpload.dailyDataUpload.viewColumn
+        .map(viewCol => {
+            const colConfig = columnConfig.find(c => c.prop === viewCol.voColName)
+            if (colConfig) {
+                return colConfig
+            }
+            return null
+        })
+        .filter(Boolean)
+})
 // 修改表格选中行的样式
 // 这个方法返回一个类名，基于行是否被选中
 function tableRowClassName({ row }) {
@@ -373,10 +254,11 @@ function lookView(viewId, viewName) {
             viewColumn = dailyDataUpload.dailyDataUpload.viewColumn
             // console.log(viewColumn,'viewColumn')
             if (viewId == '-1') {
-                plan.value = column.reduce((acc, item) => {
-                    acc[item.voColName] = true
-                    return acc
-                }, {})
+                // 当 viewId 为 -1 时，使用所有列
+                dailyDataUpload.dailyDataUpload.viewColumn = columnConfig.map(col => ({
+                    voColName: col.prop,
+                    id: col.id // 假设 columnConfig 中有 id 字段
+                }))
             } else {
                 plan.value = transformColumns(column, viewColumn)
             }
