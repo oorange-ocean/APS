@@ -48,7 +48,7 @@ const userStore = useUserStore()
 const userMenu = useUserMenu()
 const route = useRoute() // 用于获取和访问当前路由的信息
 const router = useRouter() // 用于执行路由导航的操作
-const redirectUrl = `https://open.feishu.cn/open-apis/authen/v1/authorize?app_id=cli_a5f3c323317e500b&amp;redirect_uri=${baseUrl}/login`
+const redirectUrl = `https://open.feishu.cn/open-apis/authen/v1/authorize?app_id=cli_a5f3c323317e500b&redirect_uri=${baseUrl}/login`
 
 const form = reactive({
     name: '',
@@ -110,7 +110,7 @@ onMounted(() => {
     const token = getToken()
     if (isFeishu && !code && !token) {
         window.location.href =
-            `https://open.feishu.cn/open-apis/authen/v1/authorize?app_id=cli_a5f3c323317e500b&amp;redirect_uri=${baseUrl}/login`;
+            `https://open.feishu.cn/open-apis/authen/v1/authorize?app_id=cli_a5f3c323317e500b&redirect_uri=${baseUrl}/login`;
     }
 })
 

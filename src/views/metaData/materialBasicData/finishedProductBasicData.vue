@@ -117,7 +117,7 @@ let viewColumn = reactive([]) //当前视图的所拥有的列名
 const filteredData = computed(() => {
     //将安全库存为0的更改为null
     return finishedProduct.finishedProduct.data.map((item) => {
-        if (item.safetyStock == 0) {
+        if (item.safetyStock == 0 && !item.editable) {
             item.safetyStock = null
         }
         return item
