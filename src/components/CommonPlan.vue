@@ -319,7 +319,6 @@ const querySearchWithOption = (option) => {
                 // console.log(res.data.data, 'searchResult')
                 searchResult.value = res.data.data.map((item) => ({ value: item }))
                 cb(searchResult.value)
-                console.log(searchResult.value, 'searchResult')
             })
     }
     return querySearch

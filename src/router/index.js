@@ -188,6 +188,11 @@ export const dynamicRoutes = [
     name: 'receiveNotice',
   },
   {
+    path:'/willExpireMaterials',
+    component: () => import('@/views/port/ERP/willExpireMaterials'),
+    name: 'willExpireMaterials',
+  },
+  {
     path: '/inventoryLock',
     component: () => import('@/views/port/ERP/inventoryLock'),
     name: 'inventoryLock',

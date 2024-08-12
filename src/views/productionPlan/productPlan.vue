@@ -12,7 +12,7 @@
                     :currentOrder="currentOrder" @lookView="lookView" @searchView="searchView"
                     @getCurrentOption="getCurrentOption" />
             </div>
-            <el-table ref="myTable" :data="production.productPlan.data" border
+            <el-table ref="myTable" :data="visibleData" border :height="tableMaxHeight" style="overflow: auto;"
                 :cell-style="{ borderColor: '#9db9d6', textAlign: 'center' }" :header-cell-style="{
                     borderColor: '#9db9d6',
                     background: '#d9e9f8',
@@ -56,7 +56,8 @@ import {
     reactive,
     onMounted,
     computed,
-    onBeforeUnmount
+    onBeforeUnmount,
+    watch
 } from 'vue'
 import { renderSortIcon } from '@/utils/sortIcon'
 import productionPlan from '../../store/modules/productionPlan'
@@ -64,9 +65,9 @@ import useUserStore from '@/store/modules/user'
 import useUserMenu from '@/store/modules/menu'
 import CommonPlan from '@/components/CommonPlan.vue'
 import { columnConfig } from './productPlanColumnConfig' // Import the column configuration
+import { useVirtualScroll } from '@/hooks/useVirtualScroll'
 const userMenu = useUserMenu()
 const production = productionPlan()
-const myTable = ref(null)
 
 let currentPage = ref(1)
 let currentSize = ref(100)
@@ -81,6 +82,16 @@ const localCurrentOption = ref([]) //子组件中传过来的currentOption
 const currentOrder = ref({}) //当前排序的字段
 let column = reactive([]) //所有列名
 let viewColumn = reactive([]) //当前视图的所拥有的列名
+
+const {
+    tableRef: myTable,
+    visibleData,
+    setListData,
+    updateViewportHeight
+} = useVirtualScroll({
+    itemHeight: 23, // 假设每行高度为50px，根据实际情况调整
+    bufferSize: 0
+})
 // 更新 dynamicColumns 计算属性
 const dynamicColumns = computed(() => {
     if (currentViewId.value === '-1') {
@@ -162,6 +173,35 @@ function onSortChange(sortDetails) {
 // 动态计算表格高度
 const tableMaxHeight = computed(() => {
     return `calc(100vh - ${190 + commonPlanHeight.value}px)`
+})
+
+const parseCalcHeight = (calcString) => {
+    const reg = /calc\((\d+)vh - (\d+)px\)/
+    const match = calcString.match(reg)
+    if (match) {
+        return Number(match[1]) * window.innerHeight / 100 - Number(match[2])
+    }
+    return 0
+}
+
+
+watch(() => tableMaxHeight.value, (newHeight) => {
+    const numericHeight = parseCalcHeight(newHeight);
+    updateViewportHeight(numericHeight)
+});
+
+// 当store中的数据更新时，更新虚拟滚动的数据
+watch(() => production.productPlan.data, (newData) => {
+    setListData(newData)
+})
+
+onMounted(() => {
+    if (myTable.value) {
+        const scrollWrapper = myTable.value.$el.querySelector('.el-scrollbar__wrap')
+        if (scrollWrapper) {
+            updateViewportHeight(scrollWrapper.clientHeight)
+        }
+    }
 })
 
 onMounted(() => {

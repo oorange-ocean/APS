@@ -8,7 +8,8 @@ import {
   downloadInterfaceDate,
   importInterfaceData,
   downloadInterfaceTemplate,
-  getPageFiltrate
+  getPageFiltrate,
+  getWillExpireMaterials
 } from '@/api/port/ERP/immediateInventory'
 import { getCols, getViews } from '@/api/commonPlan'
 
@@ -121,6 +122,16 @@ const immediateInventory = defineStore('immediateInventory', {
       viewColumn: [],
       defaultViewId: null,
       defaultViewName: ''
+    },
+    willExpireMaterials:{
+        data:[],
+        total:0,
+        pages:1,
+        column:[],
+        views:[],
+        viewColumn:[],
+        defaultViewId:null,
+        defaultViewName:''
     },
 
     // MES未完工
@@ -491,6 +502,22 @@ const immediateInventory = defineStore('immediateInventory', {
             reject(error)
           })
       })
+    },
+
+    //获取即将过期的物料
+    getWillExpireMaterials(param,page, size, ) {
+        return new Promise((resolve, reject) => {
+            getWillExpireMaterials(param,page, size)
+                .then((res) => {
+                    this.willExpireMaterials.data = res.records,
+                    this.willExpireMaterials.pages = res.pages
+                    this.willExpireMaterials.total = res.total
+                    resolve(res)
+                })
+                .catch((error) => {
+                    reject(error)
+                })
+        })
     }
   }
 })

@@ -246,6 +246,15 @@ const useUserMenu = defineStore('menu', {
                 meta: {
                   title: '出库申请单'
                 }
+              },
+              {
+                name: 'willExpireMaterials',
+                path: '/willExpireMaterials',
+                component: '/port/ERP/willExpireMaterials',
+                alwaysShow: 'true',
+                meta: {
+                  title: '即将过期物料'
+                }
               }
             ]
           },

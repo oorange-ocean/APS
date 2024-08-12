@@ -17,6 +17,15 @@ export function getPageFiltrate(param,page,size) {
     })
 }
 
+export function getWillExpireMaterials(param,page,size) {
+    return request({
+        url: `/interface/getWillExpireMaterials/${page}/${size}`,
+        method: 'post',
+        data:param
+    })
+}
+
+
 export function add(param,type) {
     return request({    
         url: `/interface/add?type=${type}`,

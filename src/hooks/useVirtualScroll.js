@@ -1,104 +1,100 @@
-import { ref, onMounted, onUnmounted, computed, toRef } from 'vue';
-import { storeToRefs } from 'pinia';
-import useProductionPlanStore  from '@/store/modules/productionPlan'; 
-import useUserStore from '@/store/modules/user';
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 
 export function useVirtualScroll(options = {}) {
   const {
-    itemHeight = 40,
+    itemHeight = 23,
     bufferSize = 5,
-    //tableId, currentViewId都是参数
-    currentViewId,
-    // tableId,
-    // localCurrentOption
+    debounceTime = 16 // 新增: 防抖时间
+  } = options
 
-  } = options;
+  const tableRef = ref(null)
+  const listData = ref([])
+  const visibleData = ref([])
+  const startIndex = ref(0)
+  const scrollTop = ref(0)
+  const viewportHeight = ref(0)
 
-  const productionPlanStore = useProductionPlanStore();
-  const { productPlan } = storeToRefs(productionPlanStore);
-  const { data, total } = productPlan.value;
-  
-  const {pageSize} = useUserStore();
-  const containerRef = ref(null);
-  const listRef = ref(null);
-  const visibleItems = ref([]);
-  const startIndex = ref(0);
-  const endIndex = ref(0);
-  const scrollTop = ref(0);
-  const containerHeight = ref(0);
+  const totalHeight = computed(() => listData.value.length * itemHeight)
+  const visibleCount = computed(() => Math.ceil(viewportHeight.value / itemHeight))
+  const endIndex = computed(() => Math.min(listData.value.length, startIndex.value + visibleCount.value + bufferSize))
+  const paddingBottom = computed(() => (listData.value.length - endIndex.value) * itemHeight)
+  const paddingTop = computed(() => startIndex.value * itemHeight)
 
-  const visibleCount = computed(() => Math.ceil(containerHeight.value / itemHeight) + bufferSize * 2);
+  // 优化1: 使用 requestAnimationFrame 进行防抖
+  let rafId = null
+  const debouncedUpdateVisibleData = () => {
+    cancelAnimationFrame(rafId)
+    rafId = requestAnimationFrame(() => {
+      const start = Math.floor(scrollTop.value / itemHeight) - bufferSize
+      startIndex.value = Math.max(0, start)
+      visibleData.value = listData.value.slice(startIndex.value, endIndex.value)
+      updateTableStyle()
+    })
+  }
 
-  const updateVisibleItems = () => {
-    // const start = Math.floor(scrollTop.value / itemHeight) - bufferSize;
-    // const end = start + visibleCount.value;
+  // 优化2: 使用事件委托和被动事件监听
+  const onScroll = (e) => {
+    scrollTop.value = e.target.scrollTop
+    debouncedUpdateVisibleData()
+  }
 
-    // startIndex.value = Math.max(0, start);
-    // endIndex.value = Math.min(data.value.length, end);
+  // 优化3: 缓存 DOM 查询结果
+  let scrollWrapper = null
+  let tableElement = null
 
-    // visibleItems.value = data.value.slice(startIndex.value, endIndex.value);
-    console.log("data",productPlan.value.data)
-    visibleItems.value = productPlan.value.data.slice(0,9)
-    console.log("visibleItems",visibleItems)
-  };
-
-  const onScroll = () => {
-    if (containerRef.value) {
-      scrollTop.value = containerRef.value.scrollTop;
-      updateVisibleItems();
+  const updateTableStyle = () => {
+    if (tableElement) {
+      tableElement.style.paddingBottom = `${paddingBottom.value}px`
+      tableElement.style.paddingTop = `${paddingTop.value}px`
     }
-  };
-
-  const loadMoreItems = async () => {
-    // const params = {
-    //   tableId: tableId.value,
-    //   viewId: currentViewId.value,
-    //   cols: productionPlanStore.currentOrder ? [productionPlanStore.currentOrder] : []
-    // viewId:-1
-    // };
-
-    // if (localCurrentOption) {
-    //   params.cols.push(localCurrentOption);
-    // }
-
-    // await productionPlanStore.getProductionFiltrate(
-    // //   params,
-    // //   page: Math.floor(data.length / pageSize.value) + 1,
-    // //   size: pageSize.value
-    // {
-    //     viewId:-1
-    // },
-    // 1,
-    // 1500
-    // );
-
-    updateVisibleItems();
-  };
+  }
 
   onMounted(() => {
-    if (containerRef.value) {
-      containerHeight.value = containerRef.value.clientHeight;
-      containerRef.value.addEventListener('scroll', onScroll);
-    }
-    loadMoreItems();
-  });
+    nextTick(() => {
+      if (tableRef.value) {
+        scrollWrapper = tableRef.value.$el.querySelector('.el-scrollbar__wrap')
+        if (scrollWrapper) {
+          scrollWrapper.addEventListener('scroll', onScroll, { passive: true })
+          viewportHeight.value = scrollWrapper.clientHeight
+          tableElement = scrollWrapper.querySelector("table")
+          debouncedUpdateVisibleData()
+        }
+      }
+    })
+  })
 
   onUnmounted(() => {
-    if (containerRef.value) {
-      containerRef.value.removeEventListener('scroll', onScroll);
+    if (scrollWrapper) {
+      scrollWrapper.removeEventListener('scroll', onScroll)
     }
-  });
+    cancelAnimationFrame(rafId)
+  })
 
-//   const totalHeight = computed(() => total.value * itemHeight);
-const totalHeight = 100
-  const offsetY = computed(() => startIndex.value * itemHeight);
+  // 优化4: 减少不必要的更新
+  watch(() => listData.value.length, () => {
+    debouncedUpdateVisibleData()
+  })
+
+  const updateViewportHeight = (height) => {
+    if (!isNaN(height) && height !== viewportHeight.value) {
+      viewportHeight.value = height
+      debouncedUpdateVisibleData()
+    }
+  }
 
   return {
-    containerRef,
-    listRef,
-    visibleItems,
+    tableRef,
+    visibleData,
     totalHeight,
-    offsetY,
-    loadMoreItems,
-  };
+    startIndex,
+    itemHeight,
+    listData,
+    updateViewportHeight,
+    paddingBottom,
+    paddingTop,
+    setListData: (data) => {
+      listData.value = data
+      debouncedUpdateVisibleData()
+    }
+  }
 }

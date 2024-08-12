@@ -38,8 +38,16 @@
                     </template>
                     <template v-slot:default="scope">
                         <span v-if="scope.row.editable">
-                            <el-input v-model="scope.row[column.prop]" @keyup.enter="saveRow(scope.row)" />
-                        </span>
+                            <!-- 如果是物料编码，就用自动补全，其他的就用input -->
+                            <span v-if="column.prop == 'materialCode'">
+                                <el-autocomplete v-model="scope.row[column.prop]"
+                                    :fetch-suggestions="querySearch(65, 261, '/masterData/searchLike')"
+                                    @select="handleSelect" @keyup.enter="saveRow(scope.row)">
+                                </el-autocomplete>
+                            </span>
+                            <span v-else>
+                                <el-input v-model="scope.row[column.prop]" @keyup.enter="saveRow(scope.row)" />
+                            </span> </span>
                         <span v-else>
                             <!-- 如果是数量字段，column.format属性为true需要格式化 -->
                             <span v-if="column.format">{{ formatNumber(scope.row[column.prop]) }}</span>
@@ -95,6 +103,8 @@ import useUserStore from '@/store/modules/user'
 import useSemiFinished from '@/store/modules/metaData/materialBasicData/semiFinished'
 import useUserMenu from '@/store/modules/menu'
 import { columnConfig } from '@/columnConfig/metaData/materialBasicData/semiFinishedBasicData'
+import { querySearch, querySearchMaterialName } from '@/utils/autocomplete'
+
 const userMenu = useUserMenu()
 const semiFinished = useSemiFinished()
 
@@ -540,16 +550,30 @@ function addRow() {
     }
 }
 
+async function handleSelect(item) {
+    const materialName = await querySearchMaterialName(item)
+    const row = semiFinished.semiMaterial.data.find((row) => row.editable == true)
+    console.log(materialName, row)
+    row.materialName = materialName
+}
+
 function saveRow(row) {
     // 这里可以添加保存数据的逻辑，例如将数据发送到后端
     // 修改数据
     //   console.log('修改数据', row)
     //校验非空
     if (!row.materialCode || !row.materialName || !row.materialProperty || !row.materialGroup || !row.productType || !row.procurementLeadTime || !row.moq || !row.mpq || !row.safetyStock) {
-        ElMessageBox.alert('数据不能为空', '提示', {
-            confirmButtonText: '好的'
+        const inputs = document.querySelectorAll('.el-input__inner')
+        inputs.forEach((input) => {
+            console.log(input.value, input)
+            if (!input.value) {
+                input.parentNode.style.boxShadow = '0 0 0 1px #D40F1C85 inset'
+            }
+            //持续0，5s
+            setTimeout(() => {
+                input.parentNode.style.boxShadow = ''
+            }, 1000)
         })
-        refreshContent()
         return
     }
     if (row.id) {
