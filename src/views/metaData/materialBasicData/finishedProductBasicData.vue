@@ -7,7 +7,9 @@
             <button @click="fresh"><span>刷新</span></button>
             <button @click="dialogVisible = true"><span>导入</span></button>
             <button @click="downloadData"><span>导出</span></button>
-            <button @click="downloadDataInventory"><span>导出成品库存</span></button>
+            <button @click="downloadDataInventory">
+                <span>导出成品库存</span>
+            </button>
         </div>
         <div class="main" ref="tableContainer">
             <div class="common" ref="commonPlan">
@@ -40,9 +42,12 @@
                         <span v-if="scope.row.editable">
                             <!-- 如果是物料编码，就用自动补全，其他的就用input -->
                             <span v-if="column.prop == 'materialCode'">
-                                <el-autocomplete v-model="scope.row[column.prop]"
-                                    :fetch-suggestions="querySearch(65, 261, '/masterData/searchLike')"
-                                    @select="handleSelect" @keyup.enter="saveRow(scope.row)">
+                                <el-autocomplete v-model="scope.row[column.prop]" :fetch-suggestions="querySearch(
+                                    65,
+                                    261,
+                                    '/masterData/searchLike'
+                                )
+                                    " @select="handleSelect" @keyup.enter="saveRow(scope.row)">
                                 </el-autocomplete>
                             </span>
                             <span v-else>
@@ -51,7 +56,9 @@
                         </span>
                         <span v-else>
                             <!-- 如果是数量字段，column.format属性为true需要格式化 -->
-                            <span v-if="column.format">{{ formatNumber(scope.row[column.prop]) }}</span>
+                            <span v-if="column.format">{{
+                                formatNumber(scope.row[column.prop])
+                                }}</span>
                             <span v-else>{{ scope.row[column.prop] }}</span>
                         </span>
                     </template>
@@ -74,7 +81,9 @@
                 <el-upload class="upload-demo" drag :auto-upload="false" :file-list="fileList"
                     :on-change="handleFileChange">
                     <i class="el-icon-upload"></i>
-                    <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+                    <div class="el-upload__text">
+                        将文件拖到此处，或<em>点击上传</em>
+                    </div>
                 </el-upload>
 
                 <!-- 底部操作按钮 -->
@@ -143,8 +152,10 @@ const dynamicColumns = computed(() => {
     }
 
     return finishedProduct.finishedProduct.viewColumn
-        .map(viewCol => {
-            const colConfig = columnConfig.find(c => c.prop === viewCol.voColName)
+        .map((viewCol) => {
+            const colConfig = columnConfig.find(
+                (c) => c.prop === viewCol.voColName
+            )
             if (colConfig) {
                 return colConfig
             }
@@ -177,7 +188,9 @@ function onSortChange(sortDetails) {
     // 3. 取消排序 order = null
     //子组件传过来currentOption,还有根据prop对应column中的voColName,提取出colId
     if (viewColumn.length != 0) {
-        const id = viewColumn.find((item) => item.voColName == sortDetails.prop).id //视图列id
+        const id = viewColumn.find(
+            (item) => item.voColName == sortDetails.prop
+        ).id //视图列id
         currentOrder.value.id = id
     }
     const colId = column.find((item) => item.voColName == sortDetails.prop).id //全部列id
@@ -280,10 +293,12 @@ function lookView(viewId, viewName) {
             // console.log(viewColumn,'viewColumn')
             if (viewId == '-1') {
                 // 当 viewId 为 -1 时，使用所有列
-                finishedProduct.finishedProduct.viewColumn = columnConfig.map(col => ({
-                    voColName: col.prop,
-                    id: col.id // 假设 columnConfig 中有 id 字段
-                }))
+                finishedProduct.finishedProduct.viewColumn = columnConfig.map(
+                    (col) => ({
+                        voColName: col.prop,
+                        id: col.id // 假设 columnConfig 中有 id 字段
+                    })
+                )
             } else {
                 plan.value = transformColumns(column, viewColumn)
             }
@@ -378,13 +393,12 @@ function downloadData() {
 }
 
 function downloadDataInventory() {
-    finishedProduct.downloadInventoryFile({
-
-    }).then(res => {
-
-    }).catch(error => {
-        console.log(error, 'error')
-    })
+    finishedProduct
+        .downloadInventoryFile({})
+        .then((res) => { })
+        .catch((error) => {
+            console.log(error, 'error')
+        })
 }
 
 const dialogVisible = ref(false)
@@ -512,17 +526,17 @@ const selectedRows = ref([]) // 存储选中的行数据
 
 onMounted(() => {
     refresh()
-    window.addEventListener('keydown', handleEsc);
+    window.addEventListener('keydown', handleEsc)
 })
 // 处理 Esc 键按下的事件
 const handleEsc = (event) => {
     if (event.keyCode === 27) {
-        refreshContent();
+        refreshContent()
     }
-};
+}
 onBeforeUnmount(() => {
-    window.removeEventListener('keydown', handleEsc);
-});
+    window.removeEventListener('keydown', handleEsc)
+})
 onUnmounted(() => {
     finishedProduct.resetState()
 })
@@ -569,13 +583,30 @@ function addRow() {
 
 async function handleSelect(item) {
     const materialName = await querySearchMaterialName(item)
-    const row = finishedProduct.finishedProduct.data.find((row) => row.editable == true)
+    const row = finishedProduct.finishedProduct.data.find(
+        (row) => row.editable == true
+    )
     console.log(materialName, row)
     row.materialName = materialName
 }
 
 function saveRow(row) {
-    if (!row.materialCode || !row.materialProperty || !row.materialGroup || !row.productType || !row.productFamily || !row.packagingMethod || !row.maxAssemblyPersonnel || !row.minAssemblyPersonnel || !row.maxTestingPersonnel || !row.minTestingPersonnel || !row.maxPackagingPersonnel || !row.minPackagingPersonnel || !row.moq || !row.mpq || !row.safetyStock) {
+    if (
+        !row.materialCode ||
+        !row.materialProperty ||
+        !row.materialGroup ||
+        !row.productType ||
+        !row.productFamily ||
+        !row.packagingMethod ||
+        !row.maxAssemblyPersonnel ||
+        !row.minAssemblyPersonnel ||
+        !row.maxTestingPersonnel ||
+        !row.minTestingPersonnel ||
+        !row.maxPackagingPersonnel ||
+        !row.minPackagingPersonnel ||
+        !row.moq ||
+        !row.mpq
+    ) {
         const inputs = document.querySelectorAll('.el-input__inner')
         inputs.forEach((input) => {
             console.log(input.value, input)

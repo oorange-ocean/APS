@@ -22,8 +22,7 @@
 <script setup>
 import { watch, onMounted } from 'vue'
 import { useRouter, useRoute } from "vue-router";
-import { closeConnect } from '../utils/sseService'
-import { stopTimer } from '../utils/timerControl'
+import { stopInactivityCheck } from '../utils/timerControl'
 const router = useRouter()
 const route = useRoute();
 
@@ -63,11 +62,24 @@ const changeMenu = (item) => {
 
 };
 
-const handleClose = (tag, index) => {
-    // 处理vuex中的tabslist
-    if (tag.name !== 'schedule') {
-        useMenu.closeTab(tag);
+const handleClose = async (tag, index) => {
+    if (tag.name == 'schedule') {
+        useUserStore().isSchedule = false;
+        try {
+            const res = await schedule.closeLock();
+            if (res.code !== 200) {
+                ElMessage.error(res.message);
+                return; // 如果请求不成功,直接返回,不关闭标签
+            }
+            stopInactivityCheck() // 成功关闭锁后停止检测
+        } catch (error) {
+            console.error('关闭排程时发生错误:', error);
+            ElMessage.error('关闭排程失败');
+            return; // 如果发生错误,也直接返回,不关闭标签
+        }
     }
+    // 处理vuex中的tabslist
+    useMenu.closeTab(tag);
 
     // 重新获取 tabsList 的当前状态
     const currentTabs = useMenu.tabsList;
@@ -77,24 +89,6 @@ const handleClose = (tag, index) => {
     // 做第一个判断
     if (tag.name !== route.name) {
         return;
-    }
-    //如果关闭的是排程这个标签页,给后端发送一个请求
-    if (tag.name == 'schedule') {
-        useUserStore().isSchedule = false
-        stopTimer()
-        closeConnect()
-        // console.log('关闭排程标签页，向后端发送请求')
-        schedule.closeLock().then((res) => {
-            if (res.data.code == 200) {
-                // console.log('关闭排程标签页，向后端发送请求成功')
-                useMenu.closeTab(tag);
-            }
-            else {
-                ElMessage.error('关闭排程标签页失败')
-            }
-        }).catch(error => {
-            ElMessage.error('关闭排程标签页失败')
-        })
     }
 
     // 如果你关闭的是最后一个标签

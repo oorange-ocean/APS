@@ -569,7 +569,7 @@ function saveRow(row) {
     // 修改数据
     //   console.log('修改数据', row)
     //非空校验
-    if (!row.materialCode || !row.materialProperty || !row.materialGroup || !row.procurementLeadTime || !row.moq || !row.mpq || !row.safetyStock) {
+    if (!row.materialCode || !row.materialProperty || !row.materialGroup || !row.procurementLeadTime || !row.moq || !row.mpq) {
         const inputs = document.querySelectorAll('.el-input__inner')
         inputs.forEach((input) => {
             console.log(input.value, input)

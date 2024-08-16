@@ -4,7 +4,7 @@ import { isHttp } from '@/utils/validate'
 import useUserStore from '@/store/modules/user'
 import { defineAsyncComponent } from 'vue'
 import useUserMenu from './store/modules/menu'
-import { startTimer } from './utils/timerControl'
+import { startInactivityCheck, updateLastActivity } from './utils/timerControl'
 import UseScheduling from '@/store/modules/scheduling'
 import { connectToSSE } from '@/utils/sseService'
 import { generateRoutes } from './utils/permission'
@@ -65,41 +65,39 @@ router.beforeEach((to, from, next) => {
                 .catch((err) => {
                     console.log('permission代码报错', err)
                 })
-        }
-        else if (useUserMenu().favorites[0] == -1) {
-            useUserMenu().getFavorites().then((res) => {
-                if (res.code == 200) {
-                    next()
-                }
-            })
-
-        }
-        else {
+        } else if (useUserMenu().favorites[0] == -1) {
+            useUserMenu()
+                .getFavorites()
+                .then((res) => {
+                    if (res.code == 200) {
+                        next()
+                    }
+                })
+        } else {
             if (to.path == '/login') {
                 next('/default')
-            } else if (to.path == '/schedule' && useUserStore().isSchedule == false) {
+            } else if (
+                to.path == '/schedule' &&
+                useUserStore().isSchedule == false
+            ) {
                 useUserStore().isSchedule = true
                 console.log('进入排程界面了，向后端发送请求')
-
                 //获取锁
                 UseScheduling()
                     .getPageLock()
                     .then((res) => {
                         //获取锁成功的话开启定时器还有通过sse跟后端建立链接
                         if (res.code == 200) {
-                            //跟后端建立链接
-                            // connectToSSE()
-
-                            //开启定时器
-                            startTimer()
+                            startInactivityCheck()
+                            updateLastActivity() // 初始化最后活动时间
                         } else {
                             ElMessageBox.alert(res.message, '提示', {
                                 confirmButtonText: '好的'
                             })
                         }
                     })
-                    .catch((error) => { })
-                //后端返回成功加锁的信息之后，再开始定时向后端发送请求
+                    .catch((error) => {})
+                // 后端返回成功加锁的信息之后，再开始定时向后端发送请求
                 next()
             } else {
                 next()
