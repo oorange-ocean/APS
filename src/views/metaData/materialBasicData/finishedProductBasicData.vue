@@ -42,13 +42,20 @@
                         <span v-if="scope.row.editable">
                             <!-- 如果是物料编码，就用自动补全，其他的就用input -->
                             <span v-if="column.prop == 'materialCode'">
-                                <el-autocomplete v-model="scope.row[column.prop]" :fetch-suggestions="querySearch(
-                                    65,
-                                    261,
-                                    '/masterData/searchLike'
-                                )
-                                    " @select="handleSelect" @keyup.enter="saveRow(scope.row)">
+                                <el-autocomplete v-model="scope.row[column.prop]"
+                                    :fetch-suggestions="querySearch(65, 261, '/masterData/searchLike')"
+                                    @select="handleSelect" @keyup.enter="saveRow(scope.row)"
+                                    @input="(event) => handleMaterialCodeInput(scope.row, event)">
                                 </el-autocomplete>
+                            </span>
+                            <!-- 如果是物料名称，使用下拉框 -->
+                            <span v-else-if="column.prop == 'materialName'">
+                                <el-select v-model="scope.row[column.prop]"
+                                    @change="(value) => handleMaterialNameChange(value, scope.row)">
+                                    <el-option v-for="item in materialNameOptions" :key="item.materialCode"
+                                        :label="item.label" :value="item.value">
+                                    </el-option>
+                                </el-select>
                             </span>
                             <span v-else>
                                 <el-input v-model="scope.row[column.prop]" @keyup.enter="saveRow(scope.row)" />
@@ -118,7 +125,7 @@ import { querySearch, querySearchMaterialName } from '@/utils/autocomplete'
 const userMenu = useUserMenu()
 const finishedProduct = useFinishedProduct()
 const process = processManage()
-
+const materialNameOptions = ref([])
 let currentPage = ref(1)
 let currentSize = ref(100)
 let currentViewId = ref(null) //当前视图id
@@ -582,14 +589,45 @@ function addRow() {
 }
 
 async function handleSelect(item) {
-    const materialName = await querySearchMaterialName(item)
+    const resdata = await querySearchMaterialName(item)
+    const materialName = resdata[0].fmaterialName
     const row = finishedProduct.finishedProduct.data.find(
         (row) => row.editable == true
     )
-    console.log(materialName, row)
+    // console.log(resdata, 'resdata')
     row.materialName = materialName
 }
 
+async function handleMaterialCodeInput(row, event) {
+    const currentValue = event; // 获取当前输入框的值
+    if (currentValue) {
+        const resdata = await querySearchMaterialName({ value: currentValue })
+        materialNameOptions.value = resdata
+            .filter(item => item.fmaterialName != null)  // 过滤掉 fmaterialName 为 null 的项
+            .map(item => ({
+                value: item.fmaterialName || '',  // 如果 fmaterialName 为 undefined，使用空字符串
+                label: item.fmaterialName || '未知',  // 如果 fmaterialName 为 undefined，显示"未知"
+                materialCode: item.fmaterialId || ''  // 如果 fmaterialId 为 undefined，使用空字符串
+            }));
+        // 如果只有一个选项，自动选中
+        if (materialNameOptions.value.length === 1) {
+            row.materialName = materialNameOptions.value[0].value;
+        }
+    } else {
+        // 如果物料编码为空，清空物料名称和选项
+        row.materialName = '';
+        materialNameOptions.value = [];
+    }
+}
+
+function handleMaterialNameChange(value, row) {
+    const selectedItem = materialNameOptions.value.find(item => item.value === value);
+    if (selectedItem) {
+        row.materialCode = selectedItem.materialCode;
+    } else {
+        console.log('No matching item found');
+    }
+}
 function saveRow(row) {
     if (
         !row.materialCode ||
@@ -609,7 +647,6 @@ function saveRow(row) {
     ) {
         const inputs = document.querySelectorAll('.el-input__inner')
         inputs.forEach((input) => {
-            console.log(input.value, input)
             if (!input.value) {
                 input.parentNode.style.boxShadow = '0 0 0 1px #D40F1C85 inset'
             }

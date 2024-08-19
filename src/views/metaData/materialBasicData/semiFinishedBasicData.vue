@@ -42,13 +42,20 @@
                         <span v-if="scope.row.editable">
                             <!-- 如果是物料编码，就用自动补全，其他的就用input -->
                             <span v-if="column.prop == 'materialCode'">
-                                <el-autocomplete v-model="scope.row[column.prop]" :fetch-suggestions="querySearch(
-                                    65,
-                                    261,
-                                    '/masterData/searchLike'
-                                )
-                                    " @select="handleSelect" @keyup.enter="saveRow(scope.row)">
+                                <el-autocomplete v-model="scope.row[column.prop]"
+                                    :fetch-suggestions="querySearch(65, 261, '/masterData/searchLike')"
+                                    @select="handleSelect" @keyup.enter="saveRow(scope.row)"
+                                    @input="(event) => handleMaterialCodeInput(scope.row, event)">
                                 </el-autocomplete>
+                            </span>
+                            <!-- 如果是物料名称，使用下拉框 -->
+                            <span v-else-if="column.prop == 'materialName'">
+                                <el-select v-model="scope.row[column.prop]"
+                                    @change="(value) => handleMaterialNameChange(value, scope.row)">
+                                    <el-option v-for="item in materialNameOptions" :key="item.materialCode"
+                                        :label="item.label" :value="item.value">
+                                    </el-option>
+                                </el-select>
                             </span>
                             <span v-else>
                                 <el-input v-model="scope.row[column.prop]" @keyup.enter="saveRow(scope.row)" />
@@ -58,7 +65,7 @@
                             <!-- 如果是数量字段，column.format属性为true需要格式化 -->
                             <span v-if="column.format">{{
                                 formatNumber(scope.row[column.prop])
-                                }}</span>
+                            }}</span>
                             <span v-else>{{ scope.row[column.prop] }}</span>
                         </span>
                     </template>
@@ -132,6 +139,7 @@ const currentOrder = ref({}) //当前排序的字段
 let column = reactive([]) //所有列名
 let viewColumn = reactive([]) //当前视图的所拥有的列名
 //一个计算属性，过滤表格数据中安全库存非零的
+const materialNameOptions = ref([]) //物料名称的下拉框选项
 const filteredData = computed(() => {
     //将安全库存为0的更改为null
     return semiFinished.semiMaterial.data.map((item) => {
@@ -564,14 +572,45 @@ function addRow() {
         return
     }
 }
-
 async function handleSelect(item) {
-    const materialName = await querySearchMaterialName(item)
+    const resdata = await querySearchMaterialName(item)
+    const materialName = resdata[0].fmaterialName
     const row = semiFinished.semiMaterial.data.find(
         (row) => row.editable == true
     )
-    console.log(materialName, row)
+    // console.log(resdata, 'resdata')
     row.materialName = materialName
+}
+
+async function handleMaterialCodeInput(row, event) {
+    const currentValue = event; // 获取当前输入框的值
+    if (currentValue) {
+        const resdata = await querySearchMaterialName({ value: currentValue })
+        materialNameOptions.value = resdata
+            .filter(item => item.fmaterialName != null)  // 过滤掉 fmaterialName 为 null 的项
+            .map(item => ({
+                value: item.fmaterialName || '',  // 如果 fmaterialName 为 undefined，使用空字符串
+                label: item.fmaterialName || '未知',  // 如果 fmaterialName 为 undefined，显示"未知"
+                materialCode: item.fmaterialId || ''  // 如果 fmaterialId 为 undefined，使用空字符串
+            }));
+        // 如果只有一个选项，自动选中
+        if (materialNameOptions.value.length === 1) {
+            row.materialName = materialNameOptions.value[0].value;
+        }
+    } else {
+        // 如果物料编码为空，清空物料名称和选项
+        row.materialName = '';
+        materialNameOptions.value = [];
+    }
+}
+
+function handleMaterialNameChange(value, row) {
+    const selectedItem = materialNameOptions.value.find(item => item.value === value);
+    if (selectedItem) {
+        row.materialCode = selectedItem.materialCode;
+    } else {
+        console.log('No matching item found');
+    }
 }
 
 function saveRow(row) {
