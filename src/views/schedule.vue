@@ -146,10 +146,10 @@
 </template>
 
 <script setup>
-import { ref, computed, reactive, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import UseScheduling from '@/store/modules/scheduling'
 import { onMounted, onUnmounted } from 'vue'
-import { throttle } from 'lodash' // 假设使用 lodash 的节流函数
+import { throttle } from 'lodash' //  lodash 的节流函数
 import { updateLastActivity, startInactivityCheck, stopInactivityCheck } from '@/utils/timerControl'
 const Scheduling = UseScheduling()
 const checkedLabels = ref([])
@@ -179,6 +179,42 @@ onMounted(() => {
     startInactivityCheck()
     window.addEventListener('mousemove', throttledUpdateActivity)
     window.addEventListener('keydown', throttledUpdateActivity)
+})
+
+onMounted(async () => {
+    try {
+        const options = await Scheduling.getApsSchedulingOptions()
+        console.log("options", options)
+        // 更新表单值
+        form.value = {
+            target: options.target.toString(),
+            delay_request: options.demandDelay,
+            number_cycles: options.optimizationFreq,
+            scheduled_days_num: options.productionPlanCycle,
+            in_advance_po: options.advancePoDays,
+            buy_delay_days: options.procureDelay,
+            yg_delta: options.advanceYgMaxDays,
+            consider_the_material: options.considerMaterial,
+            consider_the_process: options.considerProcess,
+            produce_in_parallel: options.parallelProduction,
+            consider_history: options.considerUnfinished,
+            advance_PO: options.advancePo,
+            advance_PR: options.advancePr
+        }
+
+        // 更新复选框
+        checkedLabels.value = [
+            options.considerMaterial ? '考虑物料' : null,
+            options.considerProcess ? '考虑工序' : null,
+            options.parallelProduction ? '并行生产' : null,
+            options.considerUnfinished ? '考虑未完成' : null,
+            options.advancePo ? '是否提前PO' : null,
+            options.advancePr ? '是否提前PR' : null
+        ].filter(Boolean)
+    } catch (error) {
+        console.error('获取排程选项失败:', error)
+        // 这里可以添加错误处理,比如显示一个错误提示
+    }
 })
 
 onUnmounted(() => {

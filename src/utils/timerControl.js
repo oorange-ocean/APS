@@ -13,7 +13,7 @@ export function checkInactivity() {
     const currentTime = Date.now()
     const inactiveTime = currentTime - lastActivityTime.value
 
-    if (inactiveTime >= 3000) {
+    if (inactiveTime >= 300000) {
         // 5分钟 = 300000毫秒
         useSchedule()
             .closeLock()

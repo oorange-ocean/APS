@@ -4,62 +4,74 @@ export function updateData(update) {
     return request({
         url: '/scheduling/dataUpdate',
         method: 'post',
-        data:update
+        data: update
     })
 }
 
-export function getPageLock(){
+export function getPageLock() {
     return request({
         url: '/scheduling/getPageLock',
-        method:'post'
+        method: 'post'
     })
 }
 
-export function lockRenewal(){
+export function lockRenewal() {
     return request({
         url: '/scheduling/lockRenewal',
-        method:'post'
+        method: 'post'
     })
 }
 
-export function closeLock(){
+export function closeLock() {
     return request({
         url: '/scheduling/closeLock',
-        method:'post'
+        method: 'post'
     })
 }
-export function startScheduling(params){
+export function startScheduling(params) {
     return request({
         url: '/scheduling/startScheduling',
         method: 'post',
-        data:params
+        data: params
     })
 }
 
-export function integrityChecker(){
+export function integrityChecker() {
     return request({
         url: '/scheduling/integrityChecker',
-        method:'post'
+        method: 'post'
     })
 }
 
-export function oneKeyScheduling(params){
+export function oneKeyScheduling(params) {
     return request({
         url: '/scheduling/oneKeyScheduling',
         method: 'post',
-        data:params
+        data: params
     })
 }
 
-import {getToken} from '../utils/auth'
+import { getToken } from '../utils/auth'
 // 下载完整性检查的错误详情
 export function downloadIntegrityChecker(param) {
-
     // 使用封装的 download 方法
-    return download('scheduling/downloadIntegrityChecker', param, '不完整数据',{
-        headers: {
-            token: getToken()
+    return download(
+        'scheduling/downloadIntegrityChecker',
+        param,
+        '不完整数据',
+        {
+            headers: {
+                token: getToken()
+            }
         }
-      });
+    )
 }
-  
+
+//获取用户的排程选项
+// /scheduling/apsSchedulingOptions
+export function getApsSchedulingOptions() {
+    return request({
+        url: '/scheduling/apsSchedulingOptions',
+        method: 'get'
+    })
+}

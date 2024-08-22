@@ -7,13 +7,30 @@ import {
     startScheduling,
     integrityChecker,
     oneKeyScheduling,
-    downloadIntegrityChecker
+    downloadIntegrityChecker,
+    getApsSchedulingOptions
 } from '@/api/scheduling'
 
 const scheduling = defineStore('scheduling', {
     state: () => ({
         update: [],
-        loading: false
+        loading: false,
+        //用户的排程选项
+        userOptions: {
+            target: '1',
+            delay_request: 3,
+            number_cycles: 2,
+            scheduled_days_num: 240,
+            in_advance_po: 7,
+            buy_delay_days: 5,
+            yg_delta: 90,
+            consider_the_material: true,
+            consider_the_process: false,
+            produce_in_parallel: true,
+            consider_history: true,
+            advance_PO: false,
+            advance_PR: false
+        }
     }),
     actions: {
         updateData(update) {
@@ -108,6 +125,17 @@ const scheduling = defineStore('scheduling', {
         downloadIntegrityChecker(param) {
             return new Promise((resolve, reject) => {
                 downloadIntegrityChecker(param)
+                    .then((res) => {
+                        resolve(res)
+                    })
+                    .catch((error) => {
+                        reject(error)
+                    })
+            })
+        },
+        getApsSchedulingOptions() {
+            return new Promise((resolve, reject) => {
+                getApsSchedulingOptions()
                     .then((res) => {
                         resolve(res)
                     })
