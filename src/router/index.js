@@ -74,6 +74,11 @@ export const dynamicRoutes = [
         name: 'testGtt'
     },
     {
+        path: '/gantt/productGantt',
+        component: () => import('@/views/gantt/productGantt'),
+        name: 'productGantt'
+    },
+    {
         path: '/processName',
         component: () => import('@/views/metaData/processManage/processName'),
         name: 'processName'
