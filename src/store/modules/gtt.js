@@ -1,5 +1,9 @@
 import { defineStore } from 'pinia'
-import { getGttData, getProductGanttData } from '@/api/gtt'
+import {
+    getGttData,
+    getProductGanttData,
+    getProductGanttDetailData
+} from '@/api/gtt'
 
 const useGtt = defineStore('gtt', {
     state: () => ({
@@ -27,6 +31,18 @@ const useGtt = defineStore('gtt', {
         getProductGanttData(product) {
             return new Promise((resolve, reject) => {
                 getProductGanttData(product)
+                    .then((res) => {
+                        resolve(res)
+                    })
+                    .catch((error) => {
+                        reject(error)
+                    })
+            })
+        },
+        // 获取某一批生产的详细数据
+        getProductGanttDetailData(taskId) {
+            return new Promise((resolve, reject) => {
+                getProductGanttDetailData(taskId)
                     .then((res) => {
                         resolve(res)
                     })
