@@ -10,6 +10,7 @@ declare module 'vue' {
     CommonAside: typeof import('./src/components/CommonAside.vue')['default']
     CommonHeader: typeof import('./src/components/CommonHeader.vue')['default']
     CommonPlan: typeof import('./src/components/CommonPlan.vue')['default']
+    CustomGantt: typeof import('./src/components/customGantt.vue')['default']
     ElAside: typeof import('element-plus/es')['ElAside']
     ElAutocomplete: typeof import('element-plus/es')['ElAutocomplete']
     ElButton: typeof import('element-plus/es')['ElButton']
