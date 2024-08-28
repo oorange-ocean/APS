@@ -1,67 +1,179 @@
-// 加工日期范围
-export const computedDaysRange = (daysArr, endDay = null) => {
-    let result = daysArr
-    if (typeof endDay === 'string') {
-        result = fethDaysRange(daysArr, endDay)
+/**
+ * 计算指定日期范围内的所有时间单位
+ * @param {string} startDate - 开始日期时间，格式为 'YYYY-MM-DD HH:mm:ss'
+ * @param {string} endDate - 结束日期时间，格式为 'YYYY-MM-DD HH:mm:ss'
+ * @param {string} timeUnit - 主时间单位，可选值：'day', 'week', 'month', 'quarter', 'year'
+ * @param {string} subTimeUnit - 子时间单位，可选值：'hour', 'day', 'week', 'month'
+ * @param {number} step - 步长，默认为1
+ * @returns {Array} 包含日期范围内所有时间单位详细信息的数组
+ */
+export const fetchSubTimeUnitRange = (
+    startDate,
+    endDate,
+    subTimeUnit = 'day',
+    step = 1
+) => {
+    // console.log(typeof startDate, typeof endDate)
+    if (typeof startDate === 'string') {
+        startDate = new Date(startDate)
+        // console.log('transformed to date')
     }
-    return result.map((item) => fetchDayDetail(item))
+    if (typeof endDate === 'string') {
+        endDate = new Date(endDate)
+        // console.log('transformed to date')
+    }
+    // console.log('start', startDate)
+    // console.log('end', endDate)
+    let result = []
+    result = fetchTimeRange(startDate, endDate, subTimeUnit, step)
+
+    return result.map((item) => fetchTimeUnitDetail(item, subTimeUnit))
 }
 
-// 获取指定日期详细信息
-export const fetchDayDetail = (current) => {
-    let currentDate = null
-    if (typeof current === 'string') {
-        currentDate = new Date(current)
-    } else if (current instanceof Date) {
-        currentDate = current
-    }
-    const weekName = ['日', '一', '二', '三', '四', '五', '六']
-
-    return {
-        year: String(currentDate.getFullYear()).padStart(4, '0'),
-        month: String(currentDate.getMonth() + 1).padStart(2, '0'),
-        day: String(currentDate.getDate()).padStart(2, '0'),
-        week: weekName[currentDate.getDay()]
-    }
-}
-
-// 获取指定月份每一天日期 2022-02
-export const fethDays = (str) => {
-    const month = str.replace(/\//g, '-')
-    const monthArr = month.split('-').map((item) => Number(item))
-    if (monthArr.length !== 2) throw new Error('获取月份日期参数错误:', str)
-    const count = new Date(...monthArr, 0).getDate()
-    return new Array(count).fill().map((item, index) => index + 1)
-}
-
-// 获取指定范围每一天的日期
-export const fethDaysRange = (start, stop) => {
-    // console.log('start', start)
-    // console.log('stop', stop)
-    const current = new Date(start.replace(/\//g, '-'))
-    const end = new Date(stop)
-    current.setHours(0, 0, 0, 0)
+// 获取指定范围内的时间单位
+export const fetchTimeRange = (startDate, endDate, subTimeUnit, step) => {
     const result = []
-    while (end.getTime() >= current.getTime()) {
-        const res = fetchDayDetail(current)
-        result.push(`${res.year}-${res.month}-${res.day}`)
-        current.setDate(current.getDate() + 1)
+
+    while (startDate <= endDate) {
+        result.push(formatDate(startDate, subTimeUnit))
+        switch (subTimeUnit) {
+            case 'hour':
+                startDate.setHours(startDate.getHours() + step)
+                break
+            case 'day':
+                startDate.setDate(startDate.getDate() + step)
+                break
+            case 'week':
+                startDate.setDate(startDate.getDate() + 7 * step)
+                break
+            case 'month':
+                startDate.setMonth(startDate.getMonth() + step)
+                break
+        }
     }
-    // console.log('result', result)
+    // console.log('fetchTimeRange result', result)
+
     return result
 }
 
-// 范围日期按 月份归类
-export const splitDaysForMonth = (daysArr) => {
+// 格式化日期
+const formatDate = (date, subTimeUnit) => {
+    // console.log('will be formatDate date', date)
+    const dateObj = date instanceof Date ? date : new Date(date)
+
+    if (isNaN(dateObj.getTime())) {
+        console.error('无效的日期:', date)
+        return ''
+    }
+
+    const year = dateObj.getFullYear()
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0')
+    const day = String(dateObj.getDate()).padStart(2, '0')
+    const hour = String(dateObj.getHours()).padStart(2, '0')
+
+    switch (subTimeUnit) {
+        case 'hour':
+            return `${year}-${month}-${day} ${hour}:00:00`
+        case 'day':
+            return `${year}-${month}-${day}`
+        case 'week':
+            return `${year}-${month}-${day}`
+        case 'month':
+            return `${year}-${month}`
+    }
+}
+
+// 获取指定时间单位的详细信息
+export const fetchTimeUnitDetail = (date, subTimeUnit) => {
+    const weekName = ['日', '一', '二', '三', '四', '五', '六']
+    //将字符串转为日期对象
+    if (typeof date === 'string') {
+        date = new Date(date)
+    }
+    const detail = {
+        year: String(date.getFullYear()).padStart(4, '0'),
+        month: String(date.getMonth() + 1).padStart(2, '0'),
+        day: String(date.getDate()).padStart(2, '0'),
+        weekDay: weekName[date.getDay()],
+        weekNumber: getWeekOfYear(date),
+        hour: String(date.getHours()).padStart(2, '0')
+    }
+
+    switch (subTimeUnit) {
+        case 'hour':
+            detail.display = `${detail.hour}:00`
+            break
+        case 'day':
+            detail.display = `${detail.month}-${detail.day}`
+            break
+        case 'week':
+            detail.display = `第${getWeekOfYear(date)}周`
+            break
+        case 'month':
+            detail.display = `${detail.year}-${detail.month}`
+            break
+        case 'quarter':
+            detail.display = `${detail.year}Q${Math.floor(
+                (date.getMonth() + 3) / 3
+            )}`
+            break
+        case 'year':
+            detail.display = detail.year
+            break
+    }
+    // console.log('fetchTimeUnitDetail ', detail)
+    return detail
+}
+
+// 获取指定日期是一年中的第几周
+const getWeekOfYear = (date) => {
+    // console.log('date waiting to be weeked', date)
+    const d = new Date(
+        Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())
+    )
+    const dayNum = d.getUTCDay() || 7
+    d.setUTCDate(d.getUTCDate() + 4 - dayNum)
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1))
+    const res = Math.ceil(((d - yearStart) / 86400000 + 1) / 7)
+    // console.log('res周数', res)
+    return res
+}
+
+// 根据时间单位对时间范围进行分割
+export const splitForTimeUnit = (timeRange, timeUnit) => {
+    console.log('timeRange', timeRange)
+    console.log('timeUnit', timeUnit)
     const res = {}
-    daysArr.forEach((item) => {
-        const name = item.year + '-' + item.month
-        if (res[name]) {
-            res[name].push(item)
+    timeRange.forEach((item) => {
+        let key
+        switch (timeUnit) {
+            case 'hour':
+            case 'day':
+                key = `${item.year}-${item.month}`
+                break
+            case 'week':
+                // 对于周，我们使用年份和周数作为键
+                key = `${item.year}-${item.weekNumber}`
+                break
+            case 'month':
+                // 对于月，我们使用年份和月份作为键
+                key = `${item.year}-${item.month}`
+                break
+            case 'quarter':
+                // 对于季度，我们可以使用年份和季度数作为键
+                key = `${item.year}-Q${Math.ceil(parseInt(item.month) / 3)}`
+                break
+            case 'year':
+                key = item.year
+                break
+        }
+        if (res[key]) {
+            res[key].push(item)
         } else {
-            res[name] = [item]
+            res[key] = [item]
         }
     })
+    console.log('splitForTimeUnit res', res)
     return Object.values(res)
 }
 
@@ -299,7 +411,7 @@ export function transformData(backendData) {
     return transformedData
 }
 
-export function transformData2(backendData) {
+export function transformData2(backendData, timeUnit, subTimeUnit, step) {
     const transformedData = []
     backendData.forEach((item) => {
         // 获取所有唯一的工序
@@ -330,6 +442,13 @@ export function transformData2(backendData) {
             const completedQuantityArray = JSON.parse(
                 workOrder.fcompletedQuantity
             )
+            // 创建一个工序名称到索引的映射
+            const processIndexMap = {
+                组装: 0,
+                测试: 1,
+                包装: 2
+            }
+
             //遍历每个工序
             workOrder.processBaseDataList.forEach((process, index) => {
                 const targetProcess = renderData.find(
@@ -337,15 +456,19 @@ export function transformData2(backendData) {
                 )
                 if (targetProcess) {
                     // console.log('targetProcess', targetProcess)
+                    // 使用 processIndexMap 来获取正确的完成数量
+                    const quantityIndex = processIndexMap[process.processName]
+                    const completedQuantity =
+                        completedQuantityArray[quantityIndex]
                     targetProcess.schedule.push({
                         id: parseInt(workOrder.ftaskId, 10) + index, // 假设需要用不同的 id 区分每个 schedule
-                        name: `${process.processName}-${completedQuantityArray[index]}`, // 示例: '组装-1'
+                        name: `${process.processName}-${completedQuantity}`, // 示例: '组装-1'
                         desc: `
                         \n单据编号、单据来源：${workOrder.ftaskSourceId}
                         \n单据类型：${workOrder.fpriority}
                         \n物料编码：${item.materialCode}
                         \n物料名称：${item.materialName}
-                        \n数量：${completedQuantityArray[index]}
+                        \n数量：${completedQuantity}
                         \n开始时间：${process.startTime}
                         \n结束时间：${process.endTime}
                         \n总工时：${(
@@ -359,9 +482,11 @@ export function transformData2(backendData) {
                         \n延迟交付FIM号：${workOrder.frelatedOrders}`,
                         backgroundColor: targetProcess.color,
                         textColor: 'rgb(245, 36, 9)', // 这个颜色假设是固定的
-                        days: fethDaysRange(
-                            process.startTime.split(' ')[0],
-                            process.endTime.split(' ')[0]
+                        timeUnits: fetchSubTimeUnitRange(
+                            process.startTime,
+                            process.endTime,
+                            subTimeUnit,
+                            step
                         )
                     })
                 }
@@ -379,20 +504,31 @@ export function getDateRangeList(data) {
 
     data.forEach((item) => {
         item.schedule.forEach((schedule) => {
-            const { days } = schedule
-            const startDate = new Date(days[0])
-            const endDate = new Date(days[days.length - 1])
+            const { timeUnits } = schedule
+            if (timeUnits && timeUnits.length > 0) {
+                const startDate = new Date(
+                    `${timeUnits[0].year}-${timeUnits[0].month}-${timeUnits[0].day}T${timeUnits[0].hour}:00:00`
+                )
+                const endDate = new Date(
+                    `${timeUnits[timeUnits.length - 1].year}-${
+                        timeUnits[timeUnits.length - 1].month
+                    }-${timeUnits[timeUnits.length - 1].day}T${
+                        timeUnits[timeUnits.length - 1].hour
+                    }:00:00`
+                )
 
-            if (!minDate || startDate < minDate) {
-                minDate = startDate
-            }
+                if (!minDate || startDate < minDate) {
+                    minDate = startDate
+                }
 
-            if (!maxDate || endDate > maxDate) {
-                maxDate = endDate
+                if (!maxDate || endDate > maxDate) {
+                    maxDate = endDate
+                }
             }
         })
     })
-
+    console.log('minDate', minDate)
+    console.log('maxDate', maxDate)
     return [
         minDate ? minDate.toISOString().split('T')[0] : null,
         maxDate ? maxDate.toISOString().split('T')[0] : null

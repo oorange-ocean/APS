@@ -123,14 +123,7 @@
 <script setup>
 import cloneDeep from 'lodash/cloneDeep'
 import { watchEffect, ref, onMounted, nextTick, computed } from 'vue'
-import {
-    computedDaysRange,
-    fethDaysRange,
-    splitDaysForMonth,
-    todayInRange,
-    fetchToday,
-    workListSplitForRepeat
-} from '@/utils/gantt'
+import { fetchSubTimeUnitRange, splitForTimeUnit } from '@/utils/gantt'
 import html2canvas from 'html2canvas'
 import { exportExcel } from '@/utils/excel'
 // 定义组件的props
@@ -158,7 +151,7 @@ const props = defineProps({
     },
     activeDate: {
         type: String,
-        default: () => fetchToday()
+        default: null
     },
     repeatMode: {
         // extract 将重叠部分抽取，单独生成独立的日程
@@ -198,6 +191,18 @@ const props = defineProps({
     alikeName: {
         type: Function,
         default: null
+    },
+    timeUnit: {
+        type: String,
+        default: 'month'
+    },
+    subTimeUnit: {
+        type: String,
+        default: 'day'
+    },
+    step: {
+        type: Number,
+        default: 1
     }
 })
 
@@ -257,14 +262,29 @@ onMounted(() => {
     computedGanttInnerHeight()
 })
 
+/**
+ * @function splitForTimeUnit 将日期范围拆分成指定unit的二维数组
+ * @param {Array} dateRangeList 日期范围列表
+ * @param {String} timeUnit 时间单位
+ * @param {String} subTimeUnit 子时间单位
+ * @param {Number} step 步长
+ * @returns {Array}  日期范围列表
+ */
 watchEffect(() => {
-    rangeDate.value = splitDaysForMonth(
-        computedDaysRange(props.dateRangeList[0], props.dateRangeList.at(-1))
+    rangeDate.value = splitForTimeUnit(
+        fetchSubTimeUnitRange(
+            props.dateRangeList[0],
+            props.dateRangeList.at(-1),
+            props.subTimeUnit,
+            props.step
+        ),
+        props.timeUnit
     )
-    console.log('rangeDate.value', rangeDate.value)
     ganttMaxWidth.value =
         props.itemWidth * rangeDate.value.flat(1).length + 122 + 'px'
 })
+
+console.log('rangeDate.value', rangeDate.value)
 
 const checkValidator = () => {
     const keys = ['type', 'name', 'schedule']
