@@ -317,8 +317,9 @@ export function transformData2(backendData) {
         const renderData = uniqueProcesses.map((processName) => ({
             type: 'normal',
             color: types.find((type) => type.name === processName).color || '',
-            name: `${item.materialCode}-${processName}`,
+            name: `${item.materialCode}-${item.materialName}`,
             materialCode: item.materialCode,
+            processName: processName,
             schedule: []
         }))
         // console.log('renderData', renderData)
@@ -332,24 +333,30 @@ export function transformData2(backendData) {
             //遍历每个工序
             workOrder.processBaseDataList.forEach((process, index) => {
                 const targetProcess = renderData.find(
-                    (p) =>
-                        p.name === `${item.materialCode}-${process.processName}`
-                )
-                console.log(index, 'index')
-                console.log(
-                    workOrder.fcompletedQuantity[index],
-                    'fcompletedQuantity[index]'
-                )
-                console.log(
-                    workOrder.fcompletedQuantity,
-                    'workOrder.fcompletedQuantity'
+                    (p) => p.processName === process.processName
                 )
                 if (targetProcess) {
                     // console.log('targetProcess', targetProcess)
                     targetProcess.schedule.push({
                         id: parseInt(workOrder.ftaskId, 10) + index, // 假设需要用不同的 id 区分每个 schedule
                         name: `${process.processName}-${completedQuantityArray[index]}`, // 示例: '组装-1'
-                        desc: `项目单号${workOrder.ftaskSourceId}`,
+                        desc: `
+                        \n单据编号、单据来源：${workOrder.ftaskSourceId}
+                        \n单据类型：${workOrder.fpriority}
+                        \n物料编码：${item.materialCode}
+                        \n物料名称：${item.materialName}
+                        \n数量：${completedQuantityArray[index]}
+                        \n开始时间：${process.startTime}
+                        \n结束时间：${process.endTime}
+                        \n总工时：${(
+                            (new Date(process.endTime) -
+                                new Date(process.startTime)) /
+                            (1000 * 60 * 60)
+                        ).toFixed(2)}小时
+                        \n满足订单状态：${
+                            workOrder.fdelayDays > 0 ? '满足' : '不满足'
+                        }
+                        \n延迟交付FIM号：${workOrder.frelatedOrders}`,
                         backgroundColor: targetProcess.color,
                         textColor: 'rgb(245, 36, 9)', // 这个颜色假设是固定的
                         days: fethDaysRange(

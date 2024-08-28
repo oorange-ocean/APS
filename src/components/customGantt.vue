@@ -12,13 +12,16 @@
             <div class="item-name-list">
                 <!-- 项目名称项 -->
                 <div
-                    v-for="(item, index) in data"
+                    v-for="({ item, count }, index) in mergedGuideNames"
                     :key="index"
                     :class="{
                         'guide-name': true,
-                        'last-guide-name': index === data.length - 1
+                        'last-guide-name': index === mergedGuideNames.length - 1
                     }"
-                    :style="item.type === 'alike' && computedStyle(item)"
+                    :style="{
+                        ...(item.type === 'alike' && computedStyle(item)),
+                        height: `calc(var(--itemHeight) * ${count})`
+                    }"
                 >
                     {{
                         typeof props.alikeName === 'function' &&
@@ -119,7 +122,7 @@
 
 <script setup>
 import cloneDeep from 'lodash/cloneDeep'
-import { watchEffect, ref, onMounted, nextTick } from 'vue'
+import { watchEffect, ref, onMounted, nextTick, computed } from 'vue'
 import {
     computedDaysRange,
     fethDaysRange,
@@ -201,6 +204,23 @@ const props = defineProps({
 // 定义组件的emit
 const emit = defineEmits(['scheduleClick', 'scrollXEnd', 'scrollYEnd'])
 
+// 新增一个计算属性，只用于合并左侧栏的项目名称
+const mergedGuideNames = computed(() => {
+    const merged = []
+    const nameMap = new Map()
+
+    data.value.forEach((item, index) => {
+        if (nameMap.has(item.name)) {
+            nameMap.get(item.name).count++
+        } else {
+            nameMap.set(item.name, { item, index, count: 1 })
+            merged.push(nameMap.get(item.name))
+        }
+    })
+    console.log('merged', merged)
+
+    return merged
+})
 let rangeDate = ref([])
 const ganttMaxWidth = ref('2000px')
 const ganttInnerHeight = ref('0px')
@@ -458,13 +478,13 @@ const _updateScheduleItem = (scheduleItem, result) => {
     return result
 }
 
-// 生成当前游戏项目在当前日期范围的日程列表
-const renderWorks = (game) => {
+// 生成当前项目在当前日期范围的日程列表
+const renderWorks = (item) => {
     const dateRange = _flatDateRange(rangeDate.value)
-    // 如果当前游戏项目没有日程安排，直接返回默认的数据
-    if (!game.schedule || !game.schedule.length) return dateRange
+    // 如果当前项目没有日程安排，直接返回默认的数据
+    if (!item.schedule || !item.schedule.length) return dateRange
     let res = []
-    game.schedule.forEach((scheduleItem) => {
+    item.schedule.forEach((scheduleItem) => {
         dateRange.forEach((dayItem) => {
             // 当前日期是否是一个日程
             const isWork = _checkTodayIsWork(dayItem.date, scheduleItem)
@@ -614,6 +634,7 @@ const onScrollX = (event) => {
     }, 200)
 }
 
+//生成水印图片
 const waterMark = (txt) => {
     let length = txt.length * 20 // 根据内容生成画布大小，20代表比例
     let canvas = document.createElement('canvas')
@@ -710,7 +731,7 @@ defineExpose({
     --borderWidth: 1px;
     --borderColor: v-bind(props.borderColor);
     --border: 1px solid var(--borderColor);
-    --fontSize: 14px;
+    --fontSize: 12px;
     --fontColor: #333;
     --itemWidth: v-bind(props.itemWidth + 'px');
     --itemHeight: v-bind(props.itemHeight + 'px');
@@ -786,7 +807,7 @@ defineExpose({
         }
         .guide-name {
             width: 100%;
-            height: var(--itemHeight);
+            min-height: var(--itemHeight);
             border-bottom: var(--border);
             padding: 2px 10px;
             display: flex;
