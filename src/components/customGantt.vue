@@ -37,82 +37,38 @@
         <div class="inner" @scroll="onScrollX($event)" ref="innerRef">
             <!-- 顶部日期列表 -->
             <div class="date-list first-date-list">
-                <!-- 月份项 -->
+                <!-- 时间单位项 -->
                 <div
-                    v-for="monthItem in rangeDate"
-                    :key="monthItem.year + '-' + monthItem.month"
-                    class="month-item"
+                    v-for="(timeUnitItem, timeUnitIndex) in rangeDate"
+                    :key="timeUnitIndex"
+                    class="time-unit-item"
                 >
-                    <!-- 月份 -->
-                    <div class="month">
-                        {{ monthItem[0].year + '-' + monthItem[0].month }}
+                    <!-- 时间单位信息 -->
+                    <div class="time-unit-info">
+                        {{ getTimeUnitInfo(timeUnitItem) }}
                     </div>
-                    <!-- 日期盒子 -->
-                    <div class="day-box">
-                        <!-- 日期项 -->
+                    <!-- 子时间单位盒子 -->
+                    <div class="sub-time-unit-box">
+                        <!-- 子时间单位项 -->
                         <div
-                            v-for="(dayItem, dayIndex) in monthItem"
-                            :key="dayItem.day + dayItem.week"
+                            v-for="(
+                                subTimeUnitItem, subTimeUnitIndex
+                            ) in timeUnitItem"
+                            :key="getSubTimeUnitKey(subTimeUnitItem)"
                             :class="{
-                                'day-item': true,
-                                'first-day-item': dayIndex === 0,
-                                'date-active':
-                                    props.activeDate ===
-                                    dayItem.year +
-                                        '-' +
-                                        dayItem.month +
-                                        '-' +
-                                        dayItem.day
+                                'sub-time-unit-item': true,
+                                'first-sub-time-unit-item':
+                                    subTimeUnitIndex === 0,
+                                'date-active': isActiveDate(subTimeUnitItem)
                             }"
                         >
-                            <div class="day">{{ dayItem.day }}</div>
-                            <div class="week">{{ dayItem.week }}</div>
+                            <div class="sub-time-unit-main">
+                                {{ getSubTimeUnitMain(subTimeUnitItem) }}
+                            </div>
+                            <div class="sub-time-unit-sub">
+                                {{ getSubTimeUnitSub(subTimeUnitItem) }}
+                            </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 日程盒子 -->
-            <div class="schedule-box">
-                <!-- 日期盒子 -->
-                <div
-                    v-for="(item, index) in data"
-                    :key="index"
-                    :class="{
-                        'date-box': true,
-                        alike: item.type === 'alike'
-                    }"
-                >
-                    <!-- 日期项 -->
-                    <div
-                        v-for="(dateItem, dateIndex) in renderWorks(item)"
-                        :key="dateIndex"
-                        :class="{
-                            'date-item': true,
-                            'date-item-work': dateItem.type === 'works',
-                            'date-active': dateItem.date === props.activeDate
-                        }"
-                        :style="computedStyle(item, dateItem)"
-                        :title="dateItem.type === `works` ? dateItem.desc : ``"
-                        @mousemove="
-                            (event) => dateItemMove(dateItem.type, event)
-                        "
-                        @mouseout="
-                            (event) => dateItemMoveOut(dateItem.type, event)
-                        "
-                        @click="
-                            (event) => scheduleClick({ ...dateItem, event })
-                        "
-                    >
-                        <span
-                            v-if="dateItem.type === 'works'"
-                            class="work-desc"
-                            >{{
-                                props.scheduleTitle
-                                    ? props.scheduleTitle(dateItem)
-                                    : dateItem.name
-                            }}</span
-                        >
                     </div>
                 </div>
             </div>
@@ -209,6 +165,51 @@ const props = defineProps({
 // 定义组件的emit
 const emit = defineEmits(['scheduleClick', 'scrollXEnd', 'scrollYEnd'])
 
+const getTimeUnitInfo = (timeUnitItem) => {
+    switch (props.timeUnit) {
+        case 'week':
+            return `第${timeUnitItem[0].weekNumber}周`
+        case 'month':
+            return `${timeUnitItem[0].year}-${timeUnitItem[0].month}`
+        case 'day':
+            return `${timeUnitItem[0].year}-${timeUnitItem[0].month}-${timeUnitItem[0].day}`
+        default:
+            return ''
+    }
+}
+
+const getSubTimeUnitKey = (subTimeUnitItem) => {
+    return `${subTimeUnitItem.year}-${subTimeUnitItem.month}-${subTimeUnitItem.day}-${subTimeUnitItem.hour}`
+}
+
+const isActiveDate = (subTimeUnitItem) => {
+    const activeDate =
+        props.subTimeUnit === 'hour'
+            ? `${subTimeUnitItem.year}-${subTimeUnitItem.month}-${subTimeUnitItem.day}-${subTimeUnitItem.hour}`
+            : `${subTimeUnitItem.year}-${subTimeUnitItem.month}-${subTimeUnitItem.day}`
+    return props.activeDate === activeDate
+}
+
+const getSubTimeUnitMain = (subTimeUnitItem) => {
+    switch (props.subTimeUnit) {
+        case 'day':
+            return subTimeUnitItem.display
+        case 'hour':
+            return subTimeUnitItem.display
+        default:
+            return ''
+    }
+}
+
+const getSubTimeUnitSub = (subTimeUnitItem) => {
+    switch (props.subTimeUnit) {
+        case 'day':
+            return subTimeUnitItem.weekDay
+        default:
+            return ''
+    }
+}
+
 // 新增一个计算属性，只用于合并左侧栏的项目名称
 const mergedGuideNames = computed(() => {
     const merged = []
@@ -256,8 +257,8 @@ const computedGanttInnerHeight = () => {
 onMounted(() => {
     const itemBox = gantt.value.querySelector('.item-name-list')
     const innerBox = gantt.value.querySelector('.schedule-box')
-    itemBox.addEventListener('scroll', contentScroll)
-    innerBox.addEventListener('scroll', contentScroll)
+    // itemBox.addEventListener('scroll', contentScroll)
+    // innerBox.addEventListener('scroll', contentScroll)
     window.addEventListener('resize', computedGanttInnerHeight)
     computedGanttInnerHeight()
 })
@@ -623,17 +624,17 @@ const contentScroll = (event) => {
     }, 200)
 }
 
-watchEffect(() => {
-    sortFilterData()
-    if (props.repeatMode.mode === 'extract') {
-        data.value = workListSplitForRepeat(data.value, props.repeatMode)
-        data.value = splitSchedule(data.value)
-    }
-    // console.log('最新data', data.value)
-    nextTick(() => {
-        contentScroll()
-    })
-})
+// watchEffect(() => {
+//     sortFilterData()
+//     if (props.repeatMode.mode === 'extract') {
+//         data.value = workListSplitForRepeat(data.value, props.repeatMode)
+//         data.value = splitSchedule(data.value)
+//     }
+//     // console.log('最新data', data.value)
+//     nextTick(() => {
+//         contentScroll()
+//     })
+// })
 
 const scheduleClick = (item) => {
     emit('scheduleClick', item)
@@ -852,13 +853,12 @@ defineExpose({
             width: 100%;
             height: 120px;
             display: flex;
-            .month-item {
-                width: auto;
+            .time-unit-item {
                 height: 100%;
                 border-bottom: var(--border);
                 display: flex;
                 flex-direction: column;
-                .month {
+                .time-unit-info {
                     flex: 1;
                     border-left: var(--border);
                     border-bottom: var(--border);
@@ -867,12 +867,13 @@ defineExpose({
                     align-items: center;
                     justify-content: center;
                 }
-                .day-box {
+                .sub-time-unit-box {
                     flex: 2;
                     display: flex;
-                    .day-item {
+                    .sub-time-unit-item {
                         width: var(--itemWidth);
-                        .day {
+                        .sub-time-unit-main,
+                        .sub-time-unit-sub {
                             width: var(--itemWidth);
                             height: 50%;
                             border-left: var(--border);
@@ -880,36 +881,24 @@ defineExpose({
                             align-items: center;
                             justify-content: center;
                         }
-                        .week {
-                            width: var(--itemWidth);
-                            height: 50%;
-                            border-left: var(--border);
+                        .sub-time-unit-sub {
                             border-top: var(--border);
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
                         }
                     }
                 }
                 &:first-child {
-                    .month {
+                    .time-unit-info {
                         border-left: none;
                     }
-                    .day-box {
-                        .first-day-item {
-                            .day {
+                    .sub-time-unit-box {
+                        .first-sub-time-unit-item {
+                            .sub-time-unit-main,
+                            .sub-time-unit-sub {
                                 border-left: none;
                             }
-                            .week {
-                                border-left: none;
-                            }
-                            border-left: none;
                         }
                     }
                 }
-            }
-            &.first-date-list {
-                border-left: none;
             }
         }
         .schedule-box {

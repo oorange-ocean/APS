@@ -20,7 +20,7 @@ import Gantt from '@/components/customGantt.vue'
 import { transformData2, getDateRangeList } from '@/utils/gantt'
 import useGtt from '@/store/modules/gtt'
 
-const timeUnit = ref('week')
+const timeUnit = ref('month')
 const subTimeUnit = ref('day')
 const gtt = useGtt()
 const ganttData = ref([])

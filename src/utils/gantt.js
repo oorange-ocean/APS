@@ -149,7 +149,7 @@ export const splitForTimeUnit = (timeRange, timeUnit) => {
         switch (timeUnit) {
             case 'hour':
             case 'day':
-                key = `${item.year}-${item.month}`
+                key = `${item.year}-${item.month}-${item.day}`
                 break
             case 'week':
                 // 对于周，我们使用年份和周数作为键
