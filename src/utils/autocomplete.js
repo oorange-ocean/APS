@@ -39,10 +39,26 @@ const querySearch = (tableId, colId, searchUrl) => {
 }
 
 const querySearchMaterialName = async (item) => {
-    // /material/getMaterialLike/
+    console.log('fetch选项参数', item)
     const baseUrl =
         'https://www.aps.benewake.top/benewake/material/getMaterialLike/'
-    const apiUrl = baseUrl + item.value
+    const apiUrl = item.value ? baseUrl + item.value : baseUrl + item
+    const res = await axios.get(apiUrl, {
+        headers: {
+            'Content-Type': 'application/json',
+            token: getToken()
+        }
+    })
+    if (res.data) {
+        return res.data
+    }
+}
+
+// /gantt/getProductGanttDetailMaterialCodeLike?materialCode=13.01.
+export const getProductGanttDetailMaterialCodeLike = async (item) => {
+    const baseUrl =
+        'https://www.aps.benewake.top/benewake/gantt/getProductGanttDetailMaterialCodeLike'
+    const apiUrl = `${baseUrl}?materialCode=${item}`
     const res = await axios.get(apiUrl, {
         headers: {
             'Content-Type': 'application/json',

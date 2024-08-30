@@ -72,16 +72,55 @@
                     </div>
                 </div>
             </div>
+            <!-- 日程盒子 -->
+            <div class="schedule-box">
+                <!-- 日期盒子 -->
+                <div
+                    v-for="(item, index) in props.data"
+                    :key="index"
+                    :class="{
+                        'date-box': true,
+                        alike: item.type === 'alike'
+                    }"
+                >
+                    <!-- 日期项 -->
+                    <div
+                        v-for="(dateItem, dateIndex) in renderWorks(item)"
+                        :key="dateIndex"
+                        :class="{
+                            startDotline: dateItem.startDotline,
+                            endDotline: dateItem.endDotline,
+                            'date-item': true,
+                            'date-item-work': dateItem.type === 'works',
+                            'date-active': isActiveDate(dateItem)
+                        }"
+                        :style="{
+                            ...computedStyle(item, dateItem),
+                            '--startDotlineRight': dateItem.startDotlineRight
+                                ? `${dateItem.startDotlineRight}px`
+                                : '0'
+                        }"
+                        :title="dateItem.type === `works` ? dateItem.desc : ``"
+                    >
+                        <span
+                            v-if="dateItem.type === 'works'"
+                            class="work-desc"
+                            v-html="
+                                props.scheduleTitle
+                                    ? props.scheduleTitle(dateItem)
+                                    : dateItem.name.replace(/\n/g, '<br>')
+                            "
+                        ></span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </template>
 
 <script setup>
-import cloneDeep from 'lodash/cloneDeep'
 import { watchEffect, ref, onMounted, nextTick, computed } from 'vue'
 import { fetchSubTimeUnitRange, splitForTimeUnit } from '@/utils/gantt'
-import html2canvas from 'html2canvas'
-import { exportExcel } from '@/utils/excel'
 // 定义组件的props
 const props = defineProps({
     data: {
@@ -163,7 +202,7 @@ const props = defineProps({
 })
 
 // 定义组件的emit
-const emit = defineEmits(['scheduleClick', 'scrollXEnd', 'scrollYEnd'])
+const emit = defineEmits(['scheduleClick'])
 
 const getTimeUnitInfo = (timeUnitItem) => {
     switch (props.timeUnit) {
@@ -215,7 +254,7 @@ const mergedGuideNames = computed(() => {
     const merged = []
     const nameMap = new Map()
 
-    data.value.forEach((item, index) => {
+    props.data.forEach((item, index) => {
         if (nameMap.has(item.name)) {
             nameMap.get(item.name).count++
         } else {
@@ -223,7 +262,7 @@ const mergedGuideNames = computed(() => {
             merged.push(nameMap.get(item.name))
         }
     })
-    console.log('merged', merged)
+    // console.log('merged', merged)
 
     return merged
 })
@@ -250,6 +289,7 @@ const computedGanttInnerHeight = () => {
             const topHeight = headRect.top - parentRect.top
             ganttInnerHeight.value =
                 parentRect.height - headRect.height - topHeight + 'px'
+            // console.log('ganttInnerHeight.value', ganttInnerHeight.value)
         })
     }, 200)
 }
@@ -257,347 +297,11 @@ const computedGanttInnerHeight = () => {
 onMounted(() => {
     const itemBox = gantt.value.querySelector('.item-name-list')
     const innerBox = gantt.value.querySelector('.schedule-box')
-    // itemBox.addEventListener('scroll', contentScroll)
-    // innerBox.addEventListener('scroll', contentScroll)
+    itemBox.addEventListener('scroll', contentScroll)
+    innerBox.addEventListener('scroll', contentScroll)
     window.addEventListener('resize', computedGanttInnerHeight)
     computedGanttInnerHeight()
 })
-
-/**
- * @function splitForTimeUnit 将日期范围拆分成指定unit的二维数组
- * @param {Array} dateRangeList 日期范围列表
- * @param {String} timeUnit 时间单位
- * @param {String} subTimeUnit 子时间单位
- * @param {Number} step 步长
- * @returns {Array}  日期范围列表
- */
-watchEffect(() => {
-    rangeDate.value = splitForTimeUnit(
-        fetchSubTimeUnitRange(
-            props.dateRangeList[0],
-            props.dateRangeList.at(-1),
-            props.subTimeUnit,
-            props.step
-        ),
-        props.timeUnit
-    )
-    ganttMaxWidth.value =
-        props.itemWidth * rangeDate.value.flat(1).length + 122 + 'px'
-})
-
-console.log('rangeDate.value', rangeDate.value)
-
-const checkValidator = () => {
-    const keys = ['type', 'name', 'schedule']
-    const scheduleKeys = [
-        'id',
-        'name',
-        'desc',
-        'backgroundColor',
-        'textColor',
-        'days'
-    ]
-    props.data.forEach((item) => {
-        if (item.type === 'normal') {
-            const arr = Object.keys(item)
-            const res = keys.find((v) => !arr.includes(v))
-            if (res) {
-                throw new Error(`项目缺少${res}项`)
-            }
-            item.schedule.forEach((v) => {
-                if (!v.list) {
-                    const arrs = Object.keys(v)
-                    const ress = scheduleKeys.find((val) => !arrs.includes(val))
-                    if (ress) {
-                        throw new Error(`日程缺少${ress}项`)
-                    }
-                }
-            })
-        }
-    })
-}
-
-const data = ref([])
-
-const splitSchedule = (data) => {
-    return data.map((item) => {
-        if (
-            item.type === 'normal' &&
-            Array.isArray(item.schedule) &&
-            item.schedule.length
-        ) {
-            item.schedule = item.schedule.filter((v) => {
-                const check = rangeDate.value[0][0]
-                const checkTime = `${check.year}-${check.month}-${check.day}`
-                return (
-                    new Date(v.days.at(-1)).getTime() >=
-                    new Date(checkTime).getTime()
-                )
-            })
-        }
-        return item
-    })
-}
-
-const sortFilterData = () => {
-    checkValidator()
-    data.value = cloneDeep(props.data).map((item) => {
-        if (item.type === 'normal' && Array.isArray(item.schedule)) {
-            item.schedule = item.schedule.sort(
-                (a, b) =>
-                    new Date(a.days[0]).getTime() -
-                    new Date(b.days[0]).getTime()
-            )
-            item.schedule = item.schedule.map((schedule) => {
-                if (schedule.days.length === 2) {
-                    schedule.days = fethDaysRange(...schedule.days)
-                }
-                return schedule
-            })
-            // console.log('@@@@@@@@', JSON.parse(JSON.stringify(item)))
-            return item
-        }
-        return item
-    })
-    data.value = splitSchedule(data.value)
-}
-
-// 计算当前盒子样式
-const computedStyle = (parent, item) => {
-    let res = {}
-    if (parent.type === 'alike') {
-        // 全部统一样式
-        res = {
-            ...res,
-            backgroundColor: parent.color
-        }
-    }
-    if (item && item.type === 'works') {
-        res = {
-            ...res,
-            backgroundColor: item.backgroundColor,
-            color: item.textColor,
-            width: item.width + 'px',
-            marginLeft: -item.left + 'px'
-        }
-    }
-    return res
-}
-
-// 计算当前日程范围在指定日期范围应该渲染的宽度 (假设日程范围都是合法的)
-const computeWordWidth = (schedule, days) => {
-    const hasFirst = todayInRange(schedule[0], [
-        days[0].date,
-        days[days.length - 1].date
-    ])
-    const hasLast = todayInRange(schedule[schedule.length - 1], [
-        days[0].date,
-        days[days.length - 1].date
-    ])
-    if (hasFirst && hasLast) return schedule.length * props.itemWidth
-    if (!hasFirst && hasLast) {
-        // 无头有尾
-        return (
-            fethDaysRange(days[0].date, schedule[schedule.length - 1]).length *
-            props.itemWidth
-        )
-    } else if (hasFirst && !hasLast) {
-        // 有头无尾
-        return (
-            fethDaysRange(schedule[0], days[days.length - 1].date).length *
-            props.itemWidth
-        )
-    } else if (!hasFirst && !hasLast) {
-        // 无头无尾 当前日程垮度直接覆盖当前展示日程范围
-        return (
-            fethDaysRange(days[0].date, days.at(-1).date).length *
-            props.itemWidth
-        )
-    }
-    throw new Error('computeWordwidth 宽度计算异常！')
-}
-// 检查当前日期是否是指定项目的日程
-const _checkTodayIsWork = (today, schedule) => {
-    return schedule.days.includes(today)
-}
-// 检查当前日期是否在最终结果列表上
-const _checkTodayInResult = (today, result) => {
-    return !!result.find((item) => item.date === today)
-}
-// 检查当前日程是否已经添加到最终结果列表上
-const _checkWorkInResult = (work, result) => {
-    return !!result.find((item) => item.id === work.id)
-}
-// 检查当前日期是否在指定的日程列表中
-const _checkTodayInWorkList = (today, workList) => {
-    return !!workList.find((item) => item.days.includes(today))
-}
-// 检查当前日期是否在最终结果已经添加的日程列表中
-const _checkTodayInAllWorkList = (today, result) => {
-    const res = result.filter((item) => item.type === 'works')
-    return !!_checkTodayInWorkList(today, res)
-}
-// 把日期范围二维数组处理成适用于日程渲染的一维数组
-const _flatDateRange = (dateRange) => {
-    return dateRange.flat(1).map((item) => {
-        return {
-            type: 'normal',
-            date:
-                String(item.year).padStart(4, '0') +
-                '-' +
-                String(item.month).padStart(2, '0') +
-                '-' +
-                String(item.day).padStart(2, '0')
-        }
-    })
-}
-// 检查两个日程的重叠范围
-const _checkWorkRepeatRange = (workA, workB) => {
-    return workA.days.filter((item) => workB.days.includes(item))
-}
-// 从最终结果中找到指定日期所在的日程信息
-const _findTodayForWork = (today, res) => {
-    return res.find(
-        (item) => item.type === 'works' && item.days.includes(today)
-    )
-}
-// 更新已有日程
-const _updateScheduleItem = (scheduleItem, result) => {
-    // 检查当前要更新进去的日程有没有重叠的部分
-    const inWorkInfo = _findTodayForWork(scheduleItem.days[0], result)
-    if (inWorkInfo && scheduleItem.id !== inWorkInfo.id) {
-        // 获取重叠范围
-        const repeatList = _checkWorkRepeatRange(inWorkInfo, scheduleItem)
-        const start = scheduleItem.days.slice(repeatList.length)[0]
-        const index = result.findIndex((item) => item.date === start)
-        result[index] = {
-            type: 'works',
-            date: scheduleItem.days[0],
-            width: computeWordWidth(scheduleItem.days, result),
-            left: repeatList.length * props.itemWidth,
-            ...scheduleItem
-        }
-    } else {
-        // 正常更新 (有头有尾)
-        const index = result.findIndex(
-            (item) => item.date === scheduleItem.days[0]
-        )
-        result[index] = {
-            type: 'works',
-            date: scheduleItem.days[0],
-            width: computeWordWidth(scheduleItem.days, result),
-            left: 0,
-            ...scheduleItem
-        }
-    }
-    // 新增日程，需要同步删除更新日程列表，把原本为空的部分日程删掉
-    result = result.filter((item) => {
-        return !(
-            item.type === 'normal' && scheduleItem.days.includes(item.date)
-        )
-    })
-    return result
-}
-
-// 生成当前项目在当前日期范围的日程列表
-const renderWorks = (item) => {
-    const dateRange = _flatDateRange(rangeDate.value)
-    // 如果当前项目没有日程安排，直接返回默认的数据
-    if (!item.schedule || !item.schedule.length) return dateRange
-    let res = []
-    item.schedule.forEach((scheduleItem) => {
-        dateRange.forEach((dayItem) => {
-            // 当前日期是否是一个日程
-            const isWork = _checkTodayIsWork(dayItem.date, scheduleItem)
-            // 当前日期是否已经添加到最终结果
-            const todayInResult = _checkTodayInResult(dayItem.date, res)
-            // 当前日期是否在已添加的日程范围内
-            const todayInAllWorkList = _checkTodayInAllWorkList(
-                dayItem.date,
-                res
-            )
-            // 是日程
-            if (isWork) {
-                // 当前日期没有被添加 && 当前日期不在已添加的日程范围内
-                if (!todayInResult && !todayInAllWorkList) {
-                    // 第一次
-                    res.push({
-                        type: 'works',
-                        date: dayItem.date,
-                        width: computeWordWidth(scheduleItem.days, dateRange),
-                        left: 0,
-                        ...scheduleItem
-                    })
-                } else if (!todayInResult && todayInAllWorkList) {
-                    // 当前日期没有被添加 && 当前日期在已添加的日程范围内
-                    // 获取所在的日程信息
-                    const inWorkInfo = _findTodayForWork(dayItem.date, res)
-                    if (scheduleItem.id !== inWorkInfo.id) {
-                        // 获取重叠范围
-                        const repeatList = _checkWorkRepeatRange(
-                            inWorkInfo,
-                            scheduleItem
-                        )
-                        res = _updateScheduleItem(scheduleItem, res)
-                    } else {
-                        // 所在日程信息和当前循环日程信息一致
-                        // 无需处理
-                    }
-                } else if (todayInResult && !todayInAllWorkList) {
-                    // 当前日期已经被添加 && 当前日程不在已添加的日程范围内 (新增日程)
-                    // 获取已添加日期的位置，更新当前日期日程
-                    console.warn(
-                        '当前日期已经被添加 && 当前日程不在已添加的日程范围内 (新增日程)'
-                    )
-                    res = _updateScheduleItem(scheduleItem, res)
-                } else {
-                    // 当前日期已经被添加 && 当前日期在已添加的日程范围内
-                    // 无需处理
-                    // console.log('当前日期已经被添加 && 当前日期在已添加的日程范围内')
-                }
-            } else {
-                // 不是日程
-                // 当前日期没有被添加 并且 没有在已添加日程范围
-                if (!todayInResult && !todayInAllWorkList) {
-                    res.push(dayItem)
-                } else if (!todayInResult && todayInAllWorkList) {
-                    // 当前日期没有添加 && 当前日期在已经添加的日程范围内
-                    // console.log('当前日期没有添加 && 当前日期在已经添加的日程范围内')
-                } else {
-                    // 当前日期已经添加
-                    // console.log('当前日期已经添加', dayItem)
-                }
-            }
-        })
-    })
-    return res
-}
-
-const dateItemMove = (type, event) => {
-    if (type !== 'works') return
-    if (event.target.tagName === 'SPAN') {
-        event.target.parentElement.style.zIndex = 2
-        event.target.parentElement.style.boxShadow =
-            '0 0 5px 0px rgba(0, 0, 0, 0.2)'
-    } else {
-        event.target.style.zIndex = 2
-        event.target.style.boxShadow = '0 0 5px 0px rgba(0, 0, 0, 0.2)'
-    }
-}
-const dateItemMoveOut = (type, event) => {
-    if (type !== 'works') return
-    if (event.target.tagName === 'SPAN') {
-        event.target.parentElement.style.zIndex = 1
-        event.target.parentElement.style.boxShadow = 'none'
-    } else {
-        event.target.style.zIndex = 1
-        event.target.style.boxShadow = 'none'
-    }
-}
-
-let timer = null
-
-const innerRef = ref(null)
 
 const contentScroll = (event) => {
     const target = event ? event.target : innerRef.value
@@ -624,21 +328,298 @@ const contentScroll = (event) => {
     }, 200)
 }
 
-// watchEffect(() => {
-//     sortFilterData()
-//     if (props.repeatMode.mode === 'extract') {
-//         data.value = workListSplitForRepeat(data.value, props.repeatMode)
-//         data.value = splitSchedule(data.value)
-//     }
-//     // console.log('最新data', data.value)
-//     nextTick(() => {
-//         contentScroll()
-//     })
-// })
+/**
+ * @function splitForTimeUnit 将日期范围拆分成指定unit的二维数组
+ * @param {Array} dateRangeList 日期范围列表
+ * @param {String} timeUnit 时间单位
+ * @param {String} subTimeUnit 子时间单位
+ * @param {Number} step 步长
+ * @returns {Array}  日期范围列表
+ */
+watchEffect(() => {
+    rangeDate.value = splitForTimeUnit(
+        fetchSubTimeUnitRange(
+            props.dateRangeList[0],
+            props.dateRangeList.at(-1),
+            props.subTimeUnit,
+            props.step
+        ),
+        props.timeUnit
+    )
+    ganttMaxWidth.value =
+        props.itemWidth * rangeDate.value.flat(1).length + 122 + 'px'
+})
 
-const scheduleClick = (item) => {
-    emit('scheduleClick', item)
+// console.log('rangeDate.value', rangeDate.value)
+
+const data = ref([])
+
+// 计算当前盒子样式
+const computedStyle = (parent, item) => {
+    let res = {}
+    if (item && item.type === 'works') {
+        res = {
+            ...res,
+            backgroundColor: parent.backgroundColor,
+            color: parent.textColor,
+            width: item.width + 'px',
+            marginLeft: -item.left + 'px',
+            textAlign: 'center'
+        }
+    }
+    return res
 }
+
+// 检查当前日期是否在最终结果列表上
+const _checkTodayInResult = (today, result) => {
+    return !!result.find((item) => item.date === today)
+}
+// 检查当前日程是否已经添加到最终结果列表上
+const _checkWorkInResult = (work, result) => {
+    return !!result.find((item) => item.id === work.id)
+}
+// 检查当前日期是否在指定的日程列表中
+const _checkTodayInWorkList = (today, workList) => {
+    return !!workList.find((item) =>
+        item.timeUnits.some((timeUnit) => formatDate(timeUnit) === today)
+    )
+}
+// 检查当前日期是否在当前行已经添加的日程列表中
+const _checkTodayInAllWorkList = (today, result) => {
+    const res = result.filter((item) => item.type === 'works')
+    // console.log('需要检查的行', res)
+    return !!_checkTodayInWorkList(today, res)
+}
+// 把日期范围二维数组处理成适用于日程渲染的一维数组
+const _flatDateRange = (dateRange) => {
+    return dateRange.flat(1).map((item) => {
+        let date
+        switch (props.subTimeUnit) {
+            case 'hour':
+                date = `${item.year}-${item.month}-${item.day}-${item.hour}`
+                break
+            case 'day':
+                date = `${item.year}-${item.month}-${item.day}`
+                break
+            case 'week':
+                date = `${item.year}-W${item.weekNumber}`
+                break
+            case 'month':
+                date = `${item.year}-${item.month}`
+                break
+            default:
+                date = `${item.year}-${item.month}-${item.day}`
+        }
+        return {
+            type: 'normal',
+            date,
+            display: item.display,
+            ...item
+        }
+    })
+}
+// 检查两个日程的重叠范围
+const _checkWorkRepeatRange = (workA, workB) => {
+    // console.log('workA', workA)
+    // console.log(workA.timeUnits === workA.timeUnits)
+    // console.log('workA.timeUnits', workA.timeUnits)
+    const daysA = workA.timeUnits.map(formatDate)
+    // console.log('daysA', daysA)
+    const daysB = workB.timeUnits.map(formatDate)
+    // console.log('daysB', daysB, 'workB', workB)
+    return daysA.filter((day) => daysB.includes(day))
+}
+
+// 从目前排出来的结果中找到指定日期所在的日程信息
+const _findTodayForWork = (query, res) => {
+    // console.log('查询参数', 'today', today, 'res', res)
+    return res.find(
+        (item) =>
+            item.type === 'works' &&
+            item.timeUnits.some((timeUnit) => formatDate(timeUnit) === query)
+    )
+}
+// 更新已有日程
+const _updateScheduleItem = (scheduleItem, result) => {
+    // 获取已加入的重叠日程
+    // console.log('再次查询', formatDate(scheduleItem.timeUnits[0]))
+    const inWorkInfo = _findTodayForWork(
+        formatDate(scheduleItem.timeUnits[0]),
+        result
+    )
+    if (inWorkInfo && scheduleItem.id !== inWorkInfo.id) {
+        // console.log(
+        //     '将冲突的日期',
+        //     scheduleItem,
+        //     '已排好的被冲突的',
+        //     inWorkInfo
+        // )
+
+        // 获取重叠范围
+        const repeatList = _checkWorkRepeatRange(inWorkInfo, scheduleItem)
+        // console.log('重叠范围', repeatList)
+        //重叠范围的起点
+        const start = repeatList[0]
+        // console.log('重叠范围的起点', start)
+        //重叠范围起点对应的日期索引
+        const index = inWorkInfo.timeUnits.findIndex(
+            (item) => formatDate(item) === start
+        )
+        // console.log('重叠范围起点对应的日期索引', index)
+        //截取index之前的时间片
+        inWorkInfo.timeUnits = inWorkInfo.timeUnits.slice(0, index)
+        inWorkInfo.width = inWorkInfo.timeUnits.length * props.itemWidth
+        // console.log('截取index之前的部分后的inworkinfo', inWorkInfo)
+        inWorkInfo.endDotline = true
+        //移除那些和scheduleitem的timeunits相同的日程
+        let isFirst = true
+        scheduleItem.timeUnits.forEach((timeUnit) => {
+            const index = result.findIndex(
+                (item) =>
+                    item.type === 'normal' && item.date === formatDate(timeUnit)
+            )
+            if (index !== -1) {
+                result.splice(index, 1)
+                //如果是首个，就将scheduleitem插入此处
+                if (isFirst) {
+                    result.splice(index, 0, {
+                        type: 'works',
+                        date: formatDate(scheduleItem.timeUnits[0]),
+                        width: scheduleItem.timeUnits.length * props.itemWidth,
+                        left: 0,
+                        startDotline: true,
+                        startDotlineRight: repeatList.length * props.itemWidth,
+                        ...scheduleItem
+                    })
+                    // console.log(
+                    //     '虚线右移距离',
+                    //     repeatList.length * props.itemWidth
+                    // )
+                    isFirst = false
+                }
+            }
+        })
+        // console.log(
+        //     '移除那些和scheduleItem的date相同的日程并将新日程插入',
+        //     result
+        // )
+
+        //新日程
+    }
+    // else {
+    //     // 正常更新 (有头有尾)
+    //     const index = result.findIndex(
+    //         (item) => item.date === scheduleItem.days[0]
+    //     )
+    //     result[index] = {
+    //         type: 'works',
+    //         date: scheduleItem.days[0],
+    //         width: scheduleItem.days.length * props.itemWidth,
+    //         left: 0,
+    //         ...scheduleItem
+    //     }
+    // }
+    // // 新增日程，需要同步删除更新日程列表，把原本为空的部分日程删掉
+    // result = result.filter((item) => {
+    //     return !(
+    //         item.type === 'normal' && scheduleItem.days.includes(item.date)
+    //     )
+    // })
+    // return result
+}
+
+const formatDate = (timeUnit) => {
+    switch (props.subTimeUnit) {
+        case 'hour':
+            return `${timeUnit.year}-${timeUnit.month}-${timeUnit.day}-${timeUnit.hour}`
+        case 'day':
+            return `${timeUnit.year}-${timeUnit.month}-${timeUnit.day}`
+        case 'week':
+            return `${timeUnit.year}-W${timeUnit.weekNumber}`
+        case 'month':
+            return `${timeUnit.year}-${timeUnit.month}`
+        default:
+            return `${timeUnit.year}-${timeUnit.month}-${timeUnit.day}`
+    }
+}
+
+// 生成当前项目在当前日期范围的日程列表
+const renderWorks = (item) => {
+    // console.log('item', item)
+    const dateRange = _flatDateRange(rangeDate.value)
+    // 如果当前项目没有日程安排，直接返回默认的数据
+    if (!item.schedule || !item.schedule.length) return dateRange
+    let res = []
+    item.schedule.forEach((scheduleItem) => {
+        // console.log(`开始处理${item.name}的日程: ${scheduleItem.name}`)
+        dateRange.forEach((dayItem) => {
+            // 当前日期是否包含在此次遍历的日程中
+            // console.log('dayItem', dayItem)
+            const isWork = scheduleItem.timeUnits.some(
+                (timeUnit) => formatDate(timeUnit) === dayItem.date
+            )
+            // console.log('isWork', isWork)
+            // 当前日期是否已经添加到该行的目前结果（如果是，说明已经有一个以此处作为起点的日程）
+            const todayInResult = _checkTodayInResult(dayItem.date, res)
+            // console.log('todayInResult', todayInResult)
+            // 当前日期是否在已添加的日程范围内(如果是，就说明在此处添加日程会产生重叠)
+            const todayInAllWorkList = _checkTodayInAllWorkList(
+                dayItem.date,
+                res
+            )
+            // console.log('todayInAllWorkList', todayInAllWorkList)
+            // console.log('开始处理', dayItem.date, scheduleItem)
+            // 当前日期包含在此次遍历的日程(scheduleitem)中
+            if (isWork) {
+                // 当前日期没有曾经被作为起点添加到该行的最后排程结果
+                //&& 当前日期不在已添加的日程范围内(包括自身)=>该日就是起点，添加
+                if (!todayInResult && !todayInAllWorkList) {
+                    // console.log('添加日程', dayItem.date, scheduleItem)
+                    res.push({
+                        type: 'works',
+                        date: dayItem.date,
+                        width: scheduleItem.timeUnits.length * props.itemWidth,
+                        left: 0,
+                        ...scheduleItem
+                    })
+                    // console.log('该行更新后的值', res)
+                } else if (!todayInResult && todayInAllWorkList) {
+                    // 当前日期没有作为起点被添加 && 当前日期在已添加的日程范围内 => 冲突或者是和前面的同属一个日程
+                    // 获取所在的日程信息
+                    // console.log('在已添加的日程范围内', dayItem.date, res)
+                    const inWorkInfo = _findTodayForWork(dayItem.date, res)
+                    // console.log('查询结果', inWorkInfo)
+                    if (scheduleItem.id !== inWorkInfo.id) {
+                        //重叠
+                        // console.log(
+                        //     '发生重叠！',
+                        //     '将插入的日程\n',
+                        //     scheduleItem,
+                        //     '被冲突的日程',
+                        //     inWorkInfo
+                        // )
+                        _updateScheduleItem(scheduleItem, res)
+                    } else {
+                        // 说明是属于同一个日程，无需处理
+                        // console.log('同一个日程', scheduleItem, inWorkInfo)
+                    }
+                }
+            } else {
+                //占位
+                if (!todayInResult && !todayInAllWorkList) {
+                    res.push(dayItem)
+                }
+            }
+        })
+        // console.log(`处理${item.name}的日程结束`)
+    })
+    // console.log('res', res)
+    return res
+}
+
+let timer = null
+
+const innerRef = ref(null)
 
 const onScrollX = (event) => {
     if (timer) {
@@ -654,97 +635,6 @@ const onScrollX = (event) => {
         }
     }, 200)
 }
-
-//生成水印图片
-const waterMark = (txt) => {
-    let length = txt.length * 20 // 根据内容生成画布大小，20代表比例
-    let canvas = document.createElement('canvas')
-    canvas.width = canvas.height = length
-    let context = canvas.getContext('2d')
-    context.font =
-        '14px "PingFangSC", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif'
-    context.fillStyle = 'rgba(0,0,0,0.5)'
-    context.rotate((-25 * Math.PI) / 180) // 画布里面文字的旋转角度
-    context.fillText(txt, length / 20, length / 2) // 文字的位置
-    const waterImg = canvas.toDataURL('image/png')
-    canvas = context = null
-    return waterImg
-}
-
-const exportImg = async (config = {}) => {
-    if (typeof config === 'boolean' || typeof config !== 'object') {
-        throw new Error('exportImg传参方式已更改，请通过Object方式设置导出配置')
-    }
-    let { download = true, waterType = 'txt', waterValue = '' } = config
-    return new Promise((resolve) => {
-        const guide = document.querySelector('.guide')
-        ganttInnerHeight.value = 'unset'
-        gantt.value.style.maxWidth = 'unset'
-        innerRef.value.scrollLeft = innerRef.value.scrollWidth
-        gantt.value.style.width =
-            innerRef.value.scrollWidth + guide.clientWidth + 'px'
-        nextTick(() => {
-            waterValue = waterValue.trim()
-            let mark = null
-            if (waterValue) {
-                const waterImg = waterMark(waterValue)
-                mark = document.createElement('div')
-                mark.style.position = 'absolute'
-                mark.style.zIndex = '9999'
-                mark.style.opacity = '0.1'
-                mark.style.top = mark.style.left = '0'
-                mark.style.width = mark.style.height = '100%'
-                mark.style.backgroundImage = `url(${waterImg})`
-                gantt.value.appendChild(mark)
-            }
-            html2canvas(gantt.value, {
-                removeContainer: true
-            }).then(function (canvas) {
-                const href = canvas.toDataURL()
-                if (mark) {
-                    mark.parentNode.removeChild(mark)
-                }
-                gantt.value.style.maxWidth = ganttMaxWidth.value
-                computedGanttInnerHeight()
-                gantt.value.style.width = '100%'
-                if (download) {
-                    const a = document.createElement('a')
-                    a.href = href
-                    a.setAttribute('download', '日程图')
-                    a.click()
-                }
-                resolve(href)
-            })
-        })
-    })
-}
-
-const exportGanttExcel = (file) => {
-    const excelData = cloneDeep(data.value).map((item) => {
-        item.renderWorks = renderWorks(item)
-        if (item.type === 'alike' && props.alikeName) {
-            item.name = props.alikeName(item)
-        }
-        if (item.type === 'normal' && props.scheduleTitle) {
-            item.renderWorks.forEach((renderItem) => {
-                renderItem.name = props.scheduleTitle(renderItem)
-            })
-        }
-        return item
-    })
-    exportExcel(
-        file,
-        rangeDate.value,
-        excelData,
-        props.dateText,
-        props.itemText
-    )
-}
-
-defineExpose({
-    exportImg,
-    exportGanttExcel
-})
 </script>
 
 <style lang="less" scoped>
@@ -928,22 +818,51 @@ defineExpose({
                 align-items: center;
                 padding: 0 10px;
                 .work-desc {
-                    width: 100%;
-                    height: 100%;
-                    line-height: calc(var(--itemHeight) / 2);
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    white-space: nowrap;
                     text-align: center;
                     font-size: 12px;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    display: -webkit-box;
-                    -webkit-box-orient: vertical;
-                    -webkit-line-clamp: 2;
+                    line-height: 1.2;
+                    z-index: 2;
+                    // background-color: inherit; // 继承父元素的背景色
+                    padding: 2px 4px; // 添加一些内边距
+                    border-radius: 2px; // 可选：添加圆角
+                    // box-shadow: 0 0 3px rgba(0, 0, 0, 0.2); // 可选：添加阴影以增加可读性
                 }
                 &.date-item-work {
                     cursor: pointer;
                     position: relative;
                     z-index: 1;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    &.startDotline::before,
+                    &.endDotline::after {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        bottom: 0;
+                        width: 0;
+                        border-style: dashed;
+                        border-width: 0.5px; // 增加边框宽度
+                        border-color: #ff6b6b; // 使用醒目的颜色
+                        z-index: 2; // 确保虚线在网格线之上
+                    }
+
+                    &.startDotline::before {
+                        left: var(--startDotlineRight, 0);
+                        border-left-width: 1.5px;
+                    }
+
+                    &.endDotline::after {
+                        right: 0;
+                        border-right-width: 1.5px;
+                    }
                 }
+
                 &:first-child {
                     border-left: none;
                 }

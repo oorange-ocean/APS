@@ -8,14 +8,24 @@ export function getGttData() {
 }
 
 // 获取生产甘特图数据
+// 获取生产甘特图数据
 export function getProductGanttData(product) {
-    return request({
-        url: '/gantt/getProductGanttData',
-        method: 'post',
-        params: {
-            product
-        }
-    })
+    // console.log(product)
+    if (product && Object.keys(product).length > 0) {
+        product = Object.values(product)
+        console.log(product)
+        return request({
+            url: '/gantt/getProductGanttData',
+            method: 'post',
+            data: product
+        })
+    } else {
+        // 如果 product 为空或没有属性
+        return request({
+            url: '/gantt/getProductGanttData',
+            method: 'post'
+        })
+    }
 }
 
 //获取某一批生产的详细数据

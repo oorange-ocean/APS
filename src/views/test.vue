@@ -1,8 +1,16 @@
 <template>
     <div class="block">
         <span class="demonstration">请选择开始时间和结束时间：</span>
-        <el-date-picker @change="convertDates" v-model="value" type="daterange" unlink-panels range-separator="To"
-            start-placeholder="Start date" end-placeholder="End date" :shortcuts="shortcuts" />
+        <el-date-picker
+            @change="convertDates"
+            v-model="value"
+            type="daterange"
+            unlink-panels
+            range-separator="To"
+            start-placeholder="Start date"
+            end-placeholder="End date"
+            :shortcuts="shortcuts"
+        />
     </div>
     <div style="height: 100%; overflow-y: auto" class="gantt-chart-container">
         <div id="container" :style="{ height: yAxisHeight + 'px' }"></div>
@@ -87,7 +95,7 @@ const hoursPerDay = 12 // 从8点到20点共有12个小时
 const minutesPerHour = 60
 let maxMinutes //= uniqueDates.length * hoursPerDay * minutesPerHour
 //默认显示六天的数据
-let sixDaysPercentage  //= (2 / uniqueDates.length) * 100
+let sixDaysPercentage //= (2 / uniqueDates.length) * 100
 // initRawData()
 
 function initRawData() {
@@ -114,7 +122,9 @@ function initRawData() {
         // console.log(rawData)
     })
     uniqueDates = [
-        ...new Set(rawData.flatMap((item) => item.processes.map((p) => p.taskDate)))
+        ...new Set(
+            rawData.flatMap((item) => item.processes.map((p) => p.taskDate))
+        )
     ].sort()
     yAxisHeight.value = types.length * rawData.length * 40 // 这里30是每个y轴标签的预估高度
     maxMinutes = uniqueDates.length * hoursPerDay * minutesPerHour
@@ -156,13 +166,23 @@ function initGanttChart() {
                 (p) => p.name === type.name
             )
             processes.forEach((process) => {
-                const startTime = timeToMinutesFromDate(process.taskDate, process.start)
-                const endTime = timeToMinutesFromDate(process.taskDate, process.end)
+                const startTime = timeToMinutesFromDate(
+                    process.taskDate,
+                    process.start
+                )
+                const endTime = timeToMinutesFromDate(
+                    process.taskDate,
+                    process.end
+                )
                 if (startTime !== null && endTime !== null) {
                     // 确保在我们关心的时间范围内
                     data.value.push({
                         name: process.name,
-                        value: [startTime, idx * types.length + typeIdx, endTime],
+                        value: [
+                            startTime,
+                            idx * types.length + typeIdx,
+                            endTime
+                        ],
                         itemStyle: { color: type.color },
                         quantity: process.quantity
                     })
@@ -227,7 +247,9 @@ function setOption() {
             // min: 0,
             min: function () {
                 // 如果选择了日期，从该日期开始，否则从0开始
-                return selectedDateIndex !== null ? selectedDateIndex * 12 * 60 : 0
+                return selectedDateIndex !== null
+                    ? selectedDateIndex * 12 * 60
+                    : 0
             },
             max: uniqueDates.length * 12 * 60, // 考虑每天的12个小时
             // max:(selectedEndDateIndex + 1) * 12 * 60,
@@ -238,7 +260,9 @@ function setOption() {
 
                     // 检查是否超出了日期数组的长度，如果是，则返回下一天的日期
                     if (dayIndex === uniqueDates.length) {
-                        const lastDate = new Date(uniqueDates[uniqueDates.length - 1])
+                        const lastDate = new Date(
+                            uniqueDates[uniqueDates.length - 1]
+                        )
                         const nextDate = new Date(lastDate)
                         nextDate.setDate(lastDate.getDate() + 1)
 
@@ -246,8 +270,9 @@ function setOption() {
                         const year = nextDate.getFullYear()
                         const month = nextDate.getMonth() + 1 // 0-based
                         const day = nextDate.getDate()
-                        return `${year}-${month < 10 ? '0' + month : month}-${day < 10 ? '0' + day : day
-                            }`
+                        return `${year}-${month < 10 ? '0' + month : month}-${
+                            day < 10 ? '0' + day : day
+                        }`
                     }
 
                     return uniqueDates[dayIndex]
@@ -298,9 +323,13 @@ function updateX() {
     selectedDateIndex = uniqueDates.indexOf(pickTime.value[0])
     if (selectedEndDateIndex === -1 || selectedDateIndex === -1) {
         // console.error('选择的日期不在可用的日期列表中!')
-        ElMessageBox.alert('选择的开始日期或结束日期没有数据，请重新选择', '提示', {
-            confirmButtonText: '好的'
-        })
+        ElMessageBox.alert(
+            '选择的开始日期或结束日期没有数据，请重新选择',
+            '提示',
+            {
+                confirmButtonText: '好的'
+            }
+        )
     }
     // 如果日期不在数组中，indexOf会返回-1
     if (selectedEndDateIndex === -1) {
@@ -323,13 +352,23 @@ function updateGanttChart(newData) {
                 (p) => p.name === type.name
             )
             processes.forEach((process) => {
-                const startTime = timeToMinutesFromDate(process.taskDate, process.start)
-                const endTime = timeToMinutesFromDate(process.taskDate, process.end)
+                const startTime = timeToMinutesFromDate(
+                    process.taskDate,
+                    process.start
+                )
+                const endTime = timeToMinutesFromDate(
+                    process.taskDate,
+                    process.end
+                )
                 if (startTime !== null && endTime !== null) {
                     // 确保在我们关心的时间范围内
                     data.value.push({
                         name: process.name,
-                        value: [startTime, idx * types.length + typeIdx, endTime],
+                        value: [
+                            startTime,
+                            idx * types.length + typeIdx,
+                            endTime
+                        ],
                         itemStyle: { color: type.color },
                         quantity: process.quantity
                     })
@@ -407,7 +446,7 @@ function renderItem(params, api) {
         textWidth <= rectShape.width &&
         textHeight <= rectShape.height &&
         textPosition[0] + textWidth / 2 <=
-        params.coordSys.x + params.coordSys.width &&
+            params.coordSys.x + params.coordSys.width &&
         textPosition[0] - textWidth / 2 >= params.coordSys.x
 
     const children = [
@@ -435,9 +474,9 @@ function renderItem(params, api) {
 
     return rectShape
         ? {
-            type: 'group',
-            children: children
-        }
+              type: 'group',
+              children: children
+          }
         : null
 }
 
@@ -472,7 +511,8 @@ function sliderDistance() {
             // 判断是超过半天还是不足半天
             let nearestDayStartMinutes
             if (diff > ONE_DAY_MINUTES / 2) {
-                nearestDayStartMinutes = currentStartMinutes + (ONE_DAY_MINUTES - diff)
+                nearestDayStartMinutes =
+                    currentStartMinutes + (ONE_DAY_MINUTES - diff)
             } else {
                 nearestDayStartMinutes = currentStartMinutes - diff
             }
@@ -499,8 +539,7 @@ function sliderDistance() {
 }
 
 onMounted(() => {
-    gtt
-        .getGttData()
+    gtt.getGttData()
         .then((res) => {
             initRawData()
             setTimeout(() => {
@@ -512,12 +551,11 @@ onMounted(() => {
                 myChart.setOption(option)
             }, 200)
         })
-        .catch((error) => { })
+        .catch((error) => {})
 })
-
 </script>
 
-<style>
+<style scoped>
 .block {
     margin: 15px;
 }

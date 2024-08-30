@@ -34,24 +34,36 @@ export const fetchSubTimeUnitRange = (
 export const fetchTimeRange = (startDate, endDate, subTimeUnit, step) => {
     const result = []
 
-    while (startDate <= endDate) {
-        result.push(formatDate(startDate, subTimeUnit))
+    // 处理开始日期和结束日期
+    const formattedStartDate = formatDate(startDate, subTimeUnit)
+    const formattedEndDate = formatDate(endDate, subTimeUnit)
+
+    // 如果开始日期和结束日期相同，直接返回
+    if (formattedStartDate === formattedEndDate) {
+        return [formattedStartDate]
+    }
+
+    // 遍历日期范围
+    let currentDate = new Date(startDate)
+    while (currentDate <= endDate) {
+        result.push(formatDate(currentDate, subTimeUnit))
+
         switch (subTimeUnit) {
             case 'hour':
-                startDate.setHours(startDate.getHours() + step)
+                currentDate.setHours(currentDate.getHours() + step)
                 break
             case 'day':
-                startDate.setDate(startDate.getDate() + step)
+                currentDate.setDate(currentDate.getDate() + step)
                 break
             case 'week':
-                startDate.setDate(startDate.getDate() + 7 * step)
+                currentDate.setDate(currentDate.getDate() + 7 * step)
                 break
             case 'month':
-                startDate.setMonth(startDate.getMonth() + step)
+                currentDate.setMonth(currentDate.getMonth() + step)
                 break
         }
     }
-    // console.log('fetchTimeRange result', result)
+    result.push(formatDate(currentDate, subTimeUnit))
 
     return result
 }
@@ -141,8 +153,8 @@ const getWeekOfYear = (date) => {
 
 // 根据时间单位对时间范围进行分割
 export const splitForTimeUnit = (timeRange, timeUnit) => {
-    console.log('timeRange', timeRange)
-    console.log('timeUnit', timeUnit)
+    // console.log('timeRange', timeRange)
+    // console.log('timeUnit', timeUnit)
     const res = {}
     timeRange.forEach((item) => {
         let key
@@ -173,7 +185,7 @@ export const splitForTimeUnit = (timeRange, timeUnit) => {
             res[key] = [item]
         }
     })
-    console.log('splitForTimeUnit res', res)
+    // console.log('splitForTimeUnit res', res)
     return Object.values(res)
 }
 
@@ -367,9 +379,9 @@ export const fetchTodayMonthRange = (date = new Date()) => {
 }
 
 const types = [
-    { name: '组装', color: '#ffff80' },
-    { name: '测试', color: '#8080ff' },
-    { name: '包装', color: '#00ffff' }
+    { name: '组装', color: '#fff0b3' },
+    { name: '测试', color: '#b3b3ff' },
+    { name: '包装', color: '#b3ffff' }
 ]
 
 export function transformData(backendData) {
@@ -428,8 +440,10 @@ export function transformData2(backendData, timeUnit, subTimeUnit, step) {
         // 为每个工序创建基本结构
         const renderData = uniqueProcesses.map((processName) => ({
             type: 'normal',
-            color: types.find((type) => type.name === processName).color || '',
-            name: `${item.materialCode}-${item.materialName}`,
+            backgroundColor:
+                types.find((type) => type.name === processName).color || '',
+            color: '#000000',
+            name: `${item.materialCode}`,
             materialCode: item.materialCode,
             processName: processName,
             schedule: []
@@ -442,13 +456,6 @@ export function transformData2(backendData, timeUnit, subTimeUnit, step) {
             const completedQuantityArray = JSON.parse(
                 workOrder.fcompletedQuantity
             )
-            // 创建一个工序名称到索引的映射
-            const processIndexMap = {
-                组装: 0,
-                测试: 1,
-                包装: 2
-            }
-
             //遍历每个工序
             workOrder.processBaseDataList.forEach((process, index) => {
                 const targetProcess = renderData.find(
@@ -457,12 +464,10 @@ export function transformData2(backendData, timeUnit, subTimeUnit, step) {
                 if (targetProcess) {
                     // console.log('targetProcess', targetProcess)
                     // 使用 processIndexMap 来获取正确的完成数量
-                    const quantityIndex = processIndexMap[process.processName]
-                    const completedQuantity =
-                        completedQuantityArray[quantityIndex]
+                    const completedQuantity = completedQuantityArray[index]
                     targetProcess.schedule.push({
                         id: parseInt(workOrder.ftaskId, 10) + index, // 假设需要用不同的 id 区分每个 schedule
-                        name: `${process.processName}-${completedQuantity}`, // 示例: '组装-1'
+                        name: `${process.processName}\n${completedQuantity}`, // 示例: '组装-1'
                         desc: `
                         \n单据编号、单据来源：${workOrder.ftaskSourceId}
                         \n单据类型：${workOrder.fpriority}
@@ -480,8 +485,6 @@ export function transformData2(backendData, timeUnit, subTimeUnit, step) {
                             workOrder.fdelayDays > 0 ? '满足' : '不满足'
                         }
                         \n延迟交付FIM号：${workOrder.frelatedOrders}`,
-                        backgroundColor: targetProcess.color,
-                        textColor: 'rgb(245, 36, 9)', // 这个颜色假设是固定的
                         timeUnits: fetchSubTimeUnitRange(
                             process.startTime,
                             process.endTime,
@@ -527,8 +530,8 @@ export function getDateRangeList(data) {
             }
         })
     })
-    console.log('minDate', minDate)
-    console.log('maxDate', maxDate)
+    // console.log('minDate', minDate)
+    // console.log('maxDate', maxDate)
     return [
         minDate ? minDate.toISOString().split('T')[0] : null,
         maxDate ? maxDate.toISOString().split('T')[0] : null
